@@ -3,7 +3,6 @@ import { CommandInteraction } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
-import { prisma } from '@providers/prisma';
 import Command from '@structures/Command';
 import DiscordClient from '@structures/DiscordClient';
 
@@ -56,7 +55,7 @@ export default class ThreadChannelCommand extends Command {
     }
 
     private async removeThreadChannel(command: CommandInteraction) {
-        await prisma?.threadchannels.deleteMany({
+        await this.client.db.threadchannels.deleteMany({
             where: {
                 // @ts-ignore
                 channel_id: command.options.getChannel('channel')!.id as string
@@ -74,7 +73,7 @@ export default class ThreadChannelCommand extends Command {
     }
 
     private async listThreadChannels(command: CommandInteraction) {
-        const threadChannels = await prisma?.threadchannels.findMany({
+        const threadChannels = await this.client.db.threadchannels.findMany({
             select: {
                 channel_id: true
             }
