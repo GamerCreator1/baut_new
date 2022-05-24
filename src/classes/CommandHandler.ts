@@ -33,7 +33,8 @@ export default class CommandHandler {
                             title: '🔎 Unknown Command',
                             description: `${command.user.toString()}, type \`/help\` to see the command list.`
                         }
-                    ]
+                    ],
+                    ephemeral: true
                 });
             return;
         }

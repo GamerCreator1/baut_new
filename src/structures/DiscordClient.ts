@@ -23,7 +23,6 @@ export default class DiscordClient extends Client {
         const prod = process.env.NODE_ENV === 'production';
         this.config = {
             token: (prod ? process.env.TOKEN : process.env.TEST_TOKEN) as string,
-            prefix: process.env.PREFIX as string,
             clientId: (prod ? process.env.CLIENT_ID : process.env.TEST_CLIENT_ID) as string,
             guildId: (prod ? process.env.GUILD_ID : process.env.TEST_GUILD_ID) as string,
             developers: JSON.parse(process.env.DEVELOPERS as string) as string[],

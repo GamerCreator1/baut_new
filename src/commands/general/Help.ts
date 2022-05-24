@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
+import { CommandInteraction, MessageEmbed } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
@@ -69,7 +69,7 @@ export default class HelpCommand extends Command {
             color: 'BLUE',
             title: 'Help',
             footer: {
-                text: `Type "${this.client.config.prefix}help [command-name]" for more information.`
+                text: `Type "/help [command-name]" for more information.`
             }
         });
 

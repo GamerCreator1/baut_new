@@ -17,7 +17,6 @@ export default class EnvLoader {
      */
     private static validate(env: any) {
         if (env.TOKEN === '') throw new EnvError('Discord token missing.');
-        if (env.PREFIX === '') throw new EnvError('Prefix missing.');
         if (env.DEVELOPERS === '') throw new EnvError('Developers missing.');
         if (!env.DEVELOPERS.startsWith('[') || !env.DEVELOPERS.endsWith(']')) throw new EnvError('Developers must be an array.');
 

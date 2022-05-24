@@ -13,9 +13,6 @@ export interface IConfig {
     /** Guild id of the client */
     guildId: string;
 
-    /** Prefix of the client */
-    prefix: string;
-
     /** Developer ids of the client */
     developers: string[];
 

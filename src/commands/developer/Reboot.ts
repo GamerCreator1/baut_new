@@ -1,4 +1,4 @@
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
@@ -35,7 +35,6 @@ export default class RebootCommand extends Command {
             // Emitting ready event
             this.client.emit('ready');
 
-            // Sending message to channel for feedback
             await command.reply({
                 embeds: [
                     {

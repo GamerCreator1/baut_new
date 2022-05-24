@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember, Message, TextChannel } from 'discord.js';
+import { CommandInteraction, GuildMember, TextChannel } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 

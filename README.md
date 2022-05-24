@@ -19,25 +19,28 @@ Config files go in `.env`, example is shown at `.env.example`.
 -   Add command template.
 
 ```ts
-import { Message } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 import Command from '../../structures/Command';
 import DiscordClient from '../../structures/DiscordClient';
 
 export default class ExampleCommand extends Command {
     constructor(client: DiscordClient) {
-        super(client, {
-            name: 'example',
-            group: 'Developer',
-            description: 'An example command.',
-            require: {
-                developer: true
-            }
-        });
+        super(
+            client,
+            {
+                group: 'Developer',
+                require: {
+                    developer: true
+                }
+            },
+            new SlashCommandBuilder().setName('example').setDescription('An example command.')
+        );
     }
 
-    async run(message: Message, args: string[]) {
-        await message.reply('Wow, example command working!');
+    async run(command: CommandInteraction) {
+        await command.reply('Wow, example command working!');
     }
 }
 ```

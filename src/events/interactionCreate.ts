@@ -1,4 +1,4 @@
-import { Interaction, Message } from 'discord.js';
+import { Interaction } from 'discord.js';
 
 import CommandHandler from '../classes/CommandHandler';
 import DiscordClient from '../structures/DiscordClient';
