@@ -211,7 +211,7 @@ export default class Registry {
                     body: this.commands.map(command => command.data.toJSON())
                 });
 
-                Logger.log('SUCCESS', 'Successfully reloaded application (/) commands.');
+                Logger.log('SUCCESS', `Successfully reloaded ${this.commands.size} application (/) commands.`);
             } catch (error) {
                 if (error instanceof Error) {
                     Logger.log('ERROR', error.stack as string);

@@ -1,6 +1,6 @@
 import { CommandInteraction, GuildMember, TextChannel } from 'discord.js';
 
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
 
 import Logger from '../classes/Logger';
 import { isUserDeveloper } from '../utils/functions';
@@ -21,9 +21,9 @@ export default abstract class Command {
     /**
      * Slash Command builder
      */
-    readonly data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+    readonly data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandSubcommandsOnlyBuilder;
 
-    constructor(client: DiscordClient, info: ICommandInfo, data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>) {
+    constructor(client: DiscordClient, info: ICommandInfo, data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandSubcommandsOnlyBuilder) {
         this.client = client;
         this.info = info;
         this.data = data;

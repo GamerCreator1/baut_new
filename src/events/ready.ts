@@ -9,5 +9,7 @@ export default class ReadyEvent extends Event {
 
     async run() {
         Logger.log('SUCCESS', `Logged in as "${this.client.user?.tag}".`);
+        prisma?.threadchannels.count().then(count => Logger.log('SUCCESS', `Loaded ${count} thread channels.`));
+        prisma?.reactionroles.count().then(count => Logger.log('SUCCESS', `Loaded ${count} reaction roles.`));
     }
 }

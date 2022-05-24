@@ -15,3 +15,7 @@ model reactionroles {
   channelid String  @db.VarChar
   toggle    Boolean
 }
+
+model threadchannels {
+  channel_id String @id @db.VarChar
+}
