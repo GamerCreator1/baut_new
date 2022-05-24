@@ -1,6 +1,10 @@
+import { Routes } from 'discord-api-types/v9';
 import { Collection } from 'discord.js';
+import fs from 'fs';
 import path from 'path';
 import requireAll from 'require-all';
+
+import { REST } from '@discordjs/rest';
 
 import RegistryError from '../errors/RegistryError';
 import Command from '../structures/Command';
@@ -210,11 +214,40 @@ export default class Registry {
     }
 
     /**
+     * Register slash commands
+     */
+    registerGuildSlashCommands() {
+        const rest = new REST({ version: '9' }).setToken(this.client.config.token);
+        (async () => {
+            try {
+                Logger.log('INFO', 'Started refreshing application (/) commands.');
+                await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
+                    body: this.commands.map(command => command.commandBuilder.toJSON())
+                });
+
+                Logger.log('SUCCESS', 'Successfully reloaded application (/) commands.');
+            } catch (error) {
+                if (error instanceof Error) {
+                    Logger.log('ERROR', error.stack as string);
+                }
+            }
+        })();
+    }
+
+    /**
+     * Get all command names
+     */
+    getAllCommandNames() {
+        return [...this.commands.keys()];
+    }
+
+    /**
      * Registers events and commands.
      */
     registerAll() {
         this.registerAllCommands();
         this.registerAllEvents();
+        this.registerGuildSlashCommands();
     }
 
     /**

@@ -7,6 +7,12 @@ export interface IConfig {
     /** Token of the client */
     token: string;
 
+    /** Client id of the client */
+    clientId: string;
+
+    /** Guild id of the client */
+    guildId: string;
+
     /** Prefix of the client */
     prefix: string;
 

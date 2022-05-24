@@ -2,7 +2,7 @@
 
 New and Improved BuilderBaut
 
-Config files go in `.env` and `.env.dev`, example is shown at `.env.example`.
+Config files go in `.env`, example is shown at `.env.example`.
 
 ## ❗ Important Files
 

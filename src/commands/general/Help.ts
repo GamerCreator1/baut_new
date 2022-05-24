@@ -1,4 +1,6 @@
-import { Message, MessageEmbed } from 'discord.js';
+import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
+
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 import Command from '../../structures/Command';
 import DiscordClient from '../../structures/DiscordClient';
@@ -11,15 +13,39 @@ interface IGroup {
 
 export default class HelpCommand extends Command {
     constructor(client: DiscordClient) {
-        super(client, {
-            name: 'help',
-            group: 'General',
-            description: 'Shows information about commands and groups.',
-            cooldown: 30
-        });
+        const commands = client.registry.getAllCommandNames().map(c => ({ name: c, value: c }));
+        const builder = new SlashCommandBuilder()
+            .setName('help')
+            .setDescription('Shows information about commands and groups.')
+            .addStringOption(option =>
+                option
+                    .setName('command_name')
+                    .setDescription('The name of the command you want information about')
+                    .setRequired(false)
+                    .addChoices(...commands)
+            ) as SlashCommandBuilder;
+        super(
+            client,
+            {
+                name: 'help',
+                group: 'General',
+                description: 'Shows information about commands and groups.',
+                cooldown: 30
+            },
+            new SlashCommandBuilder()
+                .setName('help')
+                .setDescription('Shows information about commands and groups.')
+                .addStringOption(option =>
+                    option
+                        .setName('command_name')
+                        .setDescription('The name of the command you want information about')
+                        .setRequired(false)
+                        .addChoices(...commands)
+                ) as SlashCommandBuilder
+        );
     }
 
-    getAvailableGroups(message: Message): IGroup[] {
+    getAvailableGroups(command: CommandInteraction): IGroup[] {
         const registry = this.client.registry;
         const groupKeys = registry.getAllGroupNames();
         const groups: IGroup[] = [];
@@ -29,8 +55,8 @@ export default class HelpCommand extends Command {
             const commands: string[] = [];
 
             commandsInGroup.forEach(commandName => {
-                const command = registry.findCommand(commandName) as Command;
-                if (!command.isUsable(message)) return;
+                const commandObj = registry.findCommand(commandName) as Command;
+                if (!commandObj.isUsable(command)) return;
                 commands.push(commandName);
             });
 
@@ -40,7 +66,7 @@ export default class HelpCommand extends Command {
         return groups;
     }
 
-    async sendHelpMessage(message: Message, groups: IGroup[]) {
+    async sendHelpMessage(command: CommandInteraction, groups: IGroup[]) {
         const embed = new MessageEmbed({
             color: 'BLUE',
             title: 'Help',
@@ -50,23 +76,25 @@ export default class HelpCommand extends Command {
         });
 
         groups.forEach(group => embed.addField(`${group.name} Commands`, group.commands.map(x => `\`${x}\``).join(' ')));
-        await message.channel.send({ embeds: [embed] });
+        await command.reply({ embeds: [embed], ephemeral: true });
     }
 
-    async run(message: Message, args: string[]) {
-        const groups = this.getAvailableGroups(message);
+    async run(command: CommandInteraction) {
+        const groups = this.getAvailableGroups(command);
 
-        if (!args[0]) return await this.sendHelpMessage(message, groups);
+        const option = command.options.getString('command_name');
 
-        const command = this.client.registry.findCommand(args[0].toLocaleLowerCase());
-        if (!command) return await this.sendHelpMessage(message, groups);
+        if (!option) return await this.sendHelpMessage(command, groups);
+
+        const commandObj = this.client.registry.findCommand(option);
+        if (!commandObj) return await this.sendHelpMessage(command, groups);
         var isAvailable = false;
 
         groups.forEach(group => {
-            if (group.commands.includes(command.info.name)) isAvailable = true;
+            if (group.commands.includes(commandObj.info.name)) isAvailable = true;
         });
 
-        if (!isAvailable) return await this.sendHelpMessage(message, groups);
+        if (!isAvailable) return await this.sendHelpMessage(command, groups);
 
         const embed = new MessageEmbed({
             color: 'BLUE',
@@ -74,40 +102,40 @@ export default class HelpCommand extends Command {
             fields: [
                 {
                     name: 'Name',
-                    value: command.info.name
+                    value: commandObj.info.name
                 },
                 {
                     name: 'Group',
-                    value: command.info.group
+                    value: commandObj.info.group
                 },
                 {
                     name: 'Cooldown',
-                    value: command.info.cooldown ? formatSeconds(command.info.cooldown) : 'No cooldown'
+                    value: commandObj.info.cooldown ? formatSeconds(commandObj.info.cooldown) : 'No cooldown'
                 },
                 {
                     name: 'Usable At',
-                    value: command.info.onlyNsfw ? 'NSFW channels' : 'All text channels'
+                    value: commandObj.info.onlyNsfw ? 'NSFW channels' : 'All text channels'
                 },
                 {
                     name: 'Aliases',
-                    value: command.info.aliases ? command.info.aliases.map(x => `\`${x}\``).join(' ') : 'No aliases'
+                    value: commandObj.info.aliases ? commandObj.info.aliases.map(x => `\`${x}\``).join(' ') : 'No aliases'
                 },
                 {
                     name: 'Example Usages',
-                    value: command.info.examples ? command.info.examples.map(x => `\`${x}\``).join('\n') : 'No examples'
+                    value: commandObj.info.examples ? commandObj.info.examples.map(x => `\`${x}\``).join('\n') : 'No examples'
                 },
                 {
                     name: 'Description',
-                    value: command.info.description ? command.info.description : 'No description'
+                    value: commandObj.info.description ? commandObj.info.description : 'No description'
                 }
             ]
         });
 
-        if (command.info.require) {
-            if (command.info.require.developer) embed.setFooter('This is a developer command.');
-            if (command.info.require.permissions) embed.addField('Permission Requirements', command.info.require.permissions.map(x => `\`${x}\``).join('\n'));
+        if (commandObj.info.require) {
+            if (commandObj.info.require.developer) embed.setFooter('This is a developer command.');
+            if (commandObj.info.require.permissions) embed.addField('Permission Requirements', commandObj.info.require.permissions.map(x => `\`${x}\``).join('\n'));
         }
 
-        await message.channel.send({ embeds: [embed] });
+        await command.reply({ embeds: [embed], ephemeral: true });
     }
 }

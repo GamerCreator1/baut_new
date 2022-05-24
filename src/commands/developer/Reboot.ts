@@ -1,4 +1,6 @@
-import { Message } from 'discord.js';
+import { CommandInteraction, Message } from 'discord.js';
+
+import { SlashCommandBuilder } from '@discordjs/builders';
 
 import Logger from '../../classes/Logger';
 import Command from '../../structures/Command';
@@ -6,18 +8,22 @@ import DiscordClient from '../../structures/DiscordClient';
 
 export default class RebootCommand extends Command {
     constructor(client: DiscordClient) {
-        super(client, {
-            name: 'reboot',
-            group: 'Developer',
-            description: 'Reboots the bot.',
-            require: {
-                developer: true
-            }
-        });
+        super(
+            client,
+            {
+                name: 'reboot',
+                group: 'Developer',
+                description: 'Reboots the bot.',
+                require: {
+                    developer: true
+                }
+            },
+            new SlashCommandBuilder().setName('reboot').setDescription('Reboots the bot.')
+        );
     }
 
-    async run(message: Message, args: string[]) {
-        Logger.log('WARNING', `Bot rebooting... (Requested by ${message.author.tag})`, true);
+    async run(command: CommandInteraction) {
+        Logger.log('WARNING', `Bot rebooting... (Requested by ${command.user.toString()})`, true);
 
         // Destroying client so we can work without bugs
         this.client.destroy();
@@ -32,11 +38,11 @@ export default class RebootCommand extends Command {
             this.client.emit('ready');
 
             // Sending message to channel for feedback
-            await message.channel.send({
+            await command.reply({
                 embeds: [
                     {
                         color: 'GREEN',
-                        description: `${message.author}, bot rebooted successfully.`
+                        description: `${command.user.toString()}, bot rebooted successfully.`
                     }
                 ]
             });
