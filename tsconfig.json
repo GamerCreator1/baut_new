@@ -4,18 +4,17 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "target": "ESNext",
-        "outDir": "dist",
-        "rootDir": ".",
-        "baseUrl": "src",
-        "typeRoots": [
-           "./src/typings/",
-           "./node_modules/@types/"
-         ],
-         "paths": {
+        "outDir": "dist", 
+        "baseUrl": "./src",
+        "paths": {
            "@structures/*": ["structures/*"],
            "@utils/*": ["utils/*"],
            "@classes/*": ["classes/*"]
          },
+        "typeRoots": [
+           "./src/typings/",
+           "./node_modules/@types/"
+         ],
         "sourceMap": false,
         "esModuleInterop": true,
         "experimentalDecorators": true,

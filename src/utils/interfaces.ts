@@ -4,9 +4,6 @@ import { PermissionString } from 'discord.js';
  * Config interface for client.
  */
 export interface IConfig {
-    /** Token of the client */
-    token: string;
-
     /** Client id of the client */
     clientId: string;
 

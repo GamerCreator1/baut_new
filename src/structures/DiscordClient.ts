@@ -1,11 +1,12 @@
 import { Client, ClientOptions } from 'discord.js';
-import { IConfig } from '@utils/interfaces';
-import { BotOptions } from '@structures/types';
+import { BotOptions } from '@utils/types';
+
 import Registry from '@classes/Registry';
+import config from '../config';
 
 export default class DiscordClient extends Client {
-    public readonly config: IConfig;
-    public readonly registry: Registry;
+    public readonly config = config;
+    public readonly registry = new Registry(this);
 
     constructor(baseOpts: ClientOptions, opts: BotOptions) {
         super(baseOpts);
