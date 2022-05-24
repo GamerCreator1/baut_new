@@ -31,7 +31,7 @@ export default class RebootCommand extends Command {
 
         // Running the client again
         // Don't call login method async
-        this.client.login(this.client.config.token).then(async () => {
+        this.client.login(this.client.token).then(async () => {
             // Emitting ready event
             this.client.emit('ready');
 

@@ -1,42 +1,26 @@
-import { Client, IntentsString } from 'discord.js';
+import { Client, ClientOptions } from 'discord.js';
+import { BotOptions } from '@utils/types';
 
-import Registry from '../classes/Registry';
-import { IConfig } from '../utils/interfaces';
+import Registry from '@classes/Registry';
+import config from '../config';
 
 export default class DiscordClient extends Client {
-    /**
-     * Registry of the client.
-     */
-    readonly registry: Registry;
+    public readonly config = config;
+    public readonly registry = new Registry(this);
+
+    constructor(baseOpts: ClientOptions, opts: BotOptions) {
+        super(baseOpts);
+
+        this.token = opts.token;
+        this.owners = opts.owners;
+    }
 
     /**
-     * Config of the client.
+     * @returns The result of logging in
+     * @public
      */
-    readonly config: IConfig;
-
-    constructor(intents: IntentsString[]) {
-        super({ intents });
-
-        /**
-         * Setting up client's config.
-         */
-        const prod = process.env.NODE_ENV === 'production';
-        this.config = {
-            token: (prod ? process.env.TOKEN : process.env.TEST_TOKEN) as string,
-            clientId: (prod ? process.env.CLIENT_ID : process.env.TEST_CLIENT_ID) as string,
-            guildId: (prod ? process.env.GUILD_ID : process.env.TEST_GUILD_ID) as string,
-            developers: JSON.parse(process.env.DEVELOPERS as string) as string[],
-            unknownErrorMessage: JSON.parse(process.env.UNKNOWN_COMMAND_ERROR as string)
-        };
-
-        /**
-         * Creating new registry class.
-         */
-        this.registry = new Registry(this);
-
-        /**
-         * Registering events and commands.
-         */
+    public async load(): Promise<void> {
         this.registry.registerAll();
+        super.login(this.token as string);
     }
 }

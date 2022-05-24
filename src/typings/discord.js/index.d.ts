@@ -1,4 +1,4 @@
-import 'discord.js';
+import { UserResolvable } from 'discord.js';
 
 declare module 'discord.js' {
     interface ClientEvents {
@@ -8,5 +8,6 @@ declare module 'discord.js' {
 
     interface Client {
         emit(event: 'ready'): boolean;
+        owners: UserResolvable[];
     }
 }

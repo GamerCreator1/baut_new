@@ -1,6 +1,5 @@
 import { Routes } from 'discord-api-types/v9';
 import { Collection } from 'discord.js';
-import fs from 'fs';
 import path from 'path';
 import requireAll from 'require-all';
 
@@ -212,7 +211,8 @@ export default class Registry {
      * Register slash commands
      */
     registerGuildSlashCommands() {
-        const rest = new REST({ version: '9' }).setToken(this.client.config.token);
+        console.log(this.client);
+        const rest = new REST({ version: '9' }).setToken(this.client.token);
         (async () => {
             try {
                 await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
