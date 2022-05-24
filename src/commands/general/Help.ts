@@ -27,9 +27,7 @@ export default class HelpCommand extends Command {
         super(
             client,
             {
-                name: 'help',
                 group: 'General',
-                description: 'Shows information about commands and groups.',
                 cooldown: 30
             },
             new SlashCommandBuilder()
@@ -91,7 +89,7 @@ export default class HelpCommand extends Command {
         var isAvailable = false;
 
         groups.forEach(group => {
-            if (group.commands.includes(commandObj.info.name)) isAvailable = true;
+            if (group.commands.includes(commandObj.data.name)) isAvailable = true;
         });
 
         if (!isAvailable) return await this.sendHelpMessage(command, groups);
@@ -102,7 +100,7 @@ export default class HelpCommand extends Command {
             fields: [
                 {
                     name: 'Name',
-                    value: commandObj.info.name
+                    value: commandObj.data.name
                 },
                 {
                     name: 'Group',
@@ -117,16 +115,12 @@ export default class HelpCommand extends Command {
                     value: commandObj.info.onlyNsfw ? 'NSFW channels' : 'All text channels'
                 },
                 {
-                    name: 'Aliases',
-                    value: commandObj.info.aliases ? commandObj.info.aliases.map(x => `\`${x}\``).join(' ') : 'No aliases'
-                },
-                {
                     name: 'Example Usages',
                     value: commandObj.info.examples ? commandObj.info.examples.map(x => `\`${x}\``).join('\n') : 'No examples'
                 },
                 {
                     name: 'Description',
-                    value: commandObj.info.description ? commandObj.info.description : 'No description'
+                    value: commandObj.data.description ? commandObj.data.description : 'No description'
                 }
             ]
         });

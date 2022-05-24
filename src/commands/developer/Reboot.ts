@@ -11,9 +11,7 @@ export default class RebootCommand extends Command {
         super(
             client,
             {
-                name: 'reboot',
                 group: 'Developer',
-                description: 'Reboots the bot.',
                 require: {
                     developer: true
                 }

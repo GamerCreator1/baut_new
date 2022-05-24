@@ -10,14 +10,12 @@ export default class TestCommand extends Command {
         super(
             client,
             {
-                name: 'test',
                 group: 'Developer',
-                description: 'Test command for developers',
                 require: {
                     developer: true
                 }
             },
-            new SlashCommandBuilder().setName('test').setDescription('Test command for developers')
+            new SlashCommandBuilder().setName('debug').setDescription('Test command for developers')
         );
     }
 

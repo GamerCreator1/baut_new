@@ -76,7 +76,7 @@ export default class CommandHandler {
         var addCooldown = false;
 
         const now = Date.now();
-        const timestamps = client.registry.getCooldownTimestamps(cmd.info.name);
+        const timestamps = client.registry.getCooldownTimestamps(cmd.data.name);
         const cooldownAmount = cmd.info.cooldown ? cmd.info.cooldown * 1000 : 0;
         if (cmd.info.cooldown) {
             if (timestamps.has(command.user.id)) {

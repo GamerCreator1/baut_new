@@ -29,21 +29,11 @@ export interface IConfig {
  * Information interface for commands.
  */
 export interface ICommandInfo {
-    /** Name of the command */
-    name: string;
-
     /** Group name of the command */
     group: string;
 
-    /** Aliases of the command */
-    aliases?: string[];
-
     /** Example usages */
     examples?: string[];
-
-    /** Description of the command */
-    description?: string;
-
     /**
      * Time to wait for each use (seconds)
      *

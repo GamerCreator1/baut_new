@@ -117,34 +117,20 @@ export default class Registry {
     private registerCommand(command: Command) {
         if (
             this.commands.some(x => {
-                if (x.info.name === command.info.name) return true;
-                else if (x.info.aliases && x.info.aliases.includes(command.info.name)) return true;
+                if (x.data.name === command.data.name) return true;
                 else return false;
             })
         )
-            throw new RegistryError(`A command with the name/alias "${command.info.name}" is already registered.`);
+            throw new RegistryError(`A command with the name/alias "${command.data.name}" is already registered.`);
 
-        if (command.info.aliases) {
-            for (const alias of command.info.aliases) {
-                if (
-                    this.commands.some(x => {
-                        if (x.info.name === alias) return true;
-                        else if (x.info.aliases && x.info.aliases.includes(alias)) return true;
-                        else return false;
-                    })
-                )
-                    throw new RegistryError(`A command with the name/alias "${alias}" is already registered.`);
-            }
-        }
-
-        this.commands.set(command.info.name, command);
-        if (!this.groups.has(command.info.group)) this.groups.set(command.info.group, [command.info.name]);
+        this.commands.set(command.data.name, command);
+        if (!this.groups.has(command.info.group)) this.groups.set(command.info.group, [command.data.name]);
         else {
             const groups = this.groups.get(command.info.group) as string[];
-            groups.push(command.info.name);
+            groups.push(command.data.name);
             this.groups.set(command.info.group, groups);
         }
-        Logger.log('INFO', `Command "${command.info.name}" loaded.`);
+        Logger.log('INFO', `Command "${command.data.name}" loaded.`);
     }
 
     /**
@@ -182,11 +168,11 @@ export default class Registry {
     }
 
     /**
-     * Finds and returns the command by name or alias.
-     * @param command Name or alias
+     * Finds and returns the command by name.
+     * @param command Name
      */
     findCommand(command: string): Command | undefined {
-        return this.commands.get(command) || [...this.commands.values()].find(cmd => cmd.info.aliases && cmd.info.aliases.includes(command));
+        return this.commands.get(command);
     }
 
     /**
@@ -222,7 +208,7 @@ export default class Registry {
             try {
                 Logger.log('INFO', 'Started refreshing application (/) commands.');
                 await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
-                    body: this.commands.map(command => command.commandBuilder.toJSON())
+                    body: this.commands.map(command => command.data.toJSON())
                 });
 
                 Logger.log('SUCCESS', 'Successfully reloaded application (/) commands.');

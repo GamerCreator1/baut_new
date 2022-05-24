@@ -21,12 +21,12 @@ export default abstract class Command {
     /**
      * Slash Command builder
      */
-    readonly commandBuilder: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
+    readonly data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 
-    constructor(client: DiscordClient, info: ICommandInfo, commandBuilder: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>) {
+    constructor(client: DiscordClient, info: ICommandInfo, data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>) {
         this.client = client;
         this.info = info;
-        this.commandBuilder = commandBuilder;
+        this.data = data;
     }
 
     /**
@@ -35,7 +35,7 @@ export default abstract class Command {
      * @param error Error message
      */
     async onError(command: CommandInteraction, error: any) {
-        Logger.log('ERROR', `An error occurred in "${this.info.name}" command.\n${error}\n`, true);
+        Logger.log('ERROR', `An error occurred in "${this}" command.\n${error}\n`, true);
         await command.reply({
             embeds: [
                 {
