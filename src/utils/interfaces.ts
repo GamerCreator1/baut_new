@@ -50,6 +50,9 @@ export interface ICommandInfo {
 
     /** Requirements of the command */
     require?: ICommandRequire;
+
+    /** Autocomplete Options */
+    autocomplete?: { name: string; value: string }[];
 }
 
 /**

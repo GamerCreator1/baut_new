@@ -11,5 +11,6 @@ export default class MessageEvent extends Event {
 
     async run(interaction: Interaction) {
         if (interaction.isCommand()) await CommandHandler.handleCommand(this.client, interaction);
+        if (interaction.isAutocomplete()) CommandHandler.handleAutocomplete(this.client, interaction);
     }
 }

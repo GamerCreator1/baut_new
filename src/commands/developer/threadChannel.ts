@@ -1,3 +1,4 @@
+import { ChannelType } from 'discord-api-types/v10';
 import { CommandInteraction } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
@@ -6,7 +7,7 @@ import { prisma } from '../../providers/prisma';
 import Command from '../../structures/Command';
 import DiscordClient from '../../structures/DiscordClient';
 
-export default class AddThreadChannelCommand extends Command {
+export default class ThreadChannelCommand extends Command {
     constructor(client: DiscordClient) {
         super(
             client,
@@ -23,7 +24,7 @@ export default class AddThreadChannelCommand extends Command {
                     subcommand
                         .setName('add')
                         .setDescription('Add a thread channel')
-                        .addChannelOption(option => option.setName('channel').setDescription('The channel to add').setRequired(true))
+                        .addChannelOption(option => option.setName('channel').setDescription('The channel to add').setRequired(true).addChannelTypes(ChannelType.GuildText))
                 )
                 .addSubcommand(subcommand =>
                     subcommand
@@ -38,9 +39,11 @@ export default class AddThreadChannelCommand extends Command {
     private async addThreadChannel(command: CommandInteraction) {
         await prisma?.threadchannels.create({
             data: {
-                channel_id: command.options.getChannel('channel')!.id
+                // @ts-ignore
+                channel_id: command.options.getChannel('channel')!.id as string
             }
         });
+
         return command.reply({
             embeds: [
                 {
@@ -55,7 +58,8 @@ export default class AddThreadChannelCommand extends Command {
     private async removeThreadChannel(command: CommandInteraction) {
         await prisma?.threadchannels.deleteMany({
             where: {
-                channel_id: command.options.getChannel('channel')!.id
+                // @ts-ignore
+                channel_id: command.options.getChannel('channel')!.id as string
             }
         });
         return command.reply({

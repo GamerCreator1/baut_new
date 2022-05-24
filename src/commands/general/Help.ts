@@ -13,32 +13,19 @@ interface IGroup {
 
 export default class HelpCommand extends Command {
     constructor(client: DiscordClient) {
-        const commands = client.registry.getAllCommandNames().map(c => ({ name: c, value: c }));
-        const builder = new SlashCommandBuilder()
-            .setName('help')
-            .setDescription('Shows information about commands and groups.')
-            .addStringOption(option =>
-                option
-                    .setName('command_name')
-                    .setDescription('The name of the command you want information about')
-                    .setRequired(false)
-                    .addChoices(...commands)
-            ) as SlashCommandBuilder;
+        const commands = client.registry.getAllCommandNames().map(c => ({ name: c, value: c })) ?? [];
         super(
             client,
             {
                 group: 'General',
-                cooldown: 30
+                cooldown: 30,
+                autocomplete: commands
             },
             new SlashCommandBuilder()
                 .setName('help')
                 .setDescription('Shows information about commands and groups.')
                 .addStringOption(option =>
-                    option
-                        .setName('command_name')
-                        .setDescription('The name of the command you want information about')
-                        .setRequired(false)
-                        .addChoices(...commands)
+                    option.setName('command_name').setDescription('The name of the command you want information about').setRequired(false).setAutocomplete(true)
                 ) as SlashCommandBuilder
         );
     }
@@ -126,7 +113,7 @@ export default class HelpCommand extends Command {
         });
 
         if (commandObj.info.require) {
-            if (commandObj.info.require.developer) embed.setFooter('This is a developer command.');
+            if (commandObj.info.require.developer) embed.setFooter({ text: 'This is a developer command.' });
             if (commandObj.info.require.permissions) embed.addField('Permission Requirements', commandObj.info.require.permissions.map(x => `\`${x}\``).join('\n'));
         }
 

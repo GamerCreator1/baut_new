@@ -1,4 +1,6 @@
-import { CommandInteraction, Guild, GuildMember, Message, TextChannel } from 'discord.js';
+import {
+    AutocompleteInteraction, CommandInteraction, Guild, GuildMember, Message, TextChannel
+} from 'discord.js';
 
 import DiscordClient from '../structures/DiscordClient';
 import { formatSeconds, isUserDeveloper } from '../utils/functions';
@@ -10,7 +12,7 @@ export default class CommandHandler {
      */
     static async handleCommand(client: DiscordClient, command: CommandInteraction) {
         const self = (command.guild as Guild).me as GuildMember;
-        if (!self.permissions.has('SEND_MESSAGES') || !(command.channel as TextChannel).permissionsFor(self)?.has('SEND_MESSAGES')) return;
+        if (!self.permissions.has('SEND_MESSAGES')) return;
         if (!self.permissions.has('ADMINISTRATOR'))
             return await command.reply({
                 embeds: [
@@ -114,5 +116,12 @@ export default class CommandHandler {
         } catch (error) {
             await cmd.onError(command, error);
         }
+    }
+
+    /**
+     * Handles autocomplete
+     */
+    static handleAutocomplete(client: DiscordClient, interaction: AutocompleteInteraction) {
+        interaction.respond(client.registry.getAutocomplete().get(interaction.commandName) ?? []);
     }
 }

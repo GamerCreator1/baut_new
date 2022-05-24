@@ -50,6 +50,11 @@ export default class Registry {
     private groups: Collection<string, string[]>;
 
     /**
+     * Collection for command autocomplete options.
+     */
+    private autocomplete: Collection<string, { name: string; value: string }[]>;
+
+    /**
      * Creates instance for all collections.
      */
     private newCollections() {
@@ -57,6 +62,7 @@ export default class Registry {
         this.events = new Collection<string, Event>();
         this.cooldowns = new Collection<string, Collection<string, number>>();
         this.groups = new Collection<string, string[]>();
+        this.autocomplete = new Collection<string, { name: string; value: string }[]>();
     }
 
     constructor(client: DiscordClient) {
@@ -129,6 +135,9 @@ export default class Registry {
             const groups = this.groups.get(command.info.group) as string[];
             groups.push(command.data.name);
             this.groups.set(command.info.group, groups);
+        }
+        if (command.info.autocomplete) {
+            this.autocomplete.set(command.data.name, command.info.autocomplete);
         }
         Logger.log('INFO', `Command "${command.data.name}" loaded.`);
     }
@@ -206,12 +215,11 @@ export default class Registry {
         const rest = new REST({ version: '9' }).setToken(this.client.config.token);
         (async () => {
             try {
-                Logger.log('INFO', 'Started refreshing application (/) commands.');
                 await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
                     body: this.commands.map(command => command.data.toJSON())
                 });
 
-                Logger.log('SUCCESS', `Successfully reloaded ${this.commands.size} application (/) commands.`);
+                Logger.log('INFO', `Loaded ${this.commands.size} application (/) commands.`);
             } catch (error) {
                 if (error instanceof Error) {
                     Logger.log('ERROR', error.stack as string);
@@ -246,5 +254,12 @@ export default class Registry {
         allEvents.forEach(event => this.client.removeAllListeners(event));
         this.newCollections();
         this.registerAll();
+    }
+
+    /**
+     * Returns the autocomplete object.
+     */
+    getAutocomplete() {
+        return this.autocomplete;
     }
 }
