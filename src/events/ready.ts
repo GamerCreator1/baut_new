@@ -1,6 +1,6 @@
-import Logger from '../classes/Logger';
-import DiscordClient from '../structures/DiscordClient';
-import Event from '../structures/Event';
+import Logger from '@classes/Logger';
+import DiscordClient from '@structures/DiscordClient';
+import Event from '@structures/Event';
 
 export default class ReadyEvent extends Event {
     constructor(client: DiscordClient) {

@@ -5,12 +5,12 @@ import requireAll from 'require-all';
 
 import { REST } from '@discordjs/rest';
 
-import RegistryError from '../errors/RegistryError';
-import Command from '../structures/Command';
-import DiscordClient from '../structures/DiscordClient';
-import Event from '../structures/Event';
-import { isConstructor } from '../utils/functions';
-import Logger from './Logger';
+import RegistryError from '@errors/RegistryError';
+import Command from '@structures/Command';
+import DiscordClient from '@structures/DiscordClient';
+import Event from '@structures/Event';
+import { isConstructor } from '@utils/functions';
+import Logger from '@classes/Logger';
 
 export default class Registry {
     /**

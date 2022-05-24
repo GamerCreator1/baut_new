@@ -2,10 +2,10 @@ import { CommandInteraction, GuildMember, TextChannel } from 'discord.js';
 
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
 
-import Logger from '../classes/Logger';
-import { isUserDeveloper } from '../utils/functions';
-import { ICommandInfo } from '../utils/interfaces';
-import DiscordClient from './DiscordClient';
+import Logger from '@classes/Logger';
+import { isUserDeveloper } from '@utils/functions';
+import { ICommandInfo } from '@utils/interfaces';
+import DiscordClient from '@structures/DiscordClient';
 
 export default abstract class Command {
     /**

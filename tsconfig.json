@@ -9,7 +9,9 @@
         "paths": {
            "@structures/*": ["structures/*"],
            "@utils/*": ["utils/*"],
-           "@classes/*": ["classes/*"]
+           "@classes/*": ["classes/*"],
+           "@errors/*": ["errors/*"],
+           "@providers/*": ["providers/*"]
          },
         "typeRoots": [
            "./src/typings/",
