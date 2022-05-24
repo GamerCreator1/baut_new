@@ -2,9 +2,9 @@ import { CommandInteraction } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
-import Logger from '../../classes/Logger';
-import Command from '../../structures/Command';
-import DiscordClient from '../../structures/DiscordClient';
+import Logger from '@classes/Logger';
+import Command from '@structures/Command';
+import DiscordClient from '@structures/DiscordClient';
 
 export default class RebootCommand extends Command {
     constructor(client: DiscordClient) {

@@ -3,9 +3,9 @@ import { CommandInteraction } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
-import { prisma } from '../../providers/prisma';
-import Command from '../../structures/Command';
-import DiscordClient from '../../structures/DiscordClient';
+import { prisma } from '@providers/prisma';
+import Command from '@structures/Command';
+import DiscordClient from '@structures/DiscordClient';
 
 export default class ThreadChannelCommand extends Command {
     constructor(client: DiscordClient) {

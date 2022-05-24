@@ -2,7 +2,7 @@ import 'moment-duration-format';
 
 import moment from 'moment-timezone';
 
-import DiscordClient from '../structures/DiscordClient';
+import DiscordClient from '@structures/DiscordClient';
 
 const isConstructorProxyHandler = {
     construct() {

@@ -2,9 +2,9 @@ import { CommandInteraction, MessageEmbed } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
-import Command from '../../structures/Command';
-import DiscordClient from '../../structures/DiscordClient';
-import { formatSeconds } from '../../utils/functions';
+import Command from '@structures/Command';
+import DiscordClient from '@structures/DiscordClient';
+import { formatSeconds } from '@utils/functions';
 
 interface IGroup {
     name: string;
