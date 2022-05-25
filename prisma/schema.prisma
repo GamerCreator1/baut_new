@@ -19,3 +19,8 @@ model reactionroles {
 model threadchannels {
   channel_id String @id @db.VarChar
 }
+
+model staff {
+  role_id     String @id
+  permissions String[]
+}

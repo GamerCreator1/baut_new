@@ -6,7 +6,7 @@
         "clean": "rimraf dist",
         "build": "yarn clean && tsc -p . && tsc-alias",
         "start": "node dist/client.js",
-        "dev": "tsc -w & tsc-alias -w"
+        "dev": "nodemon -r tsconfig-paths/register ./src/client.ts"
     },
     "author": "Neesh774",
     "license": "MIT",

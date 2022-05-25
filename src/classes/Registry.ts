@@ -3,14 +3,13 @@ import { Collection } from 'discord.js';
 import path from 'path';
 import requireAll from 'require-all';
 
+import Logger from '@classes/Logger';
 import { REST } from '@discordjs/rest';
-
 import RegistryError from '@errors/RegistryError';
 import Command from '@structures/Command';
 import DiscordClient from '@structures/DiscordClient';
 import Event from '@structures/Event';
 import { isConstructor } from '@utils/functions';
-import Logger from '@classes/Logger';
 
 export default class Registry {
     /**
@@ -211,7 +210,6 @@ export default class Registry {
      * Register slash commands
      */
     registerGuildSlashCommands() {
-        console.log(this.client);
         const rest = new REST({ version: '9' }).setToken(this.client.token);
         (async () => {
             try {
