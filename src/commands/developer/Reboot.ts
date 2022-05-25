@@ -1,8 +1,7 @@
 import { CommandInteraction } from 'discord.js';
 
-import { SlashCommandBuilder } from '@discordjs/builders';
-
 import Logger from '@classes/Logger';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import Command from '@structures/Command';
 import DiscordClient from '@structures/DiscordClient';
 
@@ -35,7 +34,7 @@ export default class RebootCommand extends Command {
             // Emitting ready event
             this.client.emit('ready');
 
-            await command.reply({
+            await command.editReply({
                 embeds: [
                     {
                         color: 'GREEN',

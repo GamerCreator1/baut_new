@@ -1,7 +1,10 @@
-import { AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel } from 'discord.js';
+import {
+    AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel
+} from 'discord.js';
+
+import { formatSeconds, isUserDeveloper } from '@utils/functions';
 
 import DiscordClient from '../structures/DiscordClient';
-import { formatSeconds, isUserDeveloper } from '@utils/functions';
 
 export default class CommandHandler {
     /**
@@ -105,6 +108,7 @@ export default class CommandHandler {
 
         try {
             var applyCooldown = true;
+            await command.deferReply();
             await cmd.run(command);
 
             if (addCooldown && applyCooldown && !isUserDeveloper(client, command.user.id)) {
@@ -112,7 +116,7 @@ export default class CommandHandler {
                 setTimeout(() => timestamps.delete(command.user.id), cooldownAmount);
             }
         } catch (error) {
-            await cmd.onError(command, error);
+            await cmd.onError(command, error instanceof Error ? error.stack : new Error(error).stack);
         }
     }
 

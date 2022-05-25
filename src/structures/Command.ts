@@ -1,11 +1,10 @@
 import { CommandInteraction, GuildMember, TextChannel } from 'discord.js';
 
-import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
-
 import Logger from '@classes/Logger';
+import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
+import DiscordClient from '@structures/DiscordClient';
 import { isUserDeveloper } from '@utils/functions';
 import { ICommandInfo } from '@utils/interfaces';
-import DiscordClient from '@structures/DiscordClient';
 
 export default abstract class Command {
     /**
@@ -35,16 +34,15 @@ export default abstract class Command {
      * @param error Error message
      */
     async onError(command: CommandInteraction, error: any) {
-        Logger.log('ERROR', `An error occurred in "${this}" command.\n${error}\n`, true);
-        await command.reply({
+        Logger.log('ERROR', `An error occurred in "${this.data.name}" command.\n${error}\n`, true);
+        await (command.deferred ? command.editReply : command.reply)({
             embeds: [
                 {
                     color: 'RED',
                     title: '💥 Oops...',
                     description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`
                 }
-            ],
-            ephemeral: true
+            ]
         });
     }
 

@@ -13,7 +13,7 @@ export default class BanCommand extends Command {
             {
                 group: 'Moderation',
                 require: {
-                    permissions: ['BAN_MEMBERS']
+                    // permissions: ['BAN_MEMBERS']
                 }
             },
             new SlashCommandBuilder()
@@ -45,7 +45,7 @@ export default class BanCommand extends Command {
 
         await member.ban({ reason, days });
 
-        await command.reply({
+        await command.editReply({
             embeds: [
                 {
                     color: 'GREEN',
@@ -60,11 +60,11 @@ export default class BanCommand extends Command {
 
         const member = await command.guild.members.unban(user);
 
-        await command.reply({
+        await command.editReply({
             embeds: [
                 {
                     color: 'GREEN',
-                    description: `${command.user.toString()}, ${member.toString()} has been unbanned.`
+                    description: `${command.user.toString()}, ${member?.toString() ?? 'N/A'} has been unbanned.`
                 }
             ]
         });

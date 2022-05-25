@@ -1,4 +1,4 @@
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction, MessageEmbedOptions, TextBasedChannel } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 
@@ -30,8 +30,8 @@ export default class KickCommand extends Command {
         const member = await command.guild.members.fetch(user);
 
         await member.kick(reason ?? `No reason provided by ${command.user.toString()}`);
-
-        await command.reply({
+        console.log(command);
+        await command.editReply({
             embeds: [
                 {
                     color: 'GREEN',
@@ -39,5 +39,32 @@ export default class KickCommand extends Command {
                 }
             ]
         });
+        const log = await this.client.db.log.findFirst({
+            where: {
+                log_event: 'Members',
+                enabled: true
+            }
+        });
+        if (log) {
+            const logChannel = member.guild.channels.cache.get(log.channel_id) as TextBasedChannel;
+            if (logChannel) {
+                const embed = {
+                    author: { name: 'Members' },
+                    color: 'DARK_PURPLE',
+                    title: 'Member Kicked',
+                    fields: [
+                        {
+                            name: 'Member',
+                            value: member.user.toString(),
+                            inline: true
+                        }
+                    ],
+                    timestamp: new Date()
+                } as MessageEmbedOptions;
+                await logChannel.send({
+                    embeds: [embed]
+                });
+            }
+        }
     }
 }

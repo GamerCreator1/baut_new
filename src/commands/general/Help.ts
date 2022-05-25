@@ -1,7 +1,6 @@
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
-
 import Command from '@structures/Command';
 import DiscordClient from '@structures/DiscordClient';
 import { formatSeconds } from '@utils/functions';
@@ -61,7 +60,7 @@ export default class HelpCommand extends Command {
         });
 
         groups.forEach(group => embed.addField(`${group.name} Commands`, group.commands.map(x => `\`${x}\``).join(' ')));
-        await command.reply({ embeds: [embed], ephemeral: true });
+        await command.editReply({ embeds: [embed] });
     }
 
     async run(command: CommandInteraction) {
@@ -117,6 +116,6 @@ export default class HelpCommand extends Command {
             if (commandObj.info.require.permissions) embed.addField('Permission Requirements', commandObj.info.require.permissions.map(x => `\`${x}\``).join('\n'));
         }
 
-        await command.reply({ embeds: [embed], ephemeral: true });
+        await command.editReply({ embeds: [embed] });
     }
 }

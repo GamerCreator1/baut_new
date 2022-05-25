@@ -57,7 +57,7 @@ export default class TimeoutCommand extends Command {
 
         await member.timeout(time, reason);
 
-        await command.reply({
+        await command.editReply({
             embeds: [
                 {
                     color: 'GREEN',
@@ -71,7 +71,7 @@ export default class TimeoutCommand extends Command {
         const user = command.options.getUser('user');
         const member = await command.guild.members.fetch(user);
         await member.timeout(null);
-        await command.reply({
+        await command.editReply({
             embeds: [
                 {
                     color: 'GREEN',

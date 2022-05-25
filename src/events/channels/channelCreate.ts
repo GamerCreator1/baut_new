@@ -41,11 +41,12 @@ export default class ChannelCreateEvent extends Event {
                         type = '📁 Category';
                         break;
                 }
-                logChannel.send({
+                await logChannel.send({
                     embeds: [
                         {
+                            author: { name: 'Channels' },
                             color: 'DARK_PURPLE',
-                            title: `${type} channel created`,
+                            title: `${type} Channel Created`,
                             fields: [
                                 {
                                     name: 'Name',

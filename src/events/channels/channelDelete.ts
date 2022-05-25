@@ -42,11 +42,12 @@ export default class ChannelDeleteEvent extends Event {
                         type = '📁 Category';
                         break;
                 }
-                logChannel.send({
+                await logChannel.send({
                     embeds: [
                         {
+                            author: { name: 'Channels' },
                             color: 'DARK_PURPLE',
-                            title: `${type} channel deleted`,
+                            title: `${type} Channel Deleted`,
                             fields: [
                                 {
                                     name: 'Name',

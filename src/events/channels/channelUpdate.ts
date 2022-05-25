@@ -45,8 +45,9 @@ export default class ChannelUpdateEvent extends Event {
                         break;
                 }
                 const embed = {
+                    author: 'Channels',
                     color: 'DARK_PURPLE',
-                    title: `${type} channel updated`,
+                    title: `${type} Channel Updated`,
                     fields: [
                         {
                             name: 'Name',
@@ -83,7 +84,7 @@ export default class ChannelUpdateEvent extends Event {
                     }
                 }
 
-                logChannel.send({ embeds: [embed] });
+                await logChannel.send({ embeds: [embed] });
             }
         }
     }
