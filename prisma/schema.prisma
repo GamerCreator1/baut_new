@@ -24,3 +24,9 @@ model staff {
   role_id     String @id
   permissions String[]
 }
+
+model log {
+  log_event String @id
+  enabled  Boolean
+  channel_id String @db.VarChar
+}

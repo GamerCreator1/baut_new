@@ -4,7 +4,7 @@ import Event from '@structures/Event';
 
 export default class ReadyEvent extends Event {
     constructor(client: DiscordClient) {
-        super(client, 'ready');
+        super(client, 'ready', false);
     }
 
     async run() {

@@ -13,9 +13,15 @@ export default abstract class Event {
      */
     readonly name: keyof ClientEvents;
 
-    constructor(client: DiscordClient, name: keyof ClientEvents) {
+    /**
+     * Log Category of the event
+     */
+    readonly logCategory: string | false;
+
+    constructor(client: DiscordClient, name: keyof ClientEvents, logCategory: string | false) {
         this.client = client;
         this.name = name;
+        this.logCategory = logCategory;
     }
 
     /**
