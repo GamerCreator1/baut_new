@@ -35,7 +35,7 @@ export default class KickCommand extends Command {
             embeds: [
                 {
                     color: 'GREEN',
-                    description: `${command.user.toString()}, ${member.toString()} has been kicked for: \`${reason}\`.`
+                    description: `${command.user.toString()}, ${member.toString()} has been kicked for: \`${reason ?? 'N/A'}\`.`
                 }
             ]
         });
