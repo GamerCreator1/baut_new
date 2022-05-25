@@ -1,14 +1,15 @@
-import { GuildChannel, TextBasedChannel } from 'discord.js';
+import { DMChannel, GuildChannel, TextBasedChannel } from 'discord.js';
 
 import DiscordClient from '@structures/DiscordClient';
 import Event from '@structures/Event';
 
-export default class ChannelCreateEvent extends Event {
+export default class ChannelDeleteEvent extends Event {
     constructor(client: DiscordClient) {
-        super(client, 'channelCreate', 'Channels');
+        super(client, 'channelDelete', 'Channels');
     }
 
-    async run(channel: GuildChannel) {
+    async run(channel: GuildChannel | DMChannel) {
+        if (channel instanceof DMChannel) return;
         const log = await this.client.db.log.findFirst({
             where: {
                 log_event: 'Channels',
@@ -17,7 +18,7 @@ export default class ChannelCreateEvent extends Event {
         });
         if (log) {
             const logChannel = channel.guild.channels.cache.get(log.channel_id) as TextBasedChannel;
-            const auditLogChannel = await channel.guild.fetchAuditLogs({ limit: 1, type: 'CHANNEL_CREATE' });
+            const auditLogChannel = await channel.guild.fetchAuditLogs({ limit: 1, type: 'CHANNEL_DELETE' });
             if (logChannel && auditLogChannel?.entries.first()) {
                 let type: string;
                 switch (channel.type) {
@@ -45,7 +46,7 @@ export default class ChannelCreateEvent extends Event {
                     embeds: [
                         {
                             color: 'DARK_PURPLE',
-                            title: `${type} channel created`,
+                            title: `${type} channel deleted`,
                             fields: [
                                 {
                                     name: 'Name',
@@ -53,12 +54,12 @@ export default class ChannelCreateEvent extends Event {
                                     inline: true
                                 },
                                 {
-                                    name: 'Created by',
+                                    name: 'Deleted by',
                                     value: auditLogChannel.entries.first()?.executor.toString() ?? 'Unknown',
                                     inline: true
                                 }
                             ],
-                            timestamp: channel.createdAt,
+                            timestamp: Date.now(),
                             footer: {
                                 text: `ID: ${channel.id}`
                             }
