@@ -1,4 +1,4 @@
-import { Message, TextBasedChannel } from 'discord.js';
+import { Message, MessageEmbedOptions, TextBasedChannel } from 'discord.js';
 
 import DiscordClient from '@structures/DiscordClient';
 import Event from '@structures/Event';
@@ -20,41 +20,40 @@ export default class MessageDeleteEvent extends Event {
             const logChannel = message.guild.channels.cache.get(log.channel_id) as TextBasedChannel;
             const auditLogChannel = await message.guild.fetchAuditLogs({ limit: 1, type: 'MESSAGE_DELETE' });
             if (logChannel && auditLogChannel?.entries.first()) {
-                await logChannel.send({
-                    embeds: [
+                const embed = {
+                    author: { name: 'Messages' },
+                    title: 'Message Deleted',
+                    color: 'DARK_PURPLE',
+                    fields: [
                         {
-                            author: { name: 'Messages' },
-                            title: 'Message Deleted',
-                            color: 'DARK_PURPLE',
-                            fields: [
-                                {
-                                    name: 'Message',
-                                    value: message.content,
-                                    inline: true
-                                },
-                                {
-                                    name: 'Author',
-                                    value: message.author.toString(),
-                                    inline: true
-                                },
-                                {
-                                    name: 'Channel',
-                                    value: message.channel.toString(),
-                                    inline: false
-                                },
-                                {
-                                    name: 'Deleted by',
-                                    value: auditLogChannel.entries.first()?.executor.toString() ?? 'Unknown',
-                                    inline: true
-                                }
-                            ],
-                            timestamp: new Date(),
-                            footer: {
-                                text: 'Author ID: ' + message.author.id
-                            }
+                            name: 'Message',
+                            value: message.content,
+                            inline: true
+                        },
+                        {
+                            name: 'Author',
+                            value: message.author.toString(),
+                            inline: true
+                        },
+                        {
+                            name: 'Channel',
+                            value: message.channel.toString(),
+                            inline: false
                         }
-                    ]
-                });
+                    ],
+                    timestamp: new Date(),
+                    footer: {
+                        text: 'Author ID: ' + message.author.id
+                    }
+                } as MessageEmbedOptions;
+                if (auditLogChannel.entries.first().target.id === message.author.id) {
+                    embed.fields.push({
+                        name: 'Deleted by',
+                        value: auditLogChannel.entries.first()?.executor.toString() ?? 'Unknown',
+                        inline: true
+                    });
+                }
+                logChannel.send({ embeds: [embed] });
             }
         }
     }

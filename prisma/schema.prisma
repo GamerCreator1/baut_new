@@ -30,3 +30,12 @@ model log {
   enabled  Boolean
   channel_id String @db.VarChar
 }
+
+model blacklistedlinks {
+  link_id Int @id @default(autoincrement())
+  link    String @db.VarChar
+}
+
+model nolinkchannels {
+  channel_id String @id @db.VarChar
+}

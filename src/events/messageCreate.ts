@@ -24,5 +24,28 @@ export default class MessageEvent extends Event {
                 }
             });
         }
+        const urlFilter = new RegExp('[\\w]{1,1}[a-zA-Z0-9@:%._+~#=-]{0,256}\\.[a-zA-Z]{1,1}[a-zA-Z0-9()]{1,5}[\\/a-zA-z0-9\\-?=&%.,+]*\\b');
+        const url = urlFilter.exec(message.content);
+        if (url && url.length > 0 && url[0].length >= 4 && !url[0].match('[.]{2,}')) {
+            const domain = url[0].match('[\\w]{1,1}[a-zA-Z0-9@:%._+~#=-]{0,256}\\.[a-zA-Z]{1,1}[a-zA-Z0-9()]{1,5}\\b');
+            if (domain.length == 0) return;
+            const domainName = domain[0];
+            const isBlackListedChannel = await this.client.db.nolinkchannels.findFirst({
+                where: {
+                    channel_id: message.channel.id
+                }
+            });
+            if (isBlackListedChannel) {
+                const isBlackListed = await this.client.db.blacklistedlinks.findFirst({
+                    where: {
+                        link: domainName
+                    }
+                });
+                if (isBlackListed) {
+                    await message.delete();
+                    return;
+                }
+            }
+        }
     }
 }

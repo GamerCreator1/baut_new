@@ -21,7 +21,7 @@ export default class MessageUpdateEvent extends Event {
             if (logChannel) {
                 const embed = {
                     author: { name: 'Messages' },
-                    title: 'Message Deleted',
+                    title: 'Message Updated',
                     color: 'DARK_PURPLE',
                     fields: [],
                     timestamp: new Date(),
