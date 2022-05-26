@@ -22,6 +22,7 @@ export default class MessageDeleteEvent extends Event {
                 await logChannel.send({
                     embeds: [
                         {
+                            author: { name: 'Messages' },
                             title: 'Message Deleted',
                             color: 'DARK_PURPLE',
                             fields: [

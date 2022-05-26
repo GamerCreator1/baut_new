@@ -13,7 +13,7 @@ export default class TimeoutCommand extends Command {
             {
                 group: 'Moderation',
                 require: {
-                    // permissions: ['MODERATE_MEMBERS']
+                    permissions: ['MODERATE_MEMBERS']
                 }
             },
             new SlashCommandBuilder()

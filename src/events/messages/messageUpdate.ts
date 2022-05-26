@@ -19,6 +19,7 @@ export default class MessageUpdateEvent extends Event {
             const logChannel = newMessage.guild.channels.cache.get(log.channel_id) as TextBasedChannel;
             if (logChannel) {
                 const embed = {
+                    author: { name: 'Messages' },
                     title: 'Message Deleted',
                     color: 'DARK_PURPLE',
                     fields: [],

@@ -13,7 +13,7 @@ export default class BanCommand extends Command {
             {
                 group: 'Moderation',
                 require: {
-                    // permissions: ['BAN_MEMBERS']
+                    permissions: ['BAN_MEMBERS']
                 }
             },
             new SlashCommandBuilder()
