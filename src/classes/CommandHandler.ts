@@ -12,47 +12,45 @@ export default class CommandHandler {
      * @param command Message object
      */
     static async handleCommand(client: DiscordClient, command: CommandInteraction) {
+        await command.deferReply();
         const self = (command.guild as Guild).me as GuildMember;
         if (!self.permissions.has('SEND_MESSAGES')) return;
         if (!self.permissions.has('ADMINISTRATOR'))
-            return await command.reply({
+            return await command.editReply({
                 embeds: [
                     {
                         color: 'RED',
                         title: '🚨 Missing Permission',
                         description: `${command.user.toString()}, bot requires \`ADMINISTRATOR\` permission to be run.`
                     }
-                ],
-                ephemeral: true
+                ]
             });
 
         const cmd = client.registry.findCommand(command.commandName);
         if (!cmd) {
             if (client.config.unknownErrorMessage)
-                await command.reply({
+                await command.editReply({
                     embeds: [
                         {
                             color: '#D1D1D1',
                             title: '🔎 Unknown Command',
                             description: `${command.user.toString()}, type \`/help\` to see the command list.`
                         }
-                    ],
-                    ephemeral: true
+                    ]
                 });
             return;
         }
 
         if (cmd.info.enabled === false) return;
         if (cmd.info.onlyNsfw === true && !(command.channel as TextChannel).nsfw && !isUserDeveloper(client, command.user.id))
-            return await command.reply({
+            return await command.editReply({
                 embeds: [
                     {
                         color: '#EEB4D5',
                         title: '🔞 Be Careful',
                         description: `${command.user.toString()}, you can't use this command on non-nsfw channels.`
                     }
-                ],
-                ephemeral: true
+                ]
             });
 
         if (cmd.info.require) {
@@ -64,15 +62,14 @@ export default class CommandHandler {
                     else return perms.push(`\`${permission}\``);
                 });
                 if (perms.length)
-                    return await command.reply({
+                    return await command.editReply({
                         embeds: [
                             {
                                 color: '#FCE100',
                                 title: '⚠️ Missing Permissions',
                                 description: `${command.user.toString()}, you must have these permissions to run this command.\n\n${perms.join('\n')}`
                             }
-                        ],
-                        ephemeral: true
+                        ]
                     });
             }
         }
@@ -90,15 +87,14 @@ export default class CommandHandler {
                 const expirationTime = currentTime + cooldownAmount;
                 if (now < expirationTime) {
                     const timeLeft = (expirationTime - now) / 1000;
-                    return await command.reply({
+                    return await command.editReply({
                         embeds: [
                             {
                                 color: 'ORANGE',
                                 title: '⏰ Calm Down',
                                 description: `${command.user.toString()}, you must wait \`${formatSeconds(Math.floor(timeLeft))}\` to run this command.`
                             }
-                        ],
-                        ephemeral: true
+                        ]
                     });
                 }
             }
@@ -107,13 +103,13 @@ export default class CommandHandler {
         }
 
         try {
+            const user = command.user;
             var applyCooldown = true;
-            await command.deferReply();
             await cmd.run(command);
 
-            if (addCooldown && applyCooldown && !isUserDeveloper(client, command.user.id)) {
-                timestamps.set(command.user.id, now);
-                setTimeout(() => timestamps.delete(command.user.id), cooldownAmount);
+            if (addCooldown && applyCooldown && !isUserDeveloper(client, user.id)) {
+                timestamps.set(user.id, now);
+                setTimeout(() => timestamps.delete(user.id), cooldownAmount);
             }
         } catch (error) {
             await cmd.onError(command, error instanceof Error ? error.stack : new Error(error).stack);

@@ -27,20 +27,14 @@ export default class ClearCommand extends Command {
         const amount = command.options.getNumber('amount');
         const channel = command.channel;
         const user = command.user;
-        await command.editReply({
-            embeds: [
-                {
-                    color: 'ORANGE',
-                    description: `Attempting to delete ${amount} messages...`
-                }
-            ]
-        });
-        const deleted = await channel.bulkDelete(amount + 1, true);
+        await command.deleteReply();
+        const deleted = await channel.bulkDelete(amount, true);
         await channel.send({
             embeds: [
                 {
                     color: 'GREEN',
-                    description: `${command.user.toString()}, ${deleted.size} messages have been deleted.`
+                    description: `${user.toString()}, ${deleted.size} messages have been deleted.`,
+                    footer: { text: 'If I was unable to delete all the messages, it might be because some of them are more than 2 weeks old.' }
                 }
             ]
         });
@@ -70,7 +64,7 @@ export default class ClearCommand extends Command {
                         },
                         {
                             name: 'Amount',
-                            value: amount.toString() ?? 'N/A',
+                            value: deleted.size.toString() ?? 'N/A',
                             inline: true
                         }
                     ],

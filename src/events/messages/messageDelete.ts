@@ -9,6 +9,7 @@ export default class MessageDeleteEvent extends Event {
     }
 
     async run(message: Message) {
+        if (message.author.bot) return;
         const log = await this.client.db.log.findFirst({
             where: {
                 log_event: 'Messages',

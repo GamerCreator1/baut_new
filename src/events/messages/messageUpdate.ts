@@ -9,6 +9,7 @@ export default class MessageUpdateEvent extends Event {
     }
 
     async run(oldMessage: Message, newMessage: Message) {
+        if (oldMessage.author.bot) return;
         const log = await this.client.db.log.findFirst({
             where: {
                 log_event: 'Messages',
