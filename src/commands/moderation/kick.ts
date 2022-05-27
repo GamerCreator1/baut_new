@@ -30,7 +30,6 @@ export default class KickCommand extends Command {
         const member = await command.guild.members.fetch(user);
 
         await member.kick(reason ?? `No reason provided by ${command.user.toString()}`);
-        console.log(command);
         await command.editReply({
             embeds: [
                 {
@@ -39,32 +38,19 @@ export default class KickCommand extends Command {
                 }
             ]
         });
-        const log = await this.client.db.log.findFirst({
-            where: {
-                log_event: 'Members',
-                enabled: true
-            }
-        });
-        if (log) {
-            const logChannel = member.guild.channels.cache.get(log.channel_id) as TextBasedChannel;
-            if (logChannel) {
-                const embed = {
-                    author: { name: 'Members' },
-                    color: 'DARK_PURPLE',
-                    title: 'Member Kicked',
-                    fields: [
-                        {
-                            name: 'Member',
-                            value: member.user.toString(),
-                            inline: true
-                        }
-                    ],
-                    timestamp: new Date()
-                } as MessageEmbedOptions;
-                await logChannel.send({
-                    embeds: [embed]
-                });
-            }
-        }
+        const embed = {
+            author: { name: 'Members' },
+            color: 'DARK_PURPLE',
+            title: 'Member Kicked',
+            fields: [
+                {
+                    name: 'Member',
+                    value: member.user.toString(),
+                    inline: true
+                }
+            ],
+            timestamp: new Date()
+        } as MessageEmbedOptions;
+        Logger.logEvent(this.client, command.guild, 'Members', embed);
     }
 }

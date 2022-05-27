@@ -12,11 +12,10 @@ export default class CommandHandler {
      * @param command Message object
      */
     static async handleCommand(client: DiscordClient, command: CommandInteraction) {
-        await command.deferReply();
         const self = (command.guild as Guild).me as GuildMember;
         if (!self.permissions.has('SEND_MESSAGES')) return;
         if (!self.permissions.has('ADMINISTRATOR'))
-            return await command.editReply({
+            return await command.reply({
                 embeds: [
                     {
                         color: 'RED',
@@ -29,7 +28,7 @@ export default class CommandHandler {
         const cmd = client.registry.findCommand(command.commandName);
         if (!cmd) {
             if (client.config.unknownErrorMessage)
-                await command.editReply({
+                await command.reply({
                     embeds: [
                         {
                             color: '#D1D1D1',
@@ -40,6 +39,7 @@ export default class CommandHandler {
                 });
             return;
         }
+        await command.deferReply({ ephemeral: cmd.info.ephemeral });
 
         if (cmd.info.enabled === false) return;
         if (cmd.info.onlyNsfw === true && !(command.channel as TextChannel).nsfw && !isUserDeveloper(client, command.user.id))

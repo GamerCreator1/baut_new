@@ -50,6 +50,9 @@ export interface ICommandInfo {
 
     /** Autocomplete Options */
     autocomplete?: { name: string; value: string }[];
+
+    /** If the response should be ephemeral */
+    ephemeral?: boolean;
 }
 
 /**

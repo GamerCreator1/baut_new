@@ -38,42 +38,29 @@ export default class ClearCommand extends Command {
                 }
             ]
         });
-        const log = await this.client.db.log.findFirst({
-            where: {
-                log_event: 'Messages',
-                enabled: true
-            }
-        });
-        if (log) {
-            const logChannel = channel.guild.channels.cache.get(log.channel_id) as TextBasedChannel;
-            if (logChannel) {
-                const embed = {
-                    author: { name: 'Messages' },
-                    title: 'Messages Bulk Deleted',
-                    color: 'DARK_PURPLE',
-                    fields: [
-                        {
-                            name: 'Channel',
-                            value: channel.toString() ?? 'N/A',
-                            inline: true
-                        },
-                        {
-                            name: 'Deleted By',
-                            value: user.toString() ?? 'N/A',
-                            inline: true
-                        },
-                        {
-                            name: 'Amount',
-                            value: deleted.size.toString() ?? 'N/A',
-                            inline: true
-                        }
-                    ],
-                    timestamp: new Date()
-                } as MessageEmbedOptions;
-                await logChannel.send({
-                    embeds: [embed]
-                });
-            }
-        }
+        const embed = {
+            author: { name: 'Messages' },
+            title: 'Messages Bulk Deleted',
+            color: 'DARK_PURPLE',
+            fields: [
+                {
+                    name: 'Channel',
+                    value: channel.toString() ?? 'N/A',
+                    inline: true
+                },
+                {
+                    name: 'Deleted By',
+                    value: user.toString() ?? 'N/A',
+                    inline: true
+                },
+                {
+                    name: 'Amount',
+                    value: deleted.size.toString() ?? 'N/A',
+                    inline: true
+                }
+            ],
+            timestamp: new Date()
+        } as MessageEmbedOptions;
+        Logger.logEvent(this.client, command.guild, 'Messages', embed);
     }
 }

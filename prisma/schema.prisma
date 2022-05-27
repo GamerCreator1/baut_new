@@ -7,13 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model reactionroles {
-  id        Int     @id @default(autoincrement())
-  messageid String  @db.VarChar
-  channelid String  @db.VarChar
-  toggle    Boolean
-  roles     Json?   @db.Json
-}
 
 model threadchannels {
   channel_id String @id @db.VarChar
