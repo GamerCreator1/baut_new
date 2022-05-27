@@ -9,11 +9,10 @@ datasource db {
 
 model reactionroles {
   id        Int     @id @default(autoincrement())
-  emoji     String  @db.VarChar(10)
-  roleid    String  @db.VarChar
   messageid String  @db.VarChar
   channelid String  @db.VarChar
   toggle    Boolean
+  roles     Json?   @db.Json
 }
 
 model threadchannels {
@@ -21,18 +20,18 @@ model threadchannels {
 }
 
 model staff {
-  role_id     String @id
+  role_id     String   @id
   permissions String[]
 }
 
 model log {
-  log_event String @id
-  enabled  Boolean
-  channel_id String @db.VarChar
+  channel_id String  @db.VarChar
+  enabled    Boolean
+  log_event  String  @id
 }
 
 model blacklistedlinks {
-  link_id Int @id @default(autoincrement())
+  link_id Int    @id @default(autoincrement())
   link    String @db.VarChar
 }
 
