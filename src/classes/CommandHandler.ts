@@ -42,8 +42,8 @@ export default class CommandHandler {
         await command.deferReply({ ephemeral: cmd.info.ephemeral });
 
         if (cmd.info.enabled === false) return;
-        if (cmd.info.onlyNsfw === true && !(command.channel as TextChannel).nsfw && !isUserDeveloper(client, command.user.id))
-            return await command.editReply({
+        if (cmd.info.onlyNsfw === true && !(command.channel as TextChannel).nsfw && !isUserDeveloper(client, command.user.id)) {
+            await command.editReply({
                 embeds: [
                     {
                         color: '#EEB4D5',
@@ -52,9 +52,22 @@ export default class CommandHandler {
                     }
                 ]
             });
+            return;
+        }
 
         if (cmd.info.require) {
-            if (cmd.info.require.developer && !isUserDeveloper(client, command.user.id)) return;
+            if (cmd.info.require.developer && !isUserDeveloper(client, command.user.id)) {
+                await command.editReply({
+                    embeds: [
+                        {
+                            color: '#EEB4D5',
+                            title: '⚠️ Developer Only',
+                            description: `${command.user.toString()}, you must be one of my developers to use this command!`
+                        }
+                    ]
+                });
+                return;
+            }
             if (cmd.info.require.permissions && !isUserDeveloper(client, command.user.id)) {
                 const perms: string[] = [];
                 cmd.info.require.permissions.forEach(permission => {
