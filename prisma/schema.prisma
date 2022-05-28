@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model threadchannels {
   channel_id String @id @db.VarChar
 }
