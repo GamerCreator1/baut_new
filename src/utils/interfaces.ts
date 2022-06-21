@@ -69,3 +69,14 @@ export interface ICommandRequire {
      */
     permissions?: PermissionString[];
 }
+
+export interface IEmbed {
+    color?: string;
+    title?: string;
+    description?: string;
+    fields?: { name: string; value: string }[];
+    footer?: { text: string };
+    url?: string;
+    image?: string;
+    id?: number;
+}

@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember, TextChannel } from 'discord.js';
+import { CommandInteraction, GuildMember, MessageEmbedOptions, TextChannel } from 'discord.js';
 
 import Logger from '@classes/Logger';
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
@@ -35,15 +35,19 @@ export default abstract class Command {
      */
     async onError(command: CommandInteraction, error: any) {
         Logger.log('ERROR', `An error occurred in "${this.data.name}" command.\n${error}\n`, true);
-        await (command.deferred ? command.editReply : command.reply)({
-            embeds: [
-                {
-                    color: 'RED',
-                    title: '💥 Oops...',
-                    description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`
-                }
-            ]
-        });
+        console.log(command)
+        const embed =
+            {
+                color: 'RED',
+                title: '💥 Oops...',
+                description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`
+            } as MessageEmbedOptions;
+        if (command.deferred) {
+            command.editReply({ embeds: [embed] });
+        }
+        else {
+            command.reply({ embeds: [embed] });
+        }
     }
 
     /**

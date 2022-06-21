@@ -30,3 +30,8 @@ model blacklistedlinks {
 model nolinkchannels {
   channel_id String @id @db.VarChar
 }
+
+model embeds {
+  id      Int    @id @default(autoincrement())
+  content String
+}

@@ -1,9 +1,9 @@
-import { CommandInteraction, MessageEmbed } from 'discord.js';
+import { CommandInteraction, GuildMember, MessageEmbed } from 'discord.js';
 
 import { SlashCommandBuilder } from '@discordjs/builders';
 import Command from '@structures/Command';
 import DiscordClient from '@structures/DiscordClient';
-import { formatSeconds } from '@utils/functions';
+import { formatSeconds, isUserDeveloper } from '@utils/functions';
 
 interface IGroup {
     name: string;
@@ -41,6 +41,10 @@ export default class HelpCommand extends Command {
             commandsInGroup.forEach(commandName => {
                 const commandObj = registry.findCommand(commandName) as Command;
                 if (!commandObj.isUsable(command)) return;
+                if (commandObj.info.require && commandObj.info.require.permissions && !isUserDeveloper(this.client, command.user.id)) {
+                    const hasPerms = commandObj.info.require.permissions.every(perm => (command.member as GuildMember).permissions.has(perm));
+                    if (!hasPerms) return;
+                }
                 commands.push(commandName);
             });
 
@@ -64,6 +68,7 @@ export default class HelpCommand extends Command {
     }
 
     async run(command: CommandInteraction) {
+        throw (new Error('Not implemented'));
         const groups = this.getAvailableGroups(command);
 
         const option = command.options.getString('command_name');
