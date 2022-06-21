@@ -10,6 +10,7 @@ import Command from '@structures/Command';
 import DiscordClient from '@structures/DiscordClient';
 import Event from '@structures/Event';
 import { isConstructor } from '@utils/functions';
+import Embed from '@structures/Embed';
 
 export default class Registry {
     /**
@@ -53,6 +54,16 @@ export default class Registry {
     private autocomplete: Collection<string, { name: string; value: string }[]>;
 
     /**
+     * Any hardcoded embeds
+     */
+    private embeds: Collection<string, Embed>;
+
+    /**
+     * Embed paths
+     */
+    private embedPaths: string[] = [];
+
+    /**
      * Creates instance for all collections.
      */
     private newCollections() {
@@ -61,6 +72,7 @@ export default class Registry {
         this.cooldowns = new Collection<string, Collection<string, number>>();
         this.groups = new Collection<string, string[]>();
         this.autocomplete = new Collection<string, { name: string; value: string }[]>();
+        this.embeds = new Collection<string, Embed>();
     }
 
     constructor(client: DiscordClient) {
@@ -175,6 +187,42 @@ export default class Registry {
     }
 
     /**
+     * Registers embeds from embeds directory
+     */
+    private async registerAllEmbeds() {
+        const embeds: any[] = [];
+
+        if (this.embedPaths.length)
+            this.embedPaths.forEach(p => {
+                delete require.cache[p];
+            }
+            );
+
+        requireAll({
+            dirname: path.join(__dirname, '../embeds'),
+            recursive: true,
+            filter: /\w*.[tj]s/g,
+            resolve: x => embeds.push(x),
+            map: (name, filePath) => {
+                if (filePath.endsWith('.ts') || filePath.endsWith('.js')) this.embedPaths.push(path.resolve(filePath));
+                return name;
+            }
+        });
+
+        for (let embed of embeds) {
+            const valid = isConstructor(embed, Embed) || isConstructor(embed.default, Embed) || embed instanceof Embed || embed.default instanceof Embed;
+            if (!valid) continue;
+
+            if (isConstructor(embed, Embed)) embed = new embed(this.client);
+            else if (isConstructor(embed.default, Embed)) embed = new embed.default(this.client);
+            if (!(embed instanceof Embed)) throw new RegistryError(`Invalid embed object to register: ${embed}`);
+
+            this.embeds.set(embed.name, embed);
+        }
+
+        Logger.log('INFO', `${this.embeds.size} embeds loaded.`);
+    }
+    /**
      * Finds and returns the command by name.
      * @param command Name
      */
@@ -237,9 +285,11 @@ export default class Registry {
      * Registers events and commands.
      */
     registerAll() {
+        this.registerAllEmbeds();
         this.registerAllCommands();
         this.registerAllEvents();
         this.registerGuildSlashCommands();
+
     }
 
     /**
@@ -259,5 +309,12 @@ export default class Registry {
      */
     getAutocomplete() {
         return this.autocomplete;
+    }
+
+    /**
+     * Returns embeds
+     */
+    getEmbeds() {
+        return this.embeds;
     }
 }

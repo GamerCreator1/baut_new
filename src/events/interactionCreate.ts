@@ -10,7 +10,15 @@ export default class InteractionEvent extends Event {
     }
 
     async run(interaction: Interaction) {
-        if (interaction.isCommand()) await CommandHandler.handleCommand(this.client, interaction);
-        if (interaction.isAutocomplete()) CommandHandler.handleAutocomplete(this.client, interaction);
+        if (interaction.isCommand()) return await CommandHandler.handleCommand(this.client, interaction);
+        else if (interaction.isAutocomplete()) return CommandHandler.handleAutocomplete(this.client, interaction);
+        else if (interaction.isMessageComponent()) {
+            const id = interaction.customId;
+            this.client.registry.getEmbeds().forEach((embed) => {
+                if (embed.interactionIds.includes(id)) {
+                    embed.onInteraction(interaction, this.client);
+                }
+            })
+        }
     }
 }

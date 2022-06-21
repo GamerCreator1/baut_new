@@ -6,6 +6,7 @@ import Command from '../../structures/Command';
 import DiscordClient from '../../structures/DiscordClient';
 import { IEmbed } from '@utils/interfaces';
 import Logger from '@classes/Logger';
+import { MessageOptions } from 'child_process';
 
 export default class EmbedsCommand extends Command {
     constructor(client: DiscordClient) {
@@ -47,7 +48,7 @@ export default class EmbedsCommand extends Command {
                     subcommand
                         .setName('send')
                         .setDescription('Sends an embed.')
-                        .addIntegerOption(option => option.setName('id').setDescription('The ID of the embed to send.').setRequired(true))
+                        .addStringOption(option => option.setName('id').setDescription('The ID of the embed to send.').setRequired(true))
                         .addChannelOption(option => option.setName('channel').setDescription('The channel to send the embed to.'))
                 )
         );
@@ -83,7 +84,7 @@ export default class EmbedsCommand extends Command {
                             .setStyle('SHORT')
                             .setCustomId('color')
                             .setMaxLength(7)
-                            .setValue(prev?.color ?? '')
+                            .setValue(prev?.color.toString() ?? '#000000')
 
                     ),
                 new MessageActionRow<ModalActionRowComponent>()
@@ -188,7 +189,7 @@ export default class EmbedsCommand extends Command {
     }
 
     private async listEmbeds(command: CommandInteraction) {
-        const embeds = await this.client.db.embeds.findMany();
+        const embeds = await this.client.db.embeds.findMany()
         if (embeds.length == 0) {
             command.editReply({
                 content: "No embeds have been created! Create one with `/embeds create`."
@@ -206,13 +207,23 @@ export default class EmbedsCommand extends Command {
                 image: embedObject.image
             } as IEmbed;
         });
+        embedsList.push(...this.client.registry.getEmbeds().map((embed) => {
+            return {
+                id: embed.id,
+                title: embed.embed.title,
+                description: embed.embed.description,
+                color: embed.embed.color,
+                url: embed.embed.url,
+                image: embed.embed.image?.url
+            } as IEmbed;
+        }))
         // select menu to select embed
         const row = new MessageActionRow()
             .addComponents(
                 new MessageSelectMenu()
                     .setCustomId('embed-select')
                     .setPlaceholder('Select an embed')
-                    .addOptions(embedsList.map(e => ({ label: `${e.id}: ${e.title}`, description: e.description, value: e.id.toString() })))
+                    .addOptions(embedsList.map(e => ({ label: `${e.id}: ${e.title}`, description: e.description ?? 'No description', value: e.id ? e.id.toString() : e.title })))
             )
         const reply = await command.editReply({
             embeds: [
@@ -226,8 +237,19 @@ export default class EmbedsCommand extends Command {
         const selectFilter = (i: MessageComponentInteraction) => i.customId === 'embed-select' && i.user.id === command.user.id;
         const collector = reply.createMessageComponentCollector({ filter: selectFilter, componentType: "SELECT_MENU", time: 60000 });
         collector.on('collect', async (interaction: SelectMenuInteraction) => {
-            const embed = embedsList.find(e => e.id.toString() === interaction.values[0]);
-            if (!embed) return;
+            let embed = embedsList.find(e => e.id?.toString() === interaction.values[0]);
+            if (!embed) {
+                // search for embed in registry
+                const hcEmbed = this.client.registry.getEmbeds().find(e => e.embed.title === interaction.values[0]);
+                embed = {
+                    id: hcEmbed.id,
+                    title: hcEmbed.embed.title,
+                    description: hcEmbed.embed.description,
+                    color: hcEmbed.embed.color,
+                    url: hcEmbed.embed.url,
+                    image: hcEmbed.embed.image?.url
+                } as IEmbed;
+            }
             const msgEmbed = new MessageEmbed();
             if (embed.title) msgEmbed.setTitle(embed.title);
             if (embed.description) msgEmbed.setDescription(embed.description);
@@ -237,7 +259,7 @@ export default class EmbedsCommand extends Command {
             interaction.update({
                 embeds: [
                     msgEmbed
-                        .setFooter({ text: `Embed ID: ${embed.id}` })
+                        .setFooter({ text: `Embed ID: ${embed.id} ${typeof embed.id == "string" ? ' | This embed cannot be edited through Discord.' : ''}` })
                 ],
                 components: [row]
             });
@@ -278,33 +300,37 @@ export default class EmbedsCommand extends Command {
                 command.editReply({ content: "Embed deleted." });
                 break;
             case 'send':
-                const sendId = command.options.getInteger('id')
-                const sendEmbed = await this.client.db.embeds.findFirst({ where: { id: sendId } })
-                if (!sendEmbed) {
-                    command.editReply({ content: "Embed not found." });
+                const sendId = command.options.getString('id')
+                let sendEmbedMessage: MessageOptions;
+                const sendChannel = command.options.getChannel('channel') ?? command.channel;
+                if (sendChannel.type != "GUILD_TEXT") {
+                    command.editReply({ content: "You can only send embeds to text channels." });
                     return;
                 }
-                const sendEmbedObject = JSON.parse(sendEmbed.content);
-                const sendEmbedMessage = new MessageEmbed()
 
-                if (sendEmbedObject.title) sendEmbedMessage.setTitle(sendEmbedObject.title);
-                if (sendEmbedObject.description) sendEmbedMessage.setDescription(sendEmbedObject.description);
-                if (sendEmbedObject.color) sendEmbedMessage.setColor(sendEmbedObject.color as HexColorString);
-                if (sendEmbedObject.url) sendEmbedMessage.setURL(sendEmbedObject.url);
-                if (sendEmbedObject.image) sendEmbedMessage.setImage(sendEmbedObject.image);
-                const sendChannel = command.options.getChannel('channel')
-                if (!sendChannel) {
-                    //send it in current channel
-                    command.channel.send({ embeds: [sendEmbedMessage] });
-                    command.editReply({ content: "Embed sent." });
-                }
-                else {
-                    //send it in a different channel
-                    if (sendChannel.type != "GUILD_TEXT") {
-                        command.editReply({ content: "You can only send embeds to text channels." });
+                if (sendId.startsWith('E')) { // Hardcoded Embeds
+                    const sendEmbed = this.client.registry.getEmbeds().find(e => e.id === sendId);
+                    if (!sendEmbed) {
+                        command.editReply({ content: "Embed not found." });
                         return;
                     }
-                    sendChannel.send({ embeds: [sendEmbedMessage] });
+                    sendChannel.send({ embeds: [sendEmbed.embed], components: sendEmbed.components });
+                    command.editReply({ content: "Embed sent." });
+                }
+                else { // DB Embeds
+                    const sendEmbed = await this.client.db.embeds.findFirst({ where: { id: parseInt(sendId) } })
+                    if (!sendEmbed) {
+                        command.editReply({ content: "Embed not found." });
+                        return;
+                    }
+                    const sendEmbedObject = JSON.parse(sendEmbed.content);
+                    const embed = new MessageEmbed()
+                    if (sendEmbedObject.title) embed.setTitle(sendEmbedObject.title);
+                    if (sendEmbedObject.description) embed.setDescription(sendEmbedObject.description);
+                    if (sendEmbedObject.color) embed.setColor(sendEmbedObject.color as HexColorString);
+                    if (sendEmbedObject.url) embed.setURL(sendEmbedObject.url);
+                    if (sendEmbedObject.image) embed.setImage(sendEmbedObject.image);
+                    sendChannel.send({ embeds: [embed] })
                     command.editReply({ content: "Embed sent." });
                 }
                 break;
