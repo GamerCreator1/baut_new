@@ -17,6 +17,11 @@ export interface IConfig {
      * Status of sending error message when user try to run unknown command.
      */
     unknownErrorMessage: boolean;
+
+    /**
+     * Active role id
+     */
+    activeRole: string;
 }
 
 /**

@@ -35,3 +35,68 @@ model embeds {
   id      Int    @id @default(autoincrement())
   content String
 }
+
+model User {
+  discordId String @id @db.VarChar
+  username String @db.VarChar
+  displayName String @db.VarChar
+  isActivated Boolean @default(false)
+  isEmailVerified Boolean @default(false)
+  isEarlySupporter Boolean @default(false)
+  email String @db.VarChar
+  socialConnections SocialConnection[]
+  careerBadges UsersOnCareerBadges[]
+  ownedShowcaseItems ShowcaseItem[]
+  participatedShowcaseItems ShowcaseItem[]
+  servicesInUse BuilderGroopService[]
+}
+
+model SocialConnection {
+  provider SocialProvider
+  providerEmail String @db.VarChar
+  providerUsername String @db.VarChar
+  providerUserId String @db.VarChar
+  user User @relation(fields: [userId])
+  userId String @db.VarChar
+}
+
+model SocialProvider {
+  id String @id @db.VarChar
+  name String @db.VarChar
+  logoUrl String @db.VarChar
+}
+
+model UsersOnCareerBadges {
+  user User @relation(fields: [userId])
+  userId String @db.VarChar
+  careerBadge CareerBadge
+  careerBadgeId String @db.VarChar
+
+  @@id([userId, careerBadgeId])
+}
+
+model CareerBadge {
+  title String @db.VarChar 
+  description String @db.VarChar
+  iconUrl String @db.VarChar
+}
+
+enum ShowcaseItemType {
+  STARTUP
+  PROJECT
+  ARTICLE
+  DESIGN
+  TWEET
+  OPEN SOURCE
+}
+
+model ShowcaseItem {
+  type ShowcaseItemType
+  title String @db.VarChar
+  description String @db.VarChar
+  urls String[] @db.VarChar
+  media String[] @db.VarChar
+  collaborators User[] @relation(fields: [collaboratorIds])
+  collaboratorIds String[] @db.VarChar
+  
+}
