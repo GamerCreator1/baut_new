@@ -1,7 +1,8 @@
 import { ChannelType, ThreadAutoArchiveDuration } from 'discord-api-types/v10';
 import {
-    ButtonInteraction, CacheType, Interaction, Message, MessageActionRow, MessageButton, Modal,
-    ModalActionRowComponent, ModalSubmitInteraction, TextChannel, TextInputComponent
+    ButtonInteraction, CacheType, Interaction, Message, MessageActionRow, MessageButton,
+    MessageSelectMenu, Modal, ModalActionRowComponent, ModalSubmitInteraction,
+    SelectMenuInteraction, TextChannel, TextInputComponent
 } from 'discord.js';
 
 import Logger from '@classes/Logger';
@@ -58,7 +59,7 @@ export default class ShowcaseEmbed extends Embed {
                                     new TextInputComponent().setLabel('Description').setStyle('PARAGRAPH').setCustomId('description').setRequired(true)
                                 ),
                                 new MessageActionRow<ModalActionRowComponent>().addComponents(
-                                    new TextInputComponent().setLabel('URLs(separated by new line)').setStyle('PARAGRAPH').setCustomId('urls').setRequired(true)
+                                    new TextInputComponent().setLabel('URLs(separated by new line)').setStyle('PARAGRAPH').setCustomId('urls')
                                 )
                             );
                         await click.showModal(modal);
@@ -66,9 +67,9 @@ export default class ShowcaseEmbed extends Embed {
                         await click.awaitModalSubmit({ filter, time: 60000 }).then(async (modalSubmit: ModalSubmitInteraction) => {
                             showcaseItem.title = modalSubmit.fields.getTextInputValue('title');
                             showcaseItem.description = modalSubmit.fields.getTextInputValue('description');
-                            showcaseItem.urls = modalSubmit.fields.getTextInputValue('urls').split('\n');
+                            showcaseItem.urls = modalSubmit.fields.getTextInputValue('urls')?.split('\n') ?? [];
                             await thread.send({
-                                content: 'Now, send a message with any files or media you want to include, or `none` to skip ',
+                                content: 'Now, select the type of your showcase submission.',
                                 embeds: [
                                     {
                                         title: showcaseItem.title,
@@ -76,10 +77,45 @@ export default class ShowcaseEmbed extends Embed {
                                         fields: [
                                             {
                                                 name: 'URLs',
-                                                value: parseURLArray(showcaseItem.urls).join('\n')
+                                                value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
                                             }
-                                        ]
+                                        ],
+                                        color: parseType(showcaseItem.type)
                                     }
+                                ],
+                                components: [
+                                    new MessageActionRow().addComponents(
+                                        new MessageSelectMenu().setPlaceholder('Select a Type').setCustomId('type').setMaxValues(1).setOptions(
+                                            {
+                                                label: 'Startup',
+                                                value: 'Startup'
+                                            },
+                                            {
+                                                label: 'Project',
+                                                value: 'Project'
+                                            },
+                                            {
+                                                label: 'Community',
+                                                value: 'Community'
+                                            },
+                                            {
+                                                label: 'Article',
+                                                value: 'Article'
+                                            },
+                                            {
+                                                label: 'Design',
+                                                value: 'Design'
+                                            },
+                                            {
+                                                label: 'Tweet',
+                                                value: 'Tweet'
+                                            },
+                                            {
+                                                label: 'Open-Source',
+                                                value: 'Open-Source'
+                                            }
+                                        )
+                                    )
                                 ]
                             });
                             await modalSubmit.reply({ content: 'Success!', ephemeral: true });
@@ -90,7 +126,29 @@ export default class ShowcaseEmbed extends Embed {
                         thread.delete('Session timed out');
                         interaction.editReply({ content: 'Session timed out' });
                     });
-
+                const typeFilter = (i: SelectMenuInteraction) => i.user.id == interaction.user.id && i.customId == 'type';
+                await thread.awaitMessageComponent({ componentType: 'SELECT_MENU', filter: typeFilter, time: 60000 }).then(async (select: SelectMenuInteraction) => {
+                    showcaseItem.type = select.values[0] as ShowcaseItem['type'];
+                    await thread.send({
+                        content: 'Now, send a message with any files or media you want to include, or `none` to skip ',
+                        embeds: [
+                            {
+                                author: {
+                                    name: showcaseItem.type.toString()
+                                },
+                                title: showcaseItem.title,
+                                description: showcaseItem.description,
+                                fields: [
+                                    {
+                                        name: 'URLs',
+                                        value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
+                                    }
+                                ],
+                                color: parseType(showcaseItem.type)
+                            }
+                        ]
+                    });
+                });
                 const mediaFilter = (m: Message) => {
                     return m.author.id == interaction.user.id && (m.attachments.size > 0 || m.content.toLowerCase() == 'none');
                 };
@@ -104,14 +162,18 @@ export default class ShowcaseEmbed extends Embed {
                                 content: 'Lastly, send a message pinging any users you want to include, or `none` to skip.',
                                 embeds: [
                                     {
+                                        author: {
+                                            name: showcaseItem.type.toString()
+                                        },
                                         title: showcaseItem.title,
                                         description: showcaseItem.description,
                                         fields: [
                                             {
                                                 name: 'URLs',
-                                                value: parseURLArray(showcaseItem.urls).join('\n')
+                                                value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
                                             }
-                                        ]
+                                        ],
+                                        color: parseType(showcaseItem.type)
                                     }
                                 ],
                                 files: showcaseItem.media
@@ -135,6 +197,9 @@ export default class ShowcaseEmbed extends Embed {
                                 content: 'Creating your embed now...',
                                 embeds: [
                                     {
+                                        author: {
+                                            name: showcaseItem.type.toString()
+                                        },
                                         title: showcaseItem.title,
                                         description:
                                             showcaseItem.description +
@@ -145,9 +210,10 @@ export default class ShowcaseEmbed extends Embed {
                                         fields: [
                                             {
                                                 name: 'URLs',
-                                                value: parseURLArray(showcaseItem.urls).join('\n')
+                                                value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
                                             }
-                                        ]
+                                        ],
+                                        color: parseType(showcaseItem.type)
                                     }
                                 ],
                                 files: showcaseItem.media
@@ -168,7 +234,8 @@ export default class ShowcaseEmbed extends Embed {
                         upvoteCount: 0,
                         downvoteCount: 0,
                         upvoterIds: [],
-                        downvoterIds: []
+                        downvoterIds: [],
+                        type: dbParseType(showcaseItem.type)
                     }
                 });
                 await thread.send('Success!');
@@ -184,14 +251,14 @@ export default class ShowcaseEmbed extends Embed {
                                 ${showcaseItem.collaboratorIds?.map(u => `<@${u}>`).join('\n') ?? 'None'}
                                 `,
                             author: {
-                                name: interaction.user.username,
+                                name: `${interaction.user.username} • ${showcaseItem.type}`,
                                 icon_url: interaction.user.avatarURL({ dynamic: true })
                             },
-                            color: '#b827f6',
+                            color: parseType(showcaseItem.type),
                             fields: [
                                 {
-                                    name: 'Links',
-                                    value: parseURLArray(showcaseItem.urls).join('\n')
+                                    name: 'URLs',
+                                    value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
                                 }
                             ],
                             footer: {
@@ -310,4 +377,42 @@ const parseURLArray = (urls: string[]) => {
             return [];
         }
     });
+};
+
+const parseType = (type: ShowcaseItem['type']) => {
+    switch (type) {
+        case 'Startup':
+            return '#23362b';
+        case 'Community':
+            return '#1bb28c';
+        case 'Article':
+            return '#e86a58';
+        case 'Design':
+            return '#fed45b';
+        case 'Open-Source':
+            return '#9bc7c5';
+        case 'Tweet':
+            return '#efeeea';
+        case 'Project':
+            return '#219ebc';
+    }
+};
+
+const dbParseType = (type: ShowcaseItem['type']) => {
+    switch (type) {
+        case 'Startup':
+            return 'STARTUP';
+        case 'Community':
+            return 'COMMUNITY';
+        case 'Article':
+            return 'ARTICLE';
+        case 'Design':
+            return 'DESIGN';
+        case 'Open-Source':
+            return 'OPEN_SOURCE';
+        case 'Tweet':
+            return 'TWEET';
+        case 'Project':
+            return 'PROJECT';
+    }
 };

@@ -99,19 +99,9 @@ export interface ShowcaseItem {
     collaboratorIds: string[];
     creatorId: string;
     createdAt: Date;
-    type: ShowcaseItemType;
+    type: 'Startup' | 'Project' | 'Community' | 'Article' | 'Design' | 'Tweet' | 'Open-Source';
     upvoterIds: string[];
     downvoterIds: string[];
     upvoteCount: number;
     downvoteCount: number;
-}
-
-export enum ShowcaseItemType {
-    STARTUP,
-    PROJECT,
-    COMMUNITY,
-    ARTICLE,
-    DESIGN,
-    TWEET,
-    OPEN_SOURCE
 }
