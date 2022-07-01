@@ -1,8 +1,11 @@
-import { Interaction, MessageActionRow, MessageActionRowOptions, MessageEmbed, MessageEmbedOptions, MessageOptions } from "discord.js";
-import DiscordClient from "./DiscordClient";
+import {
+    Interaction, MessageActionRow, MessageActionRowOptions, MessageEmbed, MessageEmbedOptions,
+    MessageOptions
+} from 'discord.js';
+
+import DiscordClient from './DiscordClient';
 
 export default abstract class Embed {
-
     /**
      * Name of this embed
      */
@@ -40,8 +43,8 @@ export default abstract class Embed {
 
     /**
      * Handles any interactions with the message
-     * @param interaction 
-     * @param client 
+     * @param interaction
+     * @param client
      */
-    abstract onInteraction(interaction: Interaction, client: DiscordClient): void;
+    abstract onInteraction(interaction: Interaction, client: DiscordClient): Promise<void>;
 }

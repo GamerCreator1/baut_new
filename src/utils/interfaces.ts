@@ -22,6 +22,11 @@ export interface IConfig {
      * Active role id
      */
     activeRole: string;
+
+    /**
+     * If the environment is product
+     */
+    prod: boolean;
 }
 
 /**
@@ -84,4 +89,29 @@ export interface IEmbed {
     url?: string;
     image?: string;
     id?: number | string;
+}
+
+export interface ShowcaseItem {
+    title: string;
+    description: string;
+    urls: string[];
+    media: string[];
+    collaboratorIds: string[];
+    creatorId: string;
+    createdAt: Date;
+    type: ShowcaseItemType;
+    upvoterIds: string[];
+    downvoterIds: string[];
+    upvoteCount: number;
+    downvoteCount: number;
+}
+
+export enum ShowcaseItemType {
+    STARTUP,
+    PROJECT,
+    COMMUNITY,
+    ARTICLE,
+    DESIGN,
+    TWEET,
+    OPEN_SOURCE
 }

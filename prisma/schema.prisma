@@ -36,67 +36,36 @@ model embeds {
   content String
 }
 
-model User {
-  discordId String @id @db.VarChar
-  username String @db.VarChar
-  displayName String @db.VarChar
-  isActivated Boolean @default(false)
-  isEmailVerified Boolean @default(false)
-  isEarlySupporter Boolean @default(false)
-  email String @db.VarChar
-  socialConnections SocialConnection[]
-  careerBadges UsersOnCareerBadges[]
-  ownedShowcaseItems ShowcaseItem[]
-  participatedShowcaseItems ShowcaseItem[]
-  servicesInUse BuilderGroopService[]
+model ShowcaseItem {
+  id     Int    @id @default(autoincrement())
+  title String @db.VarChar
+  description String
+  urls String[]
+  media String[]
+  collaboratorIds String[]
+  creatorId String
+  upvoterIds String[]
+  downvoterIds String[]
+  upvoteCount Int
+  downvoteCount Int
+  createdAt DateTime
 }
 
-model SocialConnection {
-  provider SocialProvider
-  providerEmail String @db.VarChar
-  providerUsername String @db.VarChar
-  providerUserId String @db.VarChar
-  user User @relation(fields: [userId])
-  userId String @db.VarChar
-}
-
-model SocialProvider {
-  id String @id @db.VarChar
-  name String @db.VarChar
-  logoUrl String @db.VarChar
-}
-
-model UsersOnCareerBadges {
-  user User @relation(fields: [userId])
-  userId String @db.VarChar
-  careerBadge CareerBadge
-  careerBadgeId String @db.VarChar
-
-  @@id([userId, careerBadgeId])
-}
-
-model CareerBadge {
-  title String @db.VarChar 
-  description String @db.VarChar
-  iconUrl String @db.VarChar
-}
-
-enum ShowcaseItemType {
+enum ShowcaseItemTypeEnum {
   STARTUP
   PROJECT
+  COMMUNITY
   ARTICLE
   DESIGN
   TWEET
-  OPEN SOURCE
+  OPEN_SOURCE
 }
 
-model ShowcaseItem {
-  type ShowcaseItemType
+model Achievement {
+  id    Int    @id @default(autoincrement())
   title String @db.VarChar
-  description String @db.VarChar
-  urls String[] @db.VarChar
-  media String[] @db.VarChar
-  collaborators User[] @relation(fields: [collaboratorIds])
-  collaboratorIds String[] @db.VarChar
-  
+  description String
+  creatorId  String
+  media String[]
+  urls String[]
 }
