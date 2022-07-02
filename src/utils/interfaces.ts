@@ -105,3 +105,12 @@ export interface ShowcaseItem {
     upvoteCount: number;
     downvoteCount: number;
 }
+
+export interface AchievementItem {
+    title: string;
+    description: string;
+    urls: string[];
+    media: string[];
+    createdAt: Date;
+    creatorId: string;
+}

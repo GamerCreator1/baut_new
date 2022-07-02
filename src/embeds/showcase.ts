@@ -16,7 +16,7 @@ export default class ShowcaseEmbed extends Embed {
         super(
             'Showcase',
             {
-                title: 'BuilderGroop Showcase',
+                title: 'BuilderGroop Showcase 🎖',
                 description: 'Press the button below to create a new showcase item.'
             },
             ['create-showcase', 'showcase/'],
