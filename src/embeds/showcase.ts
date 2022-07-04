@@ -1,6 +1,6 @@
 import { ChannelType, ThreadAutoArchiveDuration } from 'discord-api-types/v10';
 import {
-    ButtonInteraction, CacheType, Interaction, Message, MessageActionRow, MessageButton,
+    ButtonInteraction, CacheType, Collection, Interaction, Message, MessageActionRow, MessageButton,
     MessageSelectMenu, Modal, ModalActionRowComponent, ModalSubmitInteraction,
     SelectMenuInteraction, TextChannel, TextInputComponent
 } from 'discord.js';
@@ -12,6 +12,8 @@ import Embed from '@structures/Embed';
 import { ShowcaseItem } from '@utils/interfaces';
 
 export default class ShowcaseEmbed extends Embed {
+    private static sessions: Collection<string, string> = new Collection();
+
     constructor() {
         super(
             'Showcase',
@@ -28,6 +30,10 @@ export default class ShowcaseEmbed extends Embed {
         if (interaction.isButton() && interaction.customId == 'create-showcase') {
             const showcaseChannel = interaction.channel;
             if (showcaseChannel.isText()) {
+                if (ShowcaseEmbed.sessions.has(interaction.user.id)) {
+                    interaction.reply({ content: `You already have a showcase session open. View it at <#${ShowcaseEmbed.sessions.get(interaction.user.id)}>`, ephemeral: true });
+                    return;
+                }
                 const thread = await (showcaseChannel as TextChannel).threads.create({
                     name: 'Create Showcase Item',
                     autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
@@ -35,6 +41,7 @@ export default class ShowcaseEmbed extends Embed {
                     type: client.config.prod ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread
                 });
                 await interaction.reply({ content: `Started a process to create a showcase item at ${thread.toString()}`, ephemeral: true });
+                ShowcaseEmbed.sessions.set(interaction.user.id, thread.id);
                 await thread.send({
                     embeds: [
                         {
@@ -239,6 +246,7 @@ export default class ShowcaseEmbed extends Embed {
                     }
                 });
                 await thread.send('Success!');
+                ShowcaseEmbed.sessions.delete(interaction.user.id);
                 await thread.delete(`Created showcase item ${item.id}`);
                 const showcaseMessage = await showcaseChannel.send({
                     embeds: [

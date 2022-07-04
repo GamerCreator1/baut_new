@@ -1,6 +1,6 @@
 import { ChannelType, ThreadAutoArchiveDuration } from 'discord-api-types/v10';
 import {
-    ButtonInteraction, CacheType, Interaction, Message, MessageActionRow, MessageButton,
+    ButtonInteraction, CacheType, Collection, Interaction, Message, MessageActionRow, MessageButton,
     MessageSelectMenu, Modal, ModalActionRowComponent, ModalSubmitInteraction,
     SelectMenuInteraction, TextChannel, TextInputComponent
 } from 'discord.js';
@@ -12,6 +12,8 @@ import Embed from '@structures/Embed';
 import { AchievementItem } from '@utils/interfaces';
 
 export default class WinEmbed extends Embed {
+    private static sessions: Collection<string, string> = new Collection();
+
     constructor() {
         super(
             'Win',
@@ -28,6 +30,10 @@ export default class WinEmbed extends Embed {
         if (interaction.isButton() && interaction.customId == 'create-win') {
             const winChannel = interaction.channel;
             if (winChannel.isText()) {
+                if (WinEmbed.sessions.has(interaction.user.id)) {
+                    interaction.reply({ content: `You already have an achievement session open. View it at <#${WinEmbed.sessions.get(interaction.user.id)}>`, ephemeral: true });
+                    return;
+                }
                 const thread = await (winChannel as TextChannel).threads.create({
                     name: 'Create Win Item',
                     autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
@@ -35,6 +41,7 @@ export default class WinEmbed extends Embed {
                     type: client.config.prod ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread
                 });
                 await interaction.reply({ content: `Started a process to create an achievement at ${thread.toString()}`, ephemeral: true });
+                WinEmbed.sessions.set(interaction.user.id, thread.id);
                 await thread.send({
                     embeds: [
                         {
@@ -132,6 +139,7 @@ export default class WinEmbed extends Embed {
                     }
                 });
                 await thread.send('Success!');
+                WinEmbed.sessions.delete(interaction.user.id);
                 await thread.delete(`Created win item ${item.id}`);
                 const winMessage = await winChannel.send({
                     embeds: [
