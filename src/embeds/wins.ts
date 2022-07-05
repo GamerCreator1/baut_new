@@ -1,8 +1,8 @@
 import { ChannelType, ThreadAutoArchiveDuration } from 'discord-api-types/v10';
 import {
-    ButtonInteraction, CacheType, Collection, Interaction, Message, MessageActionRow, MessageButton,
-    MessageSelectMenu, Modal, ModalActionRowComponent, ModalSubmitInteraction,
-    SelectMenuInteraction, TextChannel, TextInputComponent
+    ButtonInteraction, CacheType, Collection, ColorResolvable, Interaction, Message,
+    MessageActionRow, MessageButton, MessageSelectMenu, Modal, ModalActionRowComponent,
+    ModalSubmitInteraction, SelectMenuInteraction, TextChannel, TextInputComponent
 } from 'discord.js';
 
 import Logger from '@classes/Logger';
@@ -13,6 +13,8 @@ import { AchievementItem } from '@utils/interfaces';
 
 export default class WinEmbed extends Embed {
     private static sessions: Collection<string, string> = new Collection();
+    private static cooldowns: Collection<string, Date> = new Collection();
+    private cancelled = false;
 
     constructor() {
         super(
@@ -33,6 +35,11 @@ export default class WinEmbed extends Embed {
                 if (WinEmbed.sessions.has(interaction.user.id)) {
                     interaction.reply({ content: `You already have an achievement session open. View it at <#${WinEmbed.sessions.get(interaction.user.id)}>`, ephemeral: true });
                     return;
+                } else if (WinEmbed.cooldowns.has(interaction.user.id)) {
+                    const cooldown = WinEmbed.cooldowns.get(interaction.user.id);
+                    const timeLeft = cooldown.getTime() - Date.now();
+                    interaction.reply({ content: `You must wait ${Math.floor(timeLeft / 60000)} minutes before creating another achievement.`, ephemeral: true });
+                    return;
                 }
                 const thread = await (winChannel as TextChannel).threads.create({
                     name: 'Create Win Item',
@@ -42,16 +49,30 @@ export default class WinEmbed extends Embed {
                 });
                 await interaction.reply({ content: `Started a process to create an achievement at ${thread.toString()}`, ephemeral: true });
                 WinEmbed.sessions.set(interaction.user.id, thread.id);
-                await thread.send({
+                const initMessage = await thread.send({
+                    content: interaction.user.toString(),
                     embeds: [
                         {
                             description: 'Press the button below to fill in information about the achievement.'
                         }
                     ],
-                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel('Create Achievement Item').setCustomId('show-win-modal').setStyle('PRIMARY'))]
+                    components: [
+                        new MessageActionRow().addComponents(
+                            new MessageButton().setLabel('Create Achievement Item').setCustomId('show-win-modal').setStyle('PRIMARY'),
+                            new MessageButton().setLabel('Cancel').setStyle('DANGER').setCustomId('cancel')
+                        )
+                    ]
+                });
+                const cancelFilter = (i: ButtonInteraction) => i.customId == 'cancel' && i.user.id == interaction.user.id;
+                const cancelCollector = initMessage.createMessageComponentCollector({ filter: cancelFilter, max: 1 }).on('collect', async () => {
+                    await interaction.editReply({ content: 'Cancelled creation of an achievement item.' });
+                    WinEmbed.sessions.delete(interaction.user.id);
+                    thread.delete();
+                    this.cancelled = true;
                 });
                 const filter = (i: ButtonInteraction) => i.customId == 'show-win-modal' && i.user.id == interaction.user.id;
                 let winItem = {} as AchievementItem;
+                if (this.cancelled) return;
                 await thread
                     .awaitMessageComponent({ componentType: 'BUTTON', filter, time: 60000 })
                     .then(async (click: ButtonInteraction) => {
@@ -98,11 +119,13 @@ export default class WinEmbed extends Embed {
                         Logger.log('ERROR', e.stack);
                         thread.delete('Session timed out');
                         interaction.editReply({ content: 'Session timed out' });
+                        throw e;
                     });
                 const parsedUrls = parseURLArray(winItem.urls);
                 const mediaFilter = (m: Message) => {
                     return m.author.id == interaction.user.id && (m.attachments.size > 0 || m.content.toLowerCase() == 'none');
                 };
+                if (this.cancelled) return;
                 await thread
                     .awaitMessages({ filter: mediaFilter, time: 60000, maxProcessed: 1 })
                     .then(async collected => {
@@ -131,7 +154,9 @@ export default class WinEmbed extends Embed {
                         Logger.log('ERROR', e.stack);
                         thread.delete('Session timed out');
                         interaction.editReply({ content: 'Session timed out' });
+                        throw e;
                     });
+                if (this.cancelled) return;
                 const item = await client.db.achievement.create({
                     data: {
                         ...winItem,
@@ -140,6 +165,9 @@ export default class WinEmbed extends Embed {
                 });
                 await thread.send('Success!');
                 WinEmbed.sessions.delete(interaction.user.id);
+                WinEmbed.cooldowns.set(interaction.user.id, new Date(Date.now() + 60 * 30 * 1000));
+                setTimeout(() => WinEmbed.cooldowns.delete(interaction.user.id), 60 * 30 * 1000);
+                cancelCollector.stop();
                 await thread.delete(`Created win item ${item.id}`);
                 const winMessage = await winChannel.send({
                     embeds: [
@@ -150,7 +178,7 @@ export default class WinEmbed extends Embed {
                                 name: interaction.user.username,
                                 icon_url: interaction.user.avatarURL({ dynamic: true })
                             },
-                            color: '#491774',
+                            color: process.env.BUILDERGROOP_COLOR as ColorResolvable,
                             fields:
                                 parsedUrls.length > 0
                                     ? [
@@ -180,7 +208,6 @@ const parseURLArray = (urls: string[]) => {
         try {
             return [`[${new URL(u).hostname}](${u})`];
         } catch (e) {
-            Logger.log('ERROR', e.stack);
             return [];
         }
     });

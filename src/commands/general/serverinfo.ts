@@ -19,7 +19,7 @@ export default class ServerInfoCommand extends Command {
     async run(command: CommandInteraction) {
         const owner = await command.guild.fetchOwner();
         const embed = {
-            color: 'DARK_PURPLE',
+            color: process.env.BUILDERGROOP_COLOR,
             title: 'Server Information',
             fields: [
                 {

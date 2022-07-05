@@ -13,6 +13,8 @@ import { ShowcaseItem } from '@utils/interfaces';
 
 export default class ShowcaseEmbed extends Embed {
     private static sessions: Collection<string, string> = new Collection();
+    private static cooldowns: Collection<string, Date> = new Collection();
+    private cancelled = false;
 
     constructor() {
         super(
@@ -33,6 +35,11 @@ export default class ShowcaseEmbed extends Embed {
                 if (ShowcaseEmbed.sessions.has(interaction.user.id)) {
                     interaction.reply({ content: `You already have a showcase session open. View it at <#${ShowcaseEmbed.sessions.get(interaction.user.id)}>`, ephemeral: true });
                     return;
+                } else if (ShowcaseEmbed.cooldowns.has(interaction.user.id)) {
+                    const cooldown = ShowcaseEmbed.cooldowns.get(interaction.user.id);
+                    const timeLeft = cooldown.getTime() - Date.now();
+                    interaction.reply({ content: `You must wait ${Math.floor(timeLeft / 60000)} minutes before creating another achievement.`, ephemeral: true });
+                    return;
                 }
                 const thread = await (showcaseChannel as TextChannel).threads.create({
                     name: 'Create Showcase Item',
@@ -42,16 +49,30 @@ export default class ShowcaseEmbed extends Embed {
                 });
                 await interaction.reply({ content: `Started a process to create a showcase item at ${thread.toString()}`, ephemeral: true });
                 ShowcaseEmbed.sessions.set(interaction.user.id, thread.id);
-                await thread.send({
+                const initMessage = await thread.send({
+                    content: interaction.user.toString(),
                     embeds: [
                         {
-                            description: 'Press the button below to fill in information about the showcase item.'
+                            description: 'Press the blue button below to fill in information about the showcase item. Press the red button below to cancel at any time.'
                         }
                     ],
-                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel('Create Showcase Item').setCustomId('show-showcase-modal').setStyle('PRIMARY'))]
+                    components: [
+                        new MessageActionRow().addComponents(
+                            new MessageButton().setLabel('Create Showcase Item').setCustomId('show-showcase-modal').setStyle('PRIMARY'),
+                            new MessageButton().setLabel('Cancel').setStyle('DANGER').setCustomId('cancel')
+                        )
+                    ]
+                });
+                const cancelFilter = (i: ButtonInteraction) => i.customId == 'cancel' && i.user.id == interaction.user.id;
+                const cancelCollector = initMessage.createMessageComponentCollector({ filter: cancelFilter, max: 1 }).on('collect', async () => {
+                    await interaction.editReply({ content: 'Cancelled creation of a showcase item.' });
+                    ShowcaseEmbed.sessions.delete(interaction.user.id);
+                    thread.delete();
+                    this.cancelled = true;
                 });
                 const filter = (i: ButtonInteraction) => i.customId == 'show-showcase-modal' && i.user.id == interaction.user.id;
                 let showcaseItem = {} as ShowcaseItem;
+                if (this.cancelled) return;
                 await thread
                     .awaitMessageComponent({ componentType: 'BUTTON', filter, time: 60000 })
                     .then(async (click: ButtonInteraction) => {
@@ -75,6 +96,7 @@ export default class ShowcaseEmbed extends Embed {
                             showcaseItem.title = modalSubmit.fields.getTextInputValue('title');
                             showcaseItem.description = modalSubmit.fields.getTextInputValue('description');
                             showcaseItem.urls = modalSubmit.fields.getTextInputValue('urls')?.split('\n') ?? [];
+                            const parsed = parseURLArray(showcaseItem.urls);
                             await thread.send({
                                 content: 'Now, select the type of your showcase submission.',
                                 embeds: [
@@ -84,7 +106,7 @@ export default class ShowcaseEmbed extends Embed {
                                         fields: [
                                             {
                                                 name: 'URLs',
-                                                value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
+                                                value: parsed.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
                                             }
                                         ],
                                         color: parseType(showcaseItem.type)
@@ -132,8 +154,10 @@ export default class ShowcaseEmbed extends Embed {
                         Logger.log('ERROR', e.stack);
                         thread.delete('Session timed out');
                         interaction.editReply({ content: 'Session timed out' });
+                        throw e;
                     });
                 const typeFilter = (i: SelectMenuInteraction) => i.user.id == interaction.user.id && i.customId == 'type';
+                const parsed = parseURLArray(showcaseItem.urls);
                 await thread.awaitMessageComponent({ componentType: 'SELECT_MENU', filter: typeFilter, time: 60000 }).then(async (select: SelectMenuInteraction) => {
                     showcaseItem.type = select.values[0] as ShowcaseItem['type'];
                     await thread.send({
@@ -148,7 +172,7 @@ export default class ShowcaseEmbed extends Embed {
                                 fields: [
                                     {
                                         name: 'URLs',
-                                        value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
+                                        value: parsed.length > 0 ? parsed.join('\n') : 'No URLs provided'
                                     }
                                 ],
                                 color: parseType(showcaseItem.type)
@@ -159,6 +183,7 @@ export default class ShowcaseEmbed extends Embed {
                 const mediaFilter = (m: Message) => {
                     return m.author.id == interaction.user.id && (m.attachments.size > 0 || m.content.toLowerCase() == 'none');
                 };
+                if (this.cancelled) return;
                 await thread
                     .awaitMessages({ filter: mediaFilter, time: 60000, maxProcessed: 1 })
                     .then(async collected => {
@@ -177,7 +202,7 @@ export default class ShowcaseEmbed extends Embed {
                                         fields: [
                                             {
                                                 name: 'URLs',
-                                                value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
+                                                value: parsed.length > 0 ? parsed.join('\n') : 'No URLs provided'
                                             }
                                         ],
                                         color: parseType(showcaseItem.type)
@@ -191,9 +216,11 @@ export default class ShowcaseEmbed extends Embed {
                         Logger.log('ERROR', e.stack);
                         thread.delete('Session timed out');
                         interaction.editReply({ content: 'Session timed out' });
+                        throw e;
                     });
 
                 const userMentionFilter = (m: Message) => m.author.id == interaction.user.id && m.mentions.users.size > 0;
+                if (this.cancelled) return;
                 await thread
                     .awaitMessages({ filter: userMentionFilter, time: 60000, maxProcessed: 1 })
                     .then(async collected => {
@@ -217,7 +244,7 @@ export default class ShowcaseEmbed extends Embed {
                                         fields: [
                                             {
                                                 name: 'URLs',
-                                                value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
+                                                value: parsed.length > 0 ? parsed.join('\n') : 'No URLs provided'
                                             }
                                         ],
                                         color: parseType(showcaseItem.type)
@@ -231,6 +258,7 @@ export default class ShowcaseEmbed extends Embed {
                         Logger.log('ERROR', e.stack);
                         thread.delete('Session timed out');
                         interaction.editReply({ content: 'Session timed out' });
+                        throw e;
                     });
 
                 const item = await client.db.showcaseItem.create({
@@ -245,9 +273,13 @@ export default class ShowcaseEmbed extends Embed {
                         type: dbParseType(showcaseItem.type)
                     }
                 });
+                if (this.cancelled) return;
                 await thread.send('Success!');
                 ShowcaseEmbed.sessions.delete(interaction.user.id);
                 await thread.delete(`Created showcase item ${item.id}`);
+                ShowcaseEmbed.cooldowns.set(interaction.user.id, new Date(Date.now() + 60 * 30 * 1000));
+                setTimeout(() => ShowcaseEmbed.cooldowns.delete(interaction.user.id), 60 * 30 * 1000);
+                cancelCollector.stop();
                 const showcaseMessage = await showcaseChannel.send({
                     embeds: [
                         {
@@ -266,7 +298,7 @@ export default class ShowcaseEmbed extends Embed {
                             fields: [
                                 {
                                     name: 'URLs',
-                                    value: showcaseItem.urls.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
+                                    value: parsed.length > 0 ? parsed.join('\n') : 'No URLs provided'
                                 }
                             ],
                             footer: {
@@ -381,7 +413,6 @@ const parseURLArray = (urls: string[]) => {
         try {
             return [`[${new URL(u).hostname}](${u})`];
         } catch (e) {
-            Logger.log('ERROR', e.stack);
             return [];
         }
     });

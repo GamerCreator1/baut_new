@@ -3,6 +3,8 @@ import {
     MessageOptions
 } from 'discord.js';
 
+import Logger from '@classes/Logger';
+
 import DiscordClient from './DiscordClient';
 
 export default abstract class Embed {
@@ -47,4 +49,8 @@ export default abstract class Embed {
      * @param client
      */
     abstract onInteraction(interaction: Interaction, client: DiscordClient): Promise<void>;
+
+    async onError() {
+        Logger.log('WARNING', `An error occured in Embed ${this.id}: ${this.name}`);
+    }
 }

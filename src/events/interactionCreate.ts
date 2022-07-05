@@ -14,9 +14,13 @@ export default class InteractionEvent extends Event {
         else if (interaction.isAutocomplete()) return CommandHandler.handleAutocomplete(this.client, interaction);
         else if (interaction.isMessageComponent()) {
             const id = interaction.customId;
-            this.client.registry.getEmbeds().forEach(embed => {
+            this.client.registry.getEmbeds().forEach(async embed => {
                 if (embed.interactionIds.some(i => id.startsWith(i))) {
-                    embed.onInteraction(interaction, this.client);
+                    try {
+                        embed.onInteraction(interaction, this.client);
+                    } catch (e) {
+                        await embed.onError();
+                    }
                 }
             });
         }
