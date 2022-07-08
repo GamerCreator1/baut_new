@@ -1,8 +1,19 @@
 import { ChannelType, ThreadAutoArchiveDuration } from 'discord-api-types/v10';
 import {
-    ButtonInteraction, CacheType, Collection, Interaction, Message, MessageActionRow, MessageButton,
-    MessageSelectMenu, Modal, ModalActionRowComponent, ModalSubmitInteraction,
-    SelectMenuInteraction, TextChannel, TextInputComponent
+    ButtonInteraction,
+    CacheType,
+    Collection,
+    Interaction,
+    Message,
+    MessageActionRow,
+    MessageButton,
+    MessageSelectMenu,
+    Modal,
+    ModalActionRowComponent,
+    ModalSubmitInteraction,
+    SelectMenuInteraction,
+    TextChannel,
+    TextInputComponent
 } from 'discord.js';
 
 import Logger from '@classes/Logger';
@@ -49,19 +60,16 @@ export default class ShowcaseEmbed extends Embed {
                 });
                 await interaction.reply({ content: `Started a process to create a showcase item at ${thread.toString()}`, ephemeral: true });
                 ShowcaseEmbed.sessions.set(interaction.user.id, thread.id);
+                let showcaseItem = {} as ShowcaseItem;
+
                 const initMessage = await thread.send({
                     content: interaction.user.toString(),
                     embeds: [
                         {
-                            description: 'Press the blue button below to fill in information about the showcase item. Press the red button below to cancel at any time.'
+                            description: 'Send a message containing the **title** of your Showcase submission. Press the red button below to cancel at any time.'
                         }
                     ],
-                    components: [
-                        new MessageActionRow().addComponents(
-                            new MessageButton().setLabel('Create Showcase Item').setCustomId('show-showcase-modal').setStyle('PRIMARY'),
-                            new MessageButton().setLabel('Cancel').setStyle('DANGER').setCustomId('cancel')
-                        )
-                    ]
+                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel('Cancel').setStyle('DANGER').setCustomId('cancel'))]
                 });
                 const cancelFilter = (i: ButtonInteraction) => i.customId == 'cancel' && i.user.id == interaction.user.id;
                 const cancelCollector = initMessage.createMessageComponentCollector({ filter: cancelFilter, max: 1 }).on('collect', async () => {
@@ -70,159 +78,147 @@ export default class ShowcaseEmbed extends Embed {
                     thread.delete();
                     this.cancelled = true;
                 });
-                const filter = (i: ButtonInteraction) => i.customId == 'show-showcase-modal' && i.user.id == interaction.user.id;
-                let showcaseItem = {} as ShowcaseItem;
                 if (this.cancelled) return;
+                const msgFilter = (m: Message) => m.author.id == interaction.user.id;
                 await thread
-                    .awaitMessageComponent({ componentType: 'BUTTON', filter, time: 60000 })
-                    .then(async (click: ButtonInteraction) => {
-                        const modal = new Modal()
-                            .setCustomId('showcase-info-modal')
-                            .setTitle('Showcase Details')
-                            .addComponents(
-                                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                                    new TextInputComponent().setLabel('Title').setStyle('SHORT').setCustomId('title').setMaxLength(256).setRequired(true)
-                                ),
-                                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                                    new TextInputComponent().setLabel('Description').setStyle('PARAGRAPH').setCustomId('description').setRequired(true)
-                                ),
-                                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                                    new TextInputComponent().setLabel('URLs(separated by new line)').setStyle('PARAGRAPH').setCustomId('urls')
-                                )
-                            );
-                        await click.showModal(modal);
-                        const filter = (i: ModalSubmitInteraction) => i.customId == 'showcase-info-modal' && i.user.id == interaction.user.id;
-                        await click.awaitModalSubmit({ filter, time: 60000 }).then(async (modalSubmit: ModalSubmitInteraction) => {
-                            showcaseItem.title = modalSubmit.fields.getTextInputValue('title');
-                            showcaseItem.description = modalSubmit.fields.getTextInputValue('description');
-                            showcaseItem.urls = modalSubmit.fields.getTextInputValue('urls')?.split('\n') ?? [];
-                            const parsed = parseURLArray(showcaseItem.urls);
-                            await thread.send({
-                                content: 'Now, select the type of your showcase submission.',
-                                embeds: [
-                                    {
-                                        title: showcaseItem.title,
-                                        description: showcaseItem.description,
-                                        fields: [
-                                            {
-                                                name: 'URLs',
-                                                value: parsed.length > 0 ? parseURLArray(showcaseItem.urls).join('\n') : 'No URLs provided'
-                                            }
-                                        ],
-                                        color: parseType(showcaseItem.type)
-                                    }
-                                ],
-                                components: [
-                                    new MessageActionRow().addComponents(
-                                        new MessageSelectMenu().setPlaceholder('Select a Type').setCustomId('type').setMaxValues(1).setOptions(
-                                            {
-                                                label: 'Startup',
-                                                value: 'Startup'
-                                            },
-                                            {
-                                                label: 'Project',
-                                                value: 'Project'
-                                            },
-                                            {
-                                                label: 'Community',
-                                                value: 'Community'
-                                            },
-                                            {
-                                                label: 'Article',
-                                                value: 'Article'
-                                            },
-                                            {
-                                                label: 'Design',
-                                                value: 'Design'
-                                            },
-                                            {
-                                                label: 'Tweet',
-                                                value: 'Tweet'
-                                            },
-                                            {
-                                                label: 'Open-Source',
-                                                value: 'Open-Source'
-                                            }
-                                        )
-                                    )
-                                ]
-                            });
-                            await modalSubmit.reply({ content: 'Success!', ephemeral: true });
+                    .awaitMessages({ filter: msgFilter, time: 60000, errors: ['threadDelete'], maxProcessed: 1 })
+                    .then(async collected => {
+                        showcaseItem.title = collected.first().content;
+                        await thread.send({
+                            embeds: [{ description: 'Next, send a brief **description** of your Showcase submission.' }]
                         });
                     })
-                    .catch(e => {
-                        Logger.log('ERROR', e.stack);
-                        thread.delete('Session timed out');
-                        interaction.editReply({ content: 'Session timed out' });
-                        throw e;
+                    .catch(async e => {
+                        if (this.cancelled) {
+                            await interaction.editReply({ content: 'Cancelled creation of a showcase item.' });
+                        } else {
+                            await interaction.editReply({ content: 'Timed out waiting for a response.' });
+                            await thread.delete();
+                        }
+                    });
+                if (this.cancelled) return;
+                await thread
+                    .awaitMessages({ filter: msgFilter, time: 60000, errors: ['threadDelete'], maxProcessed: 1 })
+                    .then(async collected => {
+                        showcaseItem.description = collected.first().content;
+                        await thread.send({
+                            embeds: [{ description: 'Next, send any **links** related to your Showcase submission, separated by commas(`link1,link2`), or `none` to skip.' }]
+                        });
+                    })
+                    .catch(async e => {
+                        if (this.cancelled) {
+                            await interaction.editReply({ content: 'Cancelled creation of a showcase item.' });
+                        } else {
+                            await interaction.editReply({ content: 'Timed out waiting for a response.' });
+                            await thread.delete();
+                        }
+                    });
+                if (this.cancelled) return;
+                await thread
+                    .awaitMessages({ filter: msgFilter, time: 60000, errors: ['threadDelete'], maxProcessed: 1 })
+                    .then(async collected => {
+                        if (collected.first().content.toLowerCase() != 'none') {
+                            showcaseItem.urls = collected
+                                .first()
+                                .content.split(',')
+                                .map(l => l.trim());
+                        } else {
+                            showcaseItem.urls = [];
+                        }
+                        await thread.send({
+                            embeds: [{ description: 'Now, select the type of your showcase submission.' }],
+                            components: [
+                                new MessageActionRow().addComponents(
+                                    new MessageSelectMenu().setPlaceholder('Select a Type').setCustomId('type').setMaxValues(1).setOptions(
+                                        {
+                                            label: 'Startup',
+                                            value: 'Startup'
+                                        },
+                                        {
+                                            label: 'Project',
+                                            value: 'Project'
+                                        },
+                                        {
+                                            label: 'Community',
+                                            value: 'Community'
+                                        },
+                                        {
+                                            label: 'Article',
+                                            value: 'Article'
+                                        },
+                                        {
+                                            label: 'Design',
+                                            value: 'Design'
+                                        },
+                                        {
+                                            label: 'Tweet',
+                                            value: 'Tweet'
+                                        },
+                                        {
+                                            label: 'Open-Source',
+                                            value: 'Open-Source'
+                                        }
+                                    )
+                                )
+                            ]
+                        });
+                    })
+                    .catch(async e => {
+                        if (this.cancelled) {
+                            await interaction.editReply({ content: 'Cancelled creation of a showcase item.' });
+                        } else {
+                            Logger.log('ERROR', e.stack);
+                            await interaction.editReply({ content: 'Timed out waiting for a response.' });
+                            await thread.delete();
+                        }
                     });
                 const typeFilter = (i: SelectMenuInteraction) => i.user.id == interaction.user.id && i.customId == 'type';
                 const parsed = parseURLArray(showcaseItem.urls);
-                await thread.awaitMessageComponent({ componentType: 'SELECT_MENU', filter: typeFilter, time: 60000 }).then(async (select: SelectMenuInteraction) => {
-                    showcaseItem.type = select.values[0] as ShowcaseItem['type'];
-                    await thread.send({
-                        content: 'Now, send a message with any files or media you want to include, or `none` to skip ',
-                        embeds: [
-                            {
-                                author: {
-                                    name: showcaseItem.type.toString()
-                                },
-                                title: showcaseItem.title,
-                                description: showcaseItem.description,
-                                fields: [
-                                    {
-                                        name: 'URLs',
-                                        value: parsed.length > 0 ? parsed.join('\n') : 'No URLs provided'
-                                    }
-                                ],
-                                color: parseType(showcaseItem.type)
-                            }
-                        ]
+                if (this.cancelled) return;
+                await thread
+                    .awaitMessageComponent({ componentType: 'SELECT_MENU', filter: typeFilter, time: 60000 })
+                    .then(async (select: SelectMenuInteraction) => {
+                        showcaseItem.type = select.values[0] as ShowcaseItem['type'];
+                        await select.reply({
+                            embeds: [{ description: 'Now, send a message with any files or media you want to include, or `none` to skip' }]
+                        });
+                    })
+                    .catch(e => {
+                        if (!this.cancelled) {
+                            thread.delete('Session timed out');
+                            interaction.editReply({ content: 'Session timed out' });
+                        } else {
+                            interaction.editReply({ content: 'Cancelled.' });
+                        }
                     });
-                });
                 const mediaFilter = (m: Message) => {
                     return m.author.id == interaction.user.id && (m.attachments.size > 0 || m.content.toLowerCase() == 'none');
                 };
                 if (this.cancelled) return;
                 await thread
-                    .awaitMessages({ filter: mediaFilter, time: 60000, maxProcessed: 1 })
+                    .awaitMessages({ filter: mediaFilter, time: 60000, maxProcessed: 1, errors: ['threadDelete'] })
                     .then(async collected => {
                         const media = collected.first();
                         if (media) {
                             showcaseItem.media = media.attachments.map(a => a.url);
                             await thread.send({
-                                content: 'Lastly, send a message pinging any users you want to include, or `none` to skip.',
-                                embeds: [
-                                    {
-                                        author: {
-                                            name: showcaseItem.type.toString()
-                                        },
-                                        title: showcaseItem.title,
-                                        description: showcaseItem.description,
-                                        fields: [
-                                            {
-                                                name: 'URLs',
-                                                value: parsed.length > 0 ? parsed.join('\n') : 'No URLs provided'
-                                            }
-                                        ],
-                                        color: parseType(showcaseItem.type)
-                                    }
-                                ],
-                                files: showcaseItem.media
+                                content: 'Lastly, send a message pinging any users you worked on this with, or `none` to skip.'
                             });
                         }
                     })
                     .catch(e => {
-                        Logger.log('ERROR', e.stack);
-                        thread.delete('Session timed out');
-                        interaction.editReply({ content: 'Session timed out' });
-                        throw e;
+                        if (!this.cancelled) {
+                            thread.delete('Session timed out');
+                            interaction.editReply({ content: 'Session timed out' });
+                        } else {
+                            interaction.editReply({ content: 'Cancelled.' });
+                        }
                     });
 
                 const userMentionFilter = (m: Message) => m.author.id == interaction.user.id && m.mentions.users.size > 0;
                 if (this.cancelled) return;
                 await thread
-                    .awaitMessages({ filter: userMentionFilter, time: 60000, maxProcessed: 1 })
+                    .awaitMessages({ filter: userMentionFilter, time: 60000, maxProcessed: 1, errors: ['threadDelete'] })
                     .then(async collected => {
                         const userMentions = collected.first();
                         if (userMentions) {
@@ -255,10 +251,12 @@ export default class ShowcaseEmbed extends Embed {
                         }
                     })
                     .catch(e => {
-                        Logger.log('ERROR', e.stack);
-                        thread.delete('Session timed out');
-                        interaction.editReply({ content: 'Session timed out' });
-                        throw e;
+                        if (!this.cancelled) {
+                            thread.delete('Session timed out');
+                            interaction.editReply({ content: 'Session timed out' });
+                        } else {
+                            interaction.editReply({ content: 'Cancelled.' });
+                        }
                     });
 
                 const item = await client.db.showcaseItem.create({
@@ -312,7 +310,8 @@ export default class ShowcaseEmbed extends Embed {
                         new MessageActionRow().addComponents(
                             new MessageButton().setLabel('Downvote').setStyle('DANGER').setEmoji('🔻').setCustomId(`showcase/downvote/${item.id}`),
                             new MessageButton().setLabel('Clear').setStyle('SECONDARY').setEmoji('❌').setCustomId(`showcase/clear/${item.id}`),
-                            new MessageButton().setLabel('Upvote').setStyle('SUCCESS').setEmoji('🔺').setCustomId(`showcase/upvote/${item.id}`)
+                            new MessageButton().setLabel('Upvote').setStyle('SUCCESS').setEmoji('🔺').setCustomId(`showcase/upvote/${item.id}`),
+                            new MessageButton().setLabel('Open').setStyle('LINK').setURL('https://buildergroop.com').setEmoji('🔗')
                         )
                     ]
                 });
@@ -323,7 +322,6 @@ export default class ShowcaseEmbed extends Embed {
                 });
             }
         } else if (interaction.isButton() && interaction.customId.startsWith('showcase/')) {
-            await interaction.deferReply({ ephemeral: true });
             const showcaseMessage = interaction.message as Message<boolean>;
             const id = parseInt(interaction.customId.split('/')[2]);
             const userId = interaction.user.id;
@@ -331,8 +329,12 @@ export default class ShowcaseEmbed extends Embed {
             const item = await prisma.showcaseItem.findFirst({
                 where: {
                     id
+                },
+                include: {
+                    downvotes: true
                 }
             });
+            const initialCount = item.upvoteCount - item.downvoteCount;
             if (item) {
                 switch (action) {
                     case 'upvote':
@@ -341,49 +343,75 @@ export default class ShowcaseEmbed extends Embed {
                             item.upvoteCount++;
                             if (item.downvoterIds.includes(userId)) {
                                 item.downvoterIds.splice(item.downvoterIds.indexOf(userId), 1);
+                                item.downvotes = item.downvotes.filter(i => i.downvoterId == userId);
                                 item.downvoteCount--;
-                                await interaction.editReply('Removed your downvote and added an upvote.');
+                                await interaction.reply({ content: 'Removed your downvote and added an upvote.', ephemeral: true });
                                 break;
                             }
-                            await interaction.editReply('Upvoted!');
+                            await interaction.reply({ content: 'Upvoted!', ephemeral: true });
                             break;
                         } else {
                             item.upvoterIds.splice(item.upvoterIds.indexOf(userId), 1);
                             item.upvoteCount--;
-                            await interaction.editReply('Removed your upvote.');
+                            await interaction.reply({ content: 'Removed your upvote.', ephemeral: true });
                             break;
                         }
                     case 'downvote':
                         if (!item.downvoterIds.includes(userId)) {
-                            item.downvoterIds.push(userId);
-                            item.downvoteCount++;
-                            if (item.upvoterIds.includes(userId)) {
-                                item.upvoterIds.splice(item.upvoterIds.indexOf(userId), 1);
-                                item.upvoteCount--;
-                                await interaction.editReply('Removed your upvote and added a downvote.');
-                                break;
-                            }
-                            await interaction.editReply('Downvoted!');
+                            const reasonModal = new Modal()
+                                .setTitle('Showcase Downvote')
+                                .setCustomId('downvote-reason')
+                                .setComponents(
+                                    new MessageActionRow<ModalActionRowComponent>().addComponents(
+                                        new TextInputComponent()
+                                            .setCustomId('downvote-reason-input')
+                                            .setLabel('reason')
+                                            .setStyle('PARAGRAPH')
+                                            .setPlaceholder('Give the creator of this showcase some constructive criticism')
+                                            .setMinLength(1)
+                                            .setRequired(true)
+                                    )
+                                );
+                            await interaction.showModal(reasonModal);
+                            const modalFilter = (interaction: Interaction) => interaction.isModalSubmit() && interaction.customId == 'downvote-reason';
+                            await interaction.awaitModalSubmit({ filter: modalFilter, time: 60000 }).then(async (i: ModalSubmitInteraction) => {
+                                const reason = i.fields.getTextInputValue('downvote-reason-input');
+                                item.downvoterIds.push(userId);
+                                item.downvotes.push({
+                                    downvoterId: userId,
+                                    reason,
+                                    showcaseItemId: id
+                                });
+                                item.downvoteCount++;
+                                if (item.upvoterIds.includes(userId)) {
+                                    item.upvoterIds.splice(item.upvoterIds.indexOf(userId), 1);
+                                    item.upvoteCount--;
+                                    await i.reply({ content: 'Removed your upvote and added a downvote.', ephemeral: true });
+                                } else {
+                                    await i.reply({ content: 'Downvoted!', ephemeral: true });
+                                }
+                            });
                             break;
                         } else {
                             item.downvoterIds.splice(item.downvoterIds.indexOf(userId), 1);
                             item.downvoteCount--;
-                            await interaction.editReply('Removed your downvote.');
+                            await interaction.reply({ content: 'Removed your downvote.', ephemeral: true });
                             break;
                         }
                     case 'clear':
                         if (item.downvoterIds.includes(userId)) {
                             item.downvoterIds.splice(item.downvoterIds.indexOf(userId), 1);
                             item.downvoteCount--;
-                            await interaction.editReply('Removed your downvote');
+                            item.downvotes = item.downvotes.filter(i => i.downvoterId == userId);
+                            await interaction.reply({ content: 'Removed your downvote', ephemeral: true });
                             break;
                         } else if (item.upvoterIds.includes(userId)) {
                             item.upvoterIds.splice(item.upvoterIds.indexOf(userId), 1);
                             item.upvoteCount--;
-                            await interaction.editReply('Removed your upvote.');
+                            await interaction.reply({ content: 'Removed your upvote.', ephemeral: true });
                             break;
                         } else {
-                            await interaction.editReply('You have not voted on this item.');
+                            await interaction.reply({ content: 'You have not voted on this item.', ephemeral: true });
                         }
                     default:
                         break;
@@ -399,10 +427,12 @@ export default class ShowcaseEmbed extends Embed {
                         downvoteCount: item.downvoteCount
                     }
                 });
-                const upvoteCount = item.upvoteCount;
-                await showcaseMessage.edit({
-                    embeds: [showcaseMessage.embeds[0].setFooter({ text: `${upvoteCount} 🔺` })]
-                });
+                const count = item.upvoteCount - item.downvoteCount;
+                if (count != initialCount) {
+                    await showcaseMessage.edit({
+                        embeds: [showcaseMessage.embeds[0].setFooter({ text: `${count} ${count > 0 ? '🔺' : '🔻'}` })]
+                    });
+                }
             }
         }
     }

@@ -37,19 +37,27 @@ model embeds {
 }
 
 model ShowcaseItem {
-  id     Int    @id @default(autoincrement())
-  title String @db.VarChar
-  description String
-  type ShowcaseItemTypeEnum
-  urls String[]
-  media String[]
+  id              Int                  @id @default(autoincrement())
+  title           String               @db.VarChar
+  description     String
+  type            ShowcaseItemTypeEnum
+  urls            String[]
+  media           String[]
   collaboratorIds String[]
-  creatorId String
-  upvoterIds String[]
-  downvoterIds String[]
-  upvoteCount Int
-  downvoteCount Int
-  createdAt DateTime
+  creatorId       String
+  upvoterIds      String[]
+  downvotes       ShowcaseDownvote[]
+  downvoterIds    String[]
+  upvoteCount     Int
+  downvoteCount   Int
+  createdAt       DateTime
+}
+
+model ShowcaseDownvote {
+  downvoterId    String        @id
+  reason         String
+  ShowcaseItem   ShowcaseItem? @relation(fields: [showcaseItemId], references: [id])
+  showcaseItemId Int?
 }
 
 enum ShowcaseItemTypeEnum {
@@ -63,10 +71,12 @@ enum ShowcaseItemTypeEnum {
 }
 
 model Achievement {
-  id    Int    @id @default(autoincrement())
-  title String @db.VarChar
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar
   description String
-  creatorId  String
-  media String[]
-  urls String[]
+  creatorId   String
+  media       String[]
+  urls        String[]
+  clappers    String[]
+  clapCount   Int      @default(0)
 }

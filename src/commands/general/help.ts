@@ -68,7 +68,6 @@ export default class HelpCommand extends Command {
     }
 
     async run(command: CommandInteraction) {
-        throw (new Error('Not implemented'));
         const groups = this.getAvailableGroups(command);
 
         const option = command.options.getString('command_name');

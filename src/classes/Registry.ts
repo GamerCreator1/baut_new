@@ -195,8 +195,7 @@ export default class Registry {
         if (this.embedPaths.length)
             this.embedPaths.forEach(p => {
                 delete require.cache[p];
-            }
-            );
+            });
 
         requireAll({
             dirname: path.join(__dirname, '../embeds'),
@@ -289,7 +288,6 @@ export default class Registry {
         this.registerAllCommands();
         this.registerAllEvents();
         this.registerGuildSlashCommands();
-
     }
 
     /**
