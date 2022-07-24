@@ -1,6 +1,4 @@
-import {
-    DMChannel, GuildChannel, MessageEmbedOptions, TextBasedChannel, TextChannel
-} from 'discord.js';
+import { DMChannel, GuildChannel, MessageEmbedOptions, TextBasedChannel, TextChannel } from 'discord.js';
 
 import Logger from '@classes/Logger';
 import DiscordClient from '@structures/DiscordClient';

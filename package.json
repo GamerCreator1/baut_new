@@ -6,7 +6,8 @@
         "clean": "rimraf dist",
         "build": "yarn clean && tsc -p . && tsc-alias",
         "start": "node dist/client.js",
-        "dev": "nodemon -r tsconfig-paths/register ./src/client.ts"
+        "dev": "nodemon -r tsconfig-paths/register ./src/client.ts",
+        "prettier": "prettier --write ."
     },
     "author": "Neesh774",
     "license": "MIT",
@@ -28,6 +29,7 @@
         "@types/node": "^14.14.10",
         "@types/require-all": "^3.0.3",
         "nodemon": "^2.0.6",
+        "prettier": "^2.7.1",
         "prisma": "^4.0.0",
         "rimraf": "^3.0.2",
         "ts-node": "^10.8.0",

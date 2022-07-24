@@ -35,17 +35,15 @@ export default abstract class Command {
      */
     async onError(command: CommandInteraction, error: any) {
         Logger.log('ERROR', `An error occurred in "${this.data.name}" command.\n${error}\n`, true);
-        console.log(command)
-        const embed =
-            {
-                color: 'RED',
-                title: '💥 Oops...',
-                description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`
-            } as MessageEmbedOptions;
+        console.log(command);
+        const embed = {
+            color: 'RED',
+            title: '💥 Oops...',
+            description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`
+        } as MessageEmbedOptions;
         if (command.deferred) {
             command.editReply({ embeds: [embed] });
-        }
-        else {
+        } else {
             command.reply({ embeds: [embed] });
         }
     }

@@ -1,6 +1,4 @@
-import {
-    AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel
-} from 'discord.js';
+import { AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel } from 'discord.js';
 
 import { formatSeconds, isUserDeveloper } from '@utils/functions';
 

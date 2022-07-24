@@ -28,15 +28,10 @@ export default class SayCommand extends Command {
             .setTitle('Test')
             .setCustomId('test')
             .addComponents(
-                new MessageActionRow<ModalActionRowComponent>()
-                    .addComponents([
-                        new TextInputComponent()
-                            .setLabel('Test')
-                            .setStyle('SHORT')
-                            .setCustomId('test-input')
-                            .setValue(attachment.url)
-                    ])
-            )
+                new MessageActionRow<ModalActionRowComponent>().addComponents([
+                    new TextInputComponent().setLabel('Test').setStyle('SHORT').setCustomId('test-input').setValue(attachment.url)
+                ])
+            );
         await command.deleteReply();
         // await command.showModal(modal);
     }

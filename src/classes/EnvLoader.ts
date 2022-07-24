@@ -1,11 +1,8 @@
 import dotenv from 'dotenv';
-
 import EnvError from '../errors/EnvError';
 
 export default class EnvLoader {
-    /**
-     * Loads and validates .env file.
-     */
+    /** Loads and validates .env file. */
     static load() {
         dotenv.config();
         this.validate(process.env);

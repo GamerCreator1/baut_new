@@ -12,13 +12,9 @@ moment.tz.setDefault('America/New_York');
 
 const client = new DiscordClient(
     {
-        ws: {
-            properties: {
-                $browser: 'Discord iOS'
-            }
-        },
         presence: {
-            activities: [{ type: 'WATCHING', name: 'buildergroop.com' }]
+            activities: [{ type: 'WATCHING', name: 'buildergroop.com' }],
+            status: 'online'
         },
         intents: ['GUILDS', 'GUILD_MEMBERS', 'GUILD_MESSAGE_REACTIONS', 'GUILD_MESSAGES']
     },

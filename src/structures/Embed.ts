@@ -1,7 +1,4 @@
-import {
-    Interaction, MessageActionRow, MessageActionRowOptions, MessageEmbed, MessageEmbedOptions,
-    MessageOptions
-} from 'discord.js';
+import { Interaction, MessageActionRow, MessageActionRowOptions, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
 
 import Logger from '@classes/Logger';
 

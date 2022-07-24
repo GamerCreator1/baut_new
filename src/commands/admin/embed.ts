@@ -1,8 +1,20 @@
 import { MessageOptions } from 'child_process';
 import {
-    CommandInteraction, HexColorString, Interaction, Message, MessageActionRow, MessageButton,
-    MessageComponentInteraction, MessageEmbed, MessageEmbedOptions, MessageSelectMenu, Modal,
-    ModalActionRowComponent, ModalSubmitInteraction, SelectMenuInteraction, TextBasedChannel,
+    CommandInteraction,
+    HexColorString,
+    Interaction,
+    Message,
+    MessageActionRow,
+    MessageButton,
+    MessageComponentInteraction,
+    MessageEmbed,
+    MessageEmbedOptions,
+    MessageSelectMenu,
+    Modal,
+    ModalActionRowComponent,
+    ModalSubmitInteraction,
+    SelectMenuInteraction,
+    TextBasedChannel,
     TextInputComponent
 } from 'discord.js';
 
