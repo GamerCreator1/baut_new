@@ -216,7 +216,7 @@ export default class Registry {
             else if (isConstructor(embed.default, Embed)) embed = new embed.default(this.client);
             if (!(embed instanceof Embed)) throw new RegistryError(`Invalid embed object to register: ${embed}`);
 
-            this.embeds.set(embed.name, embed);
+            if (!embed.hideFromClient) this.embeds.set(embed.name, embed);
         }
 
         Logger.log('INFO', `${this.embeds.size} embeds loaded.`);

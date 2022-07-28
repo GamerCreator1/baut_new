@@ -1,43 +1,37 @@
-import { Interaction, MessageActionRow, MessageActionRowOptions, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
+import { Interaction, MessageActionRow, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
 
 import Logger from '@classes/Logger';
 
 import DiscordClient from './DiscordClient';
 
 export default abstract class Embed {
-    /**
-     * Name of this embed
-     */
+    /** Name of this embed */
     readonly name: string;
 
-    /**
-     * Embed object to be sent
-     */
+    /** Embed object to be sent */
     readonly embed: MessageEmbed | MessageEmbedOptions;
 
-    /**
-     * Components to be sent with the message
-     */
+    /** Components to be sent with the message */
     readonly components: MessageActionRow[];
 
-    /**
-     * A list of customIds this embed needs to be notified of.
-     */
+    /** A list of customIds this embed needs to be notified of. */
     readonly interactionIds: string[];
 
-    /**
-     * An internal ID
-     */
+    /** An internal ID */
     readonly id: string;
+
+    /** If this embed shouldn't be listed when the client calls the "show embeds" command */
+    readonly hideFromClient: boolean;
 
     static numEmbeds: number = 0;
 
-    constructor(name: string, embed: MessageEmbed | MessageEmbedOptions, interactionIds: string[], components?: MessageActionRow[]) {
+    constructor(name: string, embed: MessageEmbed | MessageEmbedOptions, interactionIds: string[], components?: MessageActionRow[], hideFromClient?: boolean) {
         this.name = name;
         this.embed = embed;
         this.components = components;
         this.interactionIds = interactionIds;
         this.id = 'E' + Embed.numEmbeds++;
+        this.hideFromClient = hideFromClient;
     }
 
     /**

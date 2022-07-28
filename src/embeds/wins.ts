@@ -35,7 +35,8 @@ export default class WinEmbed extends Embed {
                 description: 'Press the button below to submit a new achievement.'
             },
             ['create-win', 'win/'],
-            [new MessageActionRow().addComponents(new MessageButton().setLabel('Create').setCustomId('create-win').setStyle('PRIMARY'))]
+            [new MessageActionRow().addComponents(new MessageButton().setLabel('Create').setCustomId('create-win').setStyle('PRIMARY'))],
+            true
         );
     }
 

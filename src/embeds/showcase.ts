@@ -35,7 +35,8 @@ export default class ShowcaseEmbed extends Embed {
                 description: 'Press the button below to create a new showcase item.'
             },
             ['create-showcase', 'showcase/'],
-            [new MessageActionRow().addComponents(new MessageButton().setLabel('Create').setCustomId('create-showcase').setStyle('PRIMARY'))]
+            [new MessageActionRow().addComponents(new MessageButton().setLabel('Create').setCustomId('create-showcase').setStyle('PRIMARY'))],
+            true
         );
     }
 
