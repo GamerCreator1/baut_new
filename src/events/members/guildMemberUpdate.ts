@@ -1,31 +1,31 @@
-import { GuildMember, MessageEmbedOptions, TextBasedChannel } from 'discord.js';
+import { GuildMember, MessageEmbedOptions, TextBasedChannel } from "discord.js";
 
-import Logger from '@classes/Logger';
-import DiscordClient from '@structures/DiscordClient';
-import Event from '@structures/Event';
+import Logger from "@classes/Logger";
+import DiscordClient from "@structures/DiscordClient";
+import Event from "@structures/Event";
 
 export default class GuildMemberUpdateEvent extends Event {
     constructor(client: DiscordClient) {
-        super(client, 'guildMemberUpdate', 'Members');
+        super(client, "guildMemberUpdate", "Members");
     }
 
     async run(oldMember: GuildMember, newMember: GuildMember) {
         const embed = {
-            title: 'Member Updated',
-            color: 'DARK_PURPLE',
+            title: "Member Updated",
+            color: "DARK_PURPLE",
             fields: [
                 {
-                    name: 'Member',
+                    name: "Member",
                     value: newMember.user.toString(),
-                    inline: true
-                }
-            ]
+                    inline: true,
+                },
+            ],
         } as MessageEmbedOptions;
         if (oldMember.displayName !== newMember.displayName) {
             embed.fields.push({
-                name: 'Name',
+                name: "Name",
                 value: `${oldMember.displayName} -> ${newMember.displayName}`,
-                inline: true
+                inline: true,
             });
         }
         if (oldMember.permissions !== newMember.permissions) {
@@ -34,16 +34,16 @@ export default class GuildMemberUpdateEvent extends Event {
             const removedPermissions = oldMember.permissions.toArray().filter(permission => !newMember.permissions.has(permission));
             if (addedPermissions.length > 0) {
                 embed.fields.push({
-                    name: 'Added Permissions',
-                    value: addedPermissions.join(', '),
-                    inline: true
+                    name: "Added Permissions",
+                    value: addedPermissions.join(", "),
+                    inline: true,
                 });
             }
             if (removedPermissions.length > 0) {
                 embed.fields.push({
-                    name: 'Removed Permissions',
-                    value: removedPermissions.join(', '),
-                    inline: true
+                    name: "Removed Permissions",
+                    value: removedPermissions.join(", "),
+                    inline: true,
                 });
             }
         }
@@ -53,21 +53,21 @@ export default class GuildMemberUpdateEvent extends Event {
             const removedRoles = oldMember.roles.cache.filter(role => !newMember.roles.cache.has(role.id));
             if (addedRoles.size > 0) {
                 embed.fields.push({
-                    name: 'Added Roles',
-                    value: [...addedRoles.values()].map(role => role.toString()).join(', '),
-                    inline: true
+                    name: "Added Roles",
+                    value: [...addedRoles.values()].map(role => role.toString()).join(", "),
+                    inline: true,
                 });
             }
             if (removedRoles.size > 0) {
                 embed.fields.push({
-                    name: 'Removed Roles',
-                    value: [...removedRoles.values()].map(role => role.toString()).join(', '),
-                    inline: true
+                    name: "Removed Roles",
+                    value: [...removedRoles.values()].map(role => role.toString()).join(", "),
+                    inline: true,
                 });
             }
         }
         if (embed.fields.length > 1) {
-            Logger.logEvent(this.client, newMember.guild, 'Members', embed);
+            Logger.logEvent(this.client, newMember.guild, "Members", embed);
         }
     }
 }

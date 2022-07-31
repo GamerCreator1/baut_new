@@ -1,6 +1,6 @@
-import { ClientEvents } from 'discord.js';
+import { ClientEvents } from "discord.js";
 
-import DiscordClient from '@structures/DiscordClient';
+import DiscordClient from "@structures/DiscordClient";
 
 export default abstract class Event {
     /**

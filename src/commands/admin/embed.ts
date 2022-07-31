@@ -30,14 +30,13 @@ export default class EmbedsCommand extends Command {
             client,
             {
                 group: "Admin",
-                require: {
-                    permissions: ["MANAGE_MESSAGES"],
-                },
+                require: { permissions: ["MANAGE_MESSAGES"] },
                 ephemeral: true,
             },
             new SlashCommandBuilder()
                 .setName("embeds")
                 .setDescription("Manage embeds.")
+
                 .addSubcommand(subcommand => subcommand.setName("create").setDescription("Creates an embed."))
                 .addSubcommand(subcommand =>
                     subcommand
@@ -107,6 +106,7 @@ export default class EmbedsCommand extends Command {
                         .setValue(prev?.image ?? "")
                 )
             );
+
         // Send a button to show the modal
         const reply = (await command.editReply({
             content: `Click here to ${prev ? "edit" : "create"} an embed.`,
@@ -139,11 +139,13 @@ export default class EmbedsCommand extends Command {
                         const url = modalSubmit.fields.getTextInputValue("url");
                         const image = modalSubmit.fields.getTextInputValue("image-url");
                         const embed = {};
+
                         if (title) embed["title"] = title;
                         if (description) embed["description"] = description;
                         if (color) embed["color"] = color;
                         if (url) embed["url"] = url;
                         if (image) embed["image"] = image;
+
                         if (!title && !description && !color && !url && !image) {
                             return modalSubmit.reply({
                                 content: "You must provide at least one field to create an embed.",
@@ -163,13 +165,10 @@ export default class EmbedsCommand extends Command {
                                 },
                             });
                         } else {
-                            const created = await this.client.db.embeds.create({
-                                data: {
-                                    content: JSON.stringify(embed),
-                                },
-                            });
+                            const created = await this.client.db.embeds.create({ data: { content: JSON.stringify(embed) } });
                             id = created.id;
                         }
+
                         modalSubmit.update({
                             content: `Embed ${prev ? "edited" : "created"}! [Embed ID: ${id}]`,
                             embeds: [embed as MessageEmbedOptions],
@@ -328,6 +327,7 @@ export default class EmbedsCommand extends Command {
                     if (sendEmbedObject.color) embed.setColor(sendEmbedObject.color as HexColorString);
                     if (sendEmbedObject.url) embed.setURL(sendEmbedObject.url);
                     if (sendEmbedObject.image) embed.setImage(sendEmbedObject.image);
+
                     sendChannel.send({ embeds: [embed] });
                     command.editReply({ content: "Embed sent." });
                 }

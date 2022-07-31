@@ -1,4 +1,4 @@
-import { ChannelType, ThreadAutoArchiveDuration } from 'discord-api-types/v10';
+import { ChannelType, ThreadAutoArchiveDuration } from "discord-api-types/v10";
 import {
     ButtonInteraction,
     CacheType,
@@ -14,13 +14,13 @@ import {
     ModalSubmitInteraction,
     SelectMenuInteraction,
     TextChannel,
-    TextInputComponent
-} from 'discord.js';
+    TextInputComponent,
+} from "discord.js";
 
-import Logger from '@classes/Logger';
-import DiscordClient from '@structures/DiscordClient';
-import Embed from '@structures/Embed';
-import { AchievementItem } from '@utils/interfaces';
+import Logger from "@classes/Logger";
+import DiscordClient from "@structures/DiscordClient";
+import Embed from "@structures/Embed";
+import { AchievementItem } from "@utils/interfaces";
 
 export default class WinEmbed extends Embed {
     private static sessions: Collection<string, string> = new Collection();
@@ -29,19 +29,19 @@ export default class WinEmbed extends Embed {
 
     constructor() {
         super(
-            'Win',
+            "Win",
             {
-                title: 'BuilderGroop Wins 🏆',
-                description: 'Press the button below to submit a new achievement.'
+                title: "BuilderGroop Wins 🏆",
+                description: "Press the button below to submit a new achievement.",
             },
-            ['create-win', 'win/'],
-            [new MessageActionRow().addComponents(new MessageButton().setLabel('Create').setCustomId('create-win').setStyle('PRIMARY'))],
+            ["create-win", "win/"],
+            [new MessageActionRow().addComponents(new MessageButton().setLabel("Create").setCustomId("create-win").setStyle("PRIMARY"))],
             true
         );
     }
 
     async onInteraction(interaction: Interaction<CacheType>, client: DiscordClient): Promise<void> {
-        if (interaction.isButton() && interaction.customId == 'create-win') {
+        if (interaction.isButton() && interaction.customId == "create-win") {
             const winChannel = interaction.channel;
             let winItem = {} as AchievementItem;
             if (winChannel.isText()) {
@@ -55,10 +55,10 @@ export default class WinEmbed extends Embed {
                     return;
                 }
                 const thread = await (winChannel as TextChannel).threads.create({
-                    name: 'Create Win Item',
+                    name: "Create Win Item",
                     autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
                     reason: `${interaction.user.tag} started creating a new achievement`,
-                    type: client.config.prod ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread
+                    type: client.config.prod ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread,
                 });
                 await interaction.reply({ content: `Started a process to create an achievement at ${thread.toString()}`, ephemeral: true });
                 WinEmbed.sessions.set(interaction.user.id, thread.id);
@@ -66,14 +66,14 @@ export default class WinEmbed extends Embed {
                     content: interaction.user.toString(),
                     embeds: [
                         {
-                            description: 'Send a message with the **title** of your achievement. Press the red button below at any time to cancel this process.'
-                        }
+                            description: "Send a message with the **title** of your achievement. Press the red button below at any time to cancel this process.",
+                        },
                     ],
-                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel('Cancel').setStyle('DANGER').setCustomId('cancel'))]
+                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel("Cancel").setStyle("DANGER").setCustomId("cancel"))],
                 });
-                const cancelFilter = (i: ButtonInteraction) => i.customId == 'cancel' && i.user.id == interaction.user.id;
-                const cancelCollector = initMessage.createMessageComponentCollector({ filter: cancelFilter, max: 1 }).on('collect', async () => {
-                    await interaction.editReply({ content: 'Cancelled creation of an achievement item.' });
+                const cancelFilter = (i: ButtonInteraction) => i.customId == "cancel" && i.user.id == interaction.user.id;
+                const cancelCollector = initMessage.createMessageComponentCollector({ filter: cancelFilter, max: 1 }).on("collect", async () => {
+                    await interaction.editReply({ content: "Cancelled creation of an achievement item." });
                     if (WinEmbed.sessions.has(interaction.user.id)) {
                         WinEmbed.sessions.delete(interaction.user.id);
                     }
@@ -83,89 +83,89 @@ export default class WinEmbed extends Embed {
                 const msgFilter = (m: Message) => m.author.id == interaction.user.id;
                 if (this.cancelled) return;
                 await thread
-                    .awaitMessages({ filter: msgFilter, maxProcessed: 1, time: 60000, errors: ['threadDelete'] })
+                    .awaitMessages({ filter: msgFilter, maxProcessed: 1, time: 60000, errors: ["threadDelete"] })
                     .then(async collected => {
                         winItem.title = collected.first().content;
                         await thread.send({
-                            embeds: [{ description: 'Next, send a brief **description** of your achievement.' }]
+                            embeds: [{ description: "Next, send a brief **description** of your achievement." }],
                         });
                     })
                     .catch(async e => {
                         if (this.cancelled) {
-                            await interaction.editReply({ content: 'Cancelled creation of an achievement.' });
+                            await interaction.editReply({ content: "Cancelled creation of an achievement." });
                         } else {
-                            await interaction.editReply({ content: 'Timed out waiting for a response.' });
+                            await interaction.editReply({ content: "Timed out waiting for a response." });
                             await thread.delete();
                         }
                     });
                 if (this.cancelled) return;
                 await thread
-                    .awaitMessages({ filter: msgFilter, maxProcessed: 1, time: 60000, errors: ['threadDelete'] })
+                    .awaitMessages({ filter: msgFilter, maxProcessed: 1, time: 60000, errors: ["threadDelete"] })
                     .then(async collected => {
                         winItem.description = collected.first().content;
                         await thread.send({
-                            embeds: [{ description: 'Now, send any **links** to your achievement. separated by commas(`link1, link2`), or `none` to skip.' }]
+                            embeds: [{ description: "Now, send any **links** to your achievement. separated by commas(`link1, link2`), or `none` to skip." }],
                         });
                     })
                     .catch(async e => {
                         if (this.cancelled) {
-                            await interaction.editReply({ content: 'Cancelled creation of an achievement.' });
+                            await interaction.editReply({ content: "Cancelled creation of an achievement." });
                         } else {
-                            await interaction.editReply({ content: 'Timed out waiting for a response.' });
+                            await interaction.editReply({ content: "Timed out waiting for a response." });
                             await thread.delete();
                         }
                     });
                 if (this.cancelled) return;
                 await thread
-                    .awaitMessages({ filter: msgFilter, maxProcessed: 1, time: 60000, errors: ['threadDelete'] })
+                    .awaitMessages({ filter: msgFilter, maxProcessed: 1, time: 60000, errors: ["threadDelete"] })
                     .then(async collected => {
-                        winItem.urls = collected.first().content.split('\n');
+                        winItem.urls = collected.first().content.split("\n");
                         await thread.send({
-                            embeds: [{ description: 'Now, send a message with any files or media you want to include, or `none` to skip.' }]
+                            embeds: [{ description: "Now, send a message with any files or media you want to include, or `none` to skip." }],
                         });
                     })
                     .catch(async e => {
                         if (this.cancelled) {
-                            await interaction.editReply({ content: 'Cancelled creation of an achievement.' });
+                            await interaction.editReply({ content: "Cancelled creation of an achievement." });
                         } else {
-                            await interaction.editReply({ content: 'Timed out waiting for a response.' });
+                            await interaction.editReply({ content: "Timed out waiting for a response." });
                             await thread.delete();
                         }
                     });
                 if (this.cancelled) return;
                 const parsedUrls = parseURLArray(winItem.urls);
                 const mediaFilter = (m: Message) => {
-                    return m.author.id == interaction.user.id && (m.attachments.size > 0 || m.content.toLowerCase() == 'none');
+                    return m.author.id == interaction.user.id && (m.attachments.size > 0 || m.content.toLowerCase() == "none");
                 };
                 if (this.cancelled) return;
                 await thread
-                    .awaitMessages({ filter: mediaFilter, time: 60000, maxProcessed: 1, errors: ['threadDelete'] })
+                    .awaitMessages({ filter: mediaFilter, time: 60000, maxProcessed: 1, errors: ["threadDelete"] })
                     .then(async collected => {
                         const media = collected.first();
                         if (media) {
                             winItem.media = media.attachments.map(a => a.url);
                             await thread.send({
-                                content: 'Creating your embed now...',
+                                content: "Creating your embed now...",
                                 embeds: [
                                     {
                                         title: winItem.title,
                                         description: winItem.description,
                                         fields: [
                                             {
-                                                name: 'URLs',
-                                                value: parsedUrls.length > 0 ? parsedUrls.join('\n') : 'No URLs provided'
-                                            }
-                                        ]
-                                    }
+                                                name: "URLs",
+                                                value: parsedUrls.length > 0 ? parsedUrls.join("\n") : "No URLs provided",
+                                            },
+                                        ],
+                                    },
                                 ],
-                                files: winItem.media
+                                files: winItem.media,
                             });
                         }
                     })
                     .catch(e => {
-                        Logger.log('ERROR', e.stack);
-                        if (!this.cancelled) thread.delete('Session timed out');
-                        interaction.editReply({ content: 'Session timed out' });
+                        Logger.log("ERROR", e.stack);
+                        if (!this.cancelled) thread.delete("Session timed out");
+                        interaction.editReply({ content: "Session timed out" });
                     });
                 if (this.cancelled) return;
                 const item = await client.db.achievement.create({
@@ -173,10 +173,10 @@ export default class WinEmbed extends Embed {
                         ...winItem,
                         creatorId: interaction.user.id,
                         clapCount: 0,
-                        clappers: []
-                    }
+                        clappers: [],
+                    },
                 });
-                await thread.send('Success!');
+                await thread.send("Success!");
                 WinEmbed.sessions.delete(interaction.user.id);
                 WinEmbed.cooldowns.set(interaction.user.id, new Date(Date.now() + 60 * 30 * 1000));
                 setTimeout(() => WinEmbed.cooldowns.delete(interaction.user.id), 60 * 30 * 1000);
@@ -189,58 +189,58 @@ export default class WinEmbed extends Embed {
                             description: winItem.description,
                             author: {
                                 name: interaction.user.username,
-                                icon_url: interaction.user.avatarURL({ dynamic: true })
+                                icon_url: interaction.user.avatarURL({ dynamic: true }),
                             },
                             color: process.env.BUILDERGROOP_COLOR as ColorResolvable,
                             fields:
                                 parsedUrls.length > 0
                                     ? [
                                           {
-                                              name: 'URLs',
-                                              value: parsedUrls.join('\n')
-                                          }
+                                              name: "URLs",
+                                              value: parsedUrls.join("\n"),
+                                          },
                                       ]
                                     : [],
                             timestamp: new Date(),
-                            footer: { text: '0 👏' }
-                        }
+                            footer: { text: "0 👏" },
+                        },
                     ],
                     files: winItem.media,
-                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel('Clap').setEmoji('👏').setCustomId(`win/${item.id}`).setStyle('SUCCESS'))]
+                    components: [new MessageActionRow().addComponents(new MessageButton().setLabel("Clap").setEmoji("👏").setCustomId(`win/${item.id}`).setStyle("SUCCESS"))],
                 });
                 await winMessage.startThread({
                     name: winItem.title,
-                    reason: 'Achievement item',
-                    autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek
+                    reason: "Achievement item",
+                    autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
                 });
             }
-        } else if (interaction.isButton() && interaction.customId.startsWith('win/')) {
+        } else if (interaction.isButton() && interaction.customId.startsWith("win/")) {
             await interaction.deferReply({ ephemeral: true });
             const winMessage = interaction.message as Message<boolean>;
-            const id = parseInt(interaction.customId.split('/')[1]);
+            const id = parseInt(interaction.customId.split("/")[1]);
             const item = await client.db.achievement.findFirst({ where: { id } });
             if (item) {
                 if (item.clappers.includes(interaction.user.id)) {
                     item.clappers = item.clappers.filter(u => u != interaction.user.id);
                     item.clapCount--;
-                    await interaction.editReply({ content: 'Removed your clap.' });
+                    await interaction.editReply({ content: "Removed your clap." });
                 } else {
                     item.clappers.push(interaction.user.id);
                     item.clapCount++;
-                    await interaction.editReply({ content: 'Clapped! 👏' });
+                    await interaction.editReply({ content: "Clapped! 👏" });
                 }
                 await client.db.achievement.update({
                     where: { id },
                     data: {
                         clappers: item.clappers,
-                        clapCount: item.clapCount
-                    }
+                        clapCount: item.clapCount,
+                    },
                 });
                 await winMessage.edit({
-                    embeds: [winMessage.embeds[0].setFooter({ text: `${item.clapCount} 👏` })]
+                    embeds: [winMessage.embeds[0].setFooter({ text: `${item.clapCount} 👏` })],
                 });
             } else {
-                await interaction.editReply({ content: 'There was an issue.' });
+                await interaction.editReply({ content: "There was an issue." });
             }
         }
     }

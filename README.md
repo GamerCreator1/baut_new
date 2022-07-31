@@ -19,28 +19,28 @@ Config files go in `.env`, example is shown at `.env.example`.
 -   Add command template.
 
 ```ts
-import { CommandInteraction } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandInteraction } from "discord.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
-import Command from '../../structures/Command';
-import DiscordClient from '../../structures/DiscordClient';
+import Command from "../../structures/Command";
+import DiscordClient from "../../structures/DiscordClient";
 
 export default class ExampleCommand extends Command {
     constructor(client: DiscordClient) {
         super(
             client,
             {
-                group: 'Developer',
+                group: "Developer",
                 require: {
-                    developer: true
-                }
+                    developer: true,
+                },
             },
-            new SlashCommandBuilder().setName('example').setDescription('An example command.')
+            new SlashCommandBuilder().setName("example").setDescription("An example command.")
         );
     }
 
     async run(command: CommandInteraction) {
-        await command.reply('Wow, example command working!');
+        await command.reply("Wow, example command working!");
     }
 }
 ```
@@ -52,14 +52,14 @@ export default class ExampleCommand extends Command {
 -   Add event template.
 
 ```ts
-import { GuildMember } from 'discord.js';
+import { GuildMember } from "discord.js";
 
-import DiscordClient from '../structures/DiscordClient';
-import Event from '../structures/Event';
+import DiscordClient from "../structures/DiscordClient";
+import Event from "../structures/Event";
 
 export default class GuildMemberAddEvent extends Event {
     constructor(client: DiscordClient) {
-        super(client, 'guildMemberAdd');
+        super(client, "guildMemberAdd");
     }
 
     async run(member: GuildMember) {

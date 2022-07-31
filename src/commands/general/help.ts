@@ -1,9 +1,9 @@
-import { CommandInteraction, GuildMember, MessageEmbed } from 'discord.js';
+import { CommandInteraction, GuildMember, MessageEmbed } from "discord.js";
 
-import { SlashCommandBuilder } from '@discordjs/builders';
-import Command from '@structures/Command';
-import DiscordClient from '@structures/DiscordClient';
-import { formatSeconds, isUserDeveloper } from '@utils/functions';
+import { SlashCommandBuilder } from "@discordjs/builders";
+import Command from "@structures/Command";
+import DiscordClient from "@structures/DiscordClient";
+import { formatSeconds, isUserDeveloper } from "@utils/functions";
 
 interface IGroup {
     name: string;
@@ -16,15 +16,15 @@ export default class HelpCommand extends Command {
         super(
             client,
             {
-                group: 'General',
+                group: "General",
                 cooldown: 30,
-                autocomplete: commands
+                autocomplete: commands,
             },
             new SlashCommandBuilder()
-                .setName('help')
-                .setDescription('Shows information about commands and groups.')
+                .setName("help")
+                .setDescription("Shows information about commands and groups.")
                 .addStringOption(option =>
-                    option.setName('command_name').setDescription('The name of the command you want information about').setRequired(false).setAutocomplete(true)
+                    option.setName("command_name").setDescription("The name of the command you want information about").setRequired(false).setAutocomplete(true)
                 ) as SlashCommandBuilder
         );
     }
@@ -56,21 +56,21 @@ export default class HelpCommand extends Command {
 
     async sendHelpMessage(command: CommandInteraction, groups: IGroup[]) {
         const embed = new MessageEmbed({
-            color: 'BLUE',
-            title: 'Help',
+            color: "BLUE",
+            title: "Help",
             footer: {
-                text: `Type "/help [command-name]" for more information.`
-            }
+                text: `Type "/help [command-name]" for more information.`,
+            },
         });
 
-        groups.forEach(group => embed.addField(`${group.name} Commands`, group.commands.map(x => `\`${x}\``).join(' ')));
+        groups.forEach(group => embed.addField(`${group.name} Commands`, group.commands.map(x => `\`${x}\``).join(" ")));
         await command.editReply({ embeds: [embed] });
     }
 
     async run(command: CommandInteraction) {
         const groups = this.getAvailableGroups(command);
 
-        const option = command.options.getString('command_name');
+        const option = command.options.getString("command_name");
 
         if (!option) return await this.sendHelpMessage(command, groups);
 
@@ -85,39 +85,39 @@ export default class HelpCommand extends Command {
         if (!isAvailable) return await this.sendHelpMessage(command, groups);
 
         const embed = new MessageEmbed({
-            color: 'BLUE',
-            title: 'Help',
+            color: "BLUE",
+            title: "Help",
             fields: [
                 {
-                    name: 'Name',
-                    value: commandObj.data.name
+                    name: "Name",
+                    value: commandObj.data.name,
                 },
                 {
-                    name: 'Group',
-                    value: commandObj.info.group
+                    name: "Group",
+                    value: commandObj.info.group,
                 },
                 {
-                    name: 'Cooldown',
-                    value: commandObj.info.cooldown ? formatSeconds(commandObj.info.cooldown) : 'No cooldown'
+                    name: "Cooldown",
+                    value: commandObj.info.cooldown ? formatSeconds(commandObj.info.cooldown) : "No cooldown",
                 },
                 {
-                    name: 'Usable At',
-                    value: commandObj.info.onlyNsfw ? 'NSFW channels' : 'All text channels'
+                    name: "Usable At",
+                    value: commandObj.info.onlyNsfw ? "NSFW channels" : "All text channels",
                 },
                 {
-                    name: 'Example Usages',
-                    value: commandObj.info.examples ? commandObj.info.examples.map(x => `\`${x}\``).join('\n') : 'No examples'
+                    name: "Example Usages",
+                    value: commandObj.info.examples ? commandObj.info.examples.map(x => `\`${x}\``).join("\n") : "No examples",
                 },
                 {
-                    name: 'Description',
-                    value: commandObj.data.description ? commandObj.data.description : 'No description'
-                }
-            ]
+                    name: "Description",
+                    value: commandObj.data.description ? commandObj.data.description : "No description",
+                },
+            ],
         });
 
         if (commandObj.info.require) {
-            if (commandObj.info.require.developer) embed.setFooter({ text: 'This is a developer command.' });
-            if (commandObj.info.require.permissions) embed.addField('Permission Requirements', commandObj.info.require.permissions.map(x => `\`${x}\``).join('\n'));
+            if (commandObj.info.require.developer) embed.setFooter({ text: "This is a developer command." });
+            if (commandObj.info.require.permissions) embed.addField("Permission Requirements", commandObj.info.require.permissions.map(x => `\`${x}\``).join("\n"));
         }
 
         await command.editReply({ embeds: [embed] });

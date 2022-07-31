@@ -14,7 +14,6 @@ import {
     SelectMenuInteraction,
     TextChannel,
     TextInputComponent,
-    Webhook,
     WebhookClient,
 } from "discord.js";
 

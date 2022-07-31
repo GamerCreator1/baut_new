@@ -1,69 +1,69 @@
-import { CommandInteraction, MessageEmbedOptions } from 'discord.js';
+import { CommandInteraction, MessageEmbedOptions } from "discord.js";
 
-import Logger from '@classes/Logger';
-import { SlashCommandBuilder } from '@discordjs/builders';
-import Command from '@structures/Command';
-import DiscordClient from '@structures/DiscordClient';
+import Logger from "@classes/Logger";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import Command from "@structures/Command";
+import DiscordClient from "@structures/DiscordClient";
 
 export default class UserInfoCommand extends Command {
     constructor(client: DiscordClient) {
         super(
             client,
             {
-                group: 'General'
+                group: "General",
             },
             new SlashCommandBuilder()
-                .setName('user')
-                .setDescription('Returns some information about the user')
-                .addUserOption(option => option.setName('user').setDescription('The user to get information about.').setRequired(false))
+                .setName("user")
+                .setDescription("Returns some information about the user")
+                .addUserOption(option => option.setName("user").setDescription("The user to get information about.").setRequired(false))
         );
     }
 
     async run(command: CommandInteraction) {
-        const user = await (command.options.getUser('user') ?? command.user).fetch(true);
+        const user = await (command.options.getUser("user") ?? command.user).fetch(true);
         const member = await command.guild.members.fetch(user.id);
         const embed = {
             color: member.displayColor,
-            title: 'User Information',
+            title: "User Information",
             fields: [
                 {
-                    name: 'Username',
+                    name: "Username",
                     value: member.displayName,
-                    inline: true
+                    inline: true,
                 },
                 {
-                    name: 'ID',
+                    name: "ID",
                     value: user.id,
-                    inline: true
+                    inline: true,
                 },
                 {
-                    name: 'Created At',
+                    name: "Created At",
                     value: `<t:${user.createdAt.valueOf().toString().substring(0, 10)}>`,
-                    inline: true
+                    inline: true,
                 },
                 {
-                    name: 'Joined At',
+                    name: "Joined At",
                     value: `<t:${member.joinedAt?.valueOf().toString().substring(0, 10)}>`,
-                    inline: true
+                    inline: true,
                 },
                 {
-                    name: 'Type',
-                    value: user.bot ? '🤖' : '🧑',
-                    inline: true
+                    name: "Type",
+                    value: user.bot ? "🤖" : "🧑",
+                    inline: true,
                 },
                 {
-                    name: 'Roles',
+                    name: "Roles",
                     value: member.roles.cache.size.toString(),
-                    inline: true
-                }
+                    inline: true,
+                },
             ],
             thumbnail: {
-                url: member.displayAvatarURL({ dynamic: true })
-            }
+                url: member.displayAvatarURL({ dynamic: true }),
+            },
         } as MessageEmbedOptions;
-        if (user.banner) embed.image = { url: user.bannerURL({ format: 'png', dynamic: true, size: 2048 }) };
+        if (user.banner) embed.image = { url: user.bannerURL({ format: "png", dynamic: true, size: 2048 }) };
         await command.editReply({
-            embeds: [embed]
+            embeds: [embed],
         });
     }
 }

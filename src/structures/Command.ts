@@ -1,10 +1,10 @@
-import { CommandInteraction, GuildMember, MessageEmbedOptions, TextChannel } from 'discord.js';
+import { CommandInteraction, GuildMember, MessageEmbedOptions, TextChannel } from "discord.js";
 
-import Logger from '@classes/Logger';
-import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
-import DiscordClient from '@structures/DiscordClient';
-import { isUserDeveloper } from '@utils/functions';
-import { ICommandInfo } from '@utils/interfaces';
+import Logger from "@classes/Logger";
+import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@discordjs/builders";
+import DiscordClient from "@structures/DiscordClient";
+import { isUserDeveloper } from "@utils/functions";
+import { ICommandInfo } from "@utils/interfaces";
 
 export default abstract class Command {
     /**
@@ -20,9 +20,9 @@ export default abstract class Command {
     /**
      * Slash Command builder
      */
-    readonly data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandSubcommandsOnlyBuilder;
+    readonly data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> | SlashCommandSubcommandsOnlyBuilder;
 
-    constructor(client: DiscordClient, info: ICommandInfo, data: Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandSubcommandsOnlyBuilder) {
+    constructor(client: DiscordClient, info: ICommandInfo, data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> | SlashCommandSubcommandsOnlyBuilder) {
         this.client = client;
         this.info = info;
         this.data = data;
@@ -34,12 +34,12 @@ export default abstract class Command {
      * @param error Error message
      */
     async onError(command: CommandInteraction, error: any) {
-        Logger.log('ERROR', `An error occurred in "${this.data.name}" command.\n${error}\n`, true);
+        Logger.log("ERROR", `An error occurred in "${this.data.name}" command.\n${error}\n`, true);
         console.log(command);
         const embed = {
-            color: 'RED',
-            title: '💥 Oops...',
-            description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`
+            color: "RED",
+            title: "💥 Oops...",
+            description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`,
         } as MessageEmbedOptions;
         if (command.deferred) {
             command.editReply({ embeds: [embed] });

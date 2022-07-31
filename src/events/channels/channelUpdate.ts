@@ -1,86 +1,86 @@
-import { DMChannel, GuildChannel, MessageEmbedOptions, TextBasedChannel, TextChannel } from 'discord.js';
+import { DMChannel, GuildChannel, MessageEmbedOptions, TextBasedChannel, TextChannel } from "discord.js";
 
-import Logger from '@classes/Logger';
-import DiscordClient from '@structures/DiscordClient';
-import Event from '@structures/Event';
+import Logger from "@classes/Logger";
+import DiscordClient from "@structures/DiscordClient";
+import Event from "@structures/Event";
 
 export default class ChannelUpdateEvent extends Event {
     constructor(client: DiscordClient) {
-        super(client, 'channelUpdate', 'Channels');
+        super(client, "channelUpdate", "Channels");
     }
 
     async run(oldChannel: GuildChannel | DMChannel, newChannel: GuildChannel | DMChannel) {
         if (newChannel instanceof DMChannel || oldChannel instanceof DMChannel) return;
-        const auditLogChannel = await newChannel.guild.fetchAuditLogs({ limit: 1, type: 'CHANNEL_UPDATE' });
+        const auditLogChannel = await newChannel.guild.fetchAuditLogs({ limit: 1, type: "CHANNEL_UPDATE" });
         if (auditLogChannel?.entries.first()) {
             let type: string;
             switch (newChannel.type) {
-                case 'GUILD_TEXT':
-                    type = '💬 Text';
+                case "GUILD_TEXT":
+                    type = "💬 Text";
                     break;
-                case 'GUILD_VOICE':
-                    type = '🔊 Voice';
+                case "GUILD_VOICE":
+                    type = "🔊 Voice";
                     break;
-                case 'GUILD_NEWS':
-                    type = '📰 News';
+                case "GUILD_NEWS":
+                    type = "📰 News";
                     break;
-                case 'GUILD_STORE':
-                    type = '🛒 Store';
+                case "GUILD_STORE":
+                    type = "🛒 Store";
                     break;
-                case 'GUILD_PRIVATE_THREAD':
-                case 'GUILD_PUBLIC_THREAD':
-                    type = '🧵 Thread';
+                case "GUILD_PRIVATE_THREAD":
+                case "GUILD_PUBLIC_THREAD":
+                    type = "🧵 Thread";
                     break;
                 default:
-                    type = '📁 Category';
+                    type = "📁 Category";
                     break;
             }
             const embed = {
-                author: 'Channels',
-                color: 'DARK_PURPLE',
+                author: "Channels",
+                color: "DARK_PURPLE",
                 title: `${type} Channel Updated`,
                 fields: [
                     {
-                        name: 'Name',
+                        name: "Name",
                         value: oldChannel.name === newChannel.name ? newChannel.name : `${oldChannel.name} -> ${newChannel.name}`,
-                        inline: true
+                        inline: true,
                     },
                     {
-                        name: 'Updated by',
-                        value: auditLogChannel.entries.first()?.executor.toString() ?? 'Unknown',
-                        inline: true
-                    }
+                        name: "Updated by",
+                        value: auditLogChannel.entries.first()?.executor.toString() ?? "Unknown",
+                        inline: true,
+                    },
                 ],
                 timestamp: Date.now(),
                 footer: {
-                    text: `ID: ${newChannel.id}`
-                }
+                    text: `ID: ${newChannel.id}`,
+                },
             } as MessageEmbedOptions;
-            if (oldChannel.type == 'GUILD_TEXT') {
+            if (oldChannel.type == "GUILD_TEXT") {
                 const oldTextChannel = oldChannel as TextChannel;
                 const newTextChannel = newChannel as TextChannel;
                 if (oldTextChannel.topic != newTextChannel.topic) {
                     embed.fields.push({
-                        name: 'Topic',
-                        value: oldTextChannel.topic === newTextChannel.topic ? newTextChannel.topic : `${oldTextChannel.topic ?? 'N/A'} -> ${newTextChannel.topic ?? 'N/A'}`,
-                        inline: true
+                        name: "Topic",
+                        value: oldTextChannel.topic === newTextChannel.topic ? newTextChannel.topic : `${oldTextChannel.topic ?? "N/A"} -> ${newTextChannel.topic ?? "N/A"}`,
+                        inline: true,
                     });
                 }
                 if (oldTextChannel.rateLimitPerUser != newTextChannel.rateLimitPerUser) {
                     embed.fields.push({
-                        name: 'Slowmode(s)',
+                        name: "Slowmode(s)",
                         value: `${oldTextChannel.rateLimitPerUser} -> ${newTextChannel.rateLimitPerUser}`,
-                        inline: true
+                        inline: true,
                     });
                 }
                 if (oldTextChannel.nsfw != newTextChannel.nsfw) {
                     embed.fields.push({
-                        name: 'NSFW',
+                        name: "NSFW",
                         value: `${oldTextChannel.nsfw} -> ${newTextChannel.nsfw}`,
-                        inline: true
+                        inline: true,
                     });
                 }
-                Logger.logEvent(this.client, newChannel.guild, 'Channels', embed);
+                Logger.logEvent(this.client, newChannel.guild, "Channels", embed);
             }
         }
     }

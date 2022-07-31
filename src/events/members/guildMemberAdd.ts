@@ -1,28 +1,28 @@
-import { GuildMember, MessageEmbedOptions, TextBasedChannel } from 'discord.js';
+import { GuildMember, MessageEmbedOptions, TextBasedChannel } from "discord.js";
 
-import Logger from '@classes/Logger';
-import DiscordClient from '@structures/DiscordClient';
-import Event from '@structures/Event';
+import Logger from "@classes/Logger";
+import DiscordClient from "@structures/DiscordClient";
+import Event from "@structures/Event";
 
 export default class GuildMemberAddEvent extends Event {
     constructor(client: DiscordClient) {
-        super(client, 'guildMemberAdd', 'Members');
+        super(client, "guildMemberAdd", "Members");
     }
 
     async run(member: GuildMember) {
         const embed = {
-            author: { name: 'Members' },
-            color: 'DARK_PURPLE',
-            title: 'Member Joined',
+            author: { name: "Members" },
+            color: "DARK_PURPLE",
+            title: "Member Joined",
             fields: [
                 {
-                    name: 'Member',
+                    name: "Member",
                     value: member.user.toString(),
-                    inline: true
-                }
+                    inline: true,
+                },
             ],
-            timestamp: new Date()
+            timestamp: new Date(),
         } as MessageEmbedOptions;
-        Logger.logEvent(this.client, member.guild, 'Members', embed);
+        Logger.logEvent(this.client, member.guild, "Members", embed);
     }
 }

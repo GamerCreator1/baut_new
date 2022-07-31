@@ -1,8 +1,8 @@
-import { Interaction, MessageActionRow, MessageEmbed, MessageEmbedOptions, MessageOptions } from 'discord.js';
+import { Interaction, MessageActionRow, MessageEmbed, MessageEmbedOptions, MessageOptions } from "discord.js";
 
-import Logger from '@classes/Logger';
+import Logger from "@classes/Logger";
 
-import DiscordClient from './DiscordClient';
+import DiscordClient from "./DiscordClient";
 
 export default abstract class Embed {
     /** Name of this embed */
@@ -30,7 +30,7 @@ export default abstract class Embed {
         this.embed = embed;
         this.components = components;
         this.interactionIds = interactionIds;
-        this.id = 'E' + Embed.numEmbeds++;
+        this.id = "E" + Embed.numEmbeds++;
         this.hideFromClient = hideFromClient;
     }
 
@@ -42,6 +42,6 @@ export default abstract class Embed {
     abstract onInteraction(interaction: Interaction, client: DiscordClient): Promise<void>;
 
     async onError() {
-        Logger.log('WARNING', `An error occured in Embed ${this.id}: ${this.name}`);
+        Logger.log("WARNING", `An error occured in Embed ${this.id}: ${this.name}`);
     }
 }

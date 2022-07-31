@@ -1,37 +1,37 @@
-import { CommandInteraction } from 'discord.js';
+import { CommandInteraction } from "discord.js";
 
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder } from "@discordjs/builders";
 
-import Logger from '../../classes/Logger';
-import Command from '../../structures/Command';
-import DiscordClient from '../../structures/DiscordClient';
+import Logger from "../../classes/Logger";
+import Command from "../../structures/Command";
+import DiscordClient from "../../structures/DiscordClient";
 
 export default class TimeoutCommand extends Command {
     constructor(client: DiscordClient) {
         super(
             client,
             {
-                group: 'Moderation',
+                group: "Moderation",
                 require: {
-                    permissions: ['MODERATE_MEMBERS']
-                }
+                    permissions: ["MODERATE_MEMBERS"],
+                },
             },
             new SlashCommandBuilder()
-                .setName('timeout')
-                .setDescription('Time a member out.')
+                .setName("timeout")
+                .setDescription("Time a member out.")
                 .addSubcommand(subcommand =>
                     subcommand
-                        .setName('set')
+                        .setName("set")
                         .setDescription("Set a member's timeout.")
-                        .addUserOption(option => option.setName('user').setDescription('The user to timeout').setRequired(true))
-                        .addStringOption(option => option.setName('time').setDescription('The amount of time to time out the user (30m, 2h30m, 5d)').setRequired(true))
-                        .addStringOption(option => option.setName('reason').setDescription('The reason for the timeout').setRequired(false))
+                        .addUserOption(option => option.setName("user").setDescription("The user to timeout").setRequired(true))
+                        .addStringOption(option => option.setName("time").setDescription("The amount of time to time out the user (30m, 2h30m, 5d)").setRequired(true))
+                        .addStringOption(option => option.setName("reason").setDescription("The reason for the timeout").setRequired(false))
                 )
                 .addSubcommand(subcommand =>
                     subcommand
-                        .setName('remove')
+                        .setName("remove")
                         .setDescription("Remove a member's timeout.")
-                        .addUserOption(option => option.setName('user').setDescription('The user to remove the timeout from').setRequired(true))
+                        .addUserOption(option => option.setName("user").setDescription("The user to remove the timeout from").setRequired(true))
                 )
         );
     }
@@ -50,9 +50,9 @@ export default class TimeoutCommand extends Command {
     }
 
     private async setTimeout(command: CommandInteraction) {
-        const user = command.options.getUser('user');
-        const time = this.durationSeconds(command.options.getString('time')) * 1000;
-        const reason = command.options.getString('reason') ?? 'No reason provided by ' + command.user.toString();
+        const user = command.options.getUser("user");
+        const time = this.durationSeconds(command.options.getString("time")) * 1000;
+        const reason = command.options.getString("reason") ?? "No reason provided by " + command.user.toString();
         const member = await command.guild.members.fetch(user);
 
         await member.timeout(time, reason);
@@ -60,34 +60,34 @@ export default class TimeoutCommand extends Command {
         await command.editReply({
             embeds: [
                 {
-                    color: 'GREEN',
-                    description: `${command.user.toString()}, ${member.toString()} has been timed out for \`${command.options.getString('time')}\` because of: \`${reason}\`.`
-                }
-            ]
+                    color: "GREEN",
+                    description: `${command.user.toString()}, ${member.toString()} has been timed out for \`${command.options.getString("time")}\` because of: \`${reason}\`.`,
+                },
+            ],
         });
     }
 
     private async removeTimeout(command: CommandInteraction) {
-        const user = command.options.getUser('user');
+        const user = command.options.getUser("user");
         const member = await command.guild.members.fetch(user);
         await member.timeout(null);
         await command.editReply({
             embeds: [
                 {
-                    color: 'GREEN',
-                    description: `${command.user.toString()}, ${member.toString()} has had their timeout removed.`
-                }
-            ]
+                    color: "GREEN",
+                    description: `${command.user.toString()}, ${member.toString()} has had their timeout removed.`,
+                },
+            ],
         });
     }
 
     async run(command: CommandInteraction) {
         const subcommand = command.options.getSubcommand();
         switch (subcommand) {
-            case 'set':
+            case "set":
                 await this.setTimeout(command);
                 break;
-            case 'remove':
+            case "remove":
                 await this.removeTimeout(command);
                 break;
         }

@@ -1,4 +1,4 @@
-import { ColorResolvable, PermissionString } from 'discord.js';
+import { ColorResolvable, PermissionString } from "discord.js";
 
 /**
  * Config interface for client.
@@ -99,7 +99,7 @@ export interface ShowcaseItem {
     collaboratorIds: string[];
     creatorId: string;
     createdAt: Date;
-    type: 'Startup' | 'Project' | 'Community' | 'Article' | 'Design' | 'Tweet' | 'Open-Source';
+    type: "Startup" | "Project" | "Community" | "Article" | "Design" | "Tweet" | "Open-Source";
     upvoterIds: string[];
     downvoterIds: string[];
     upvoteCount: number;

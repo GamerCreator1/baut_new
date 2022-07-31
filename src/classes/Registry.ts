@@ -1,16 +1,16 @@
-import { Routes } from 'discord-api-types/v9';
-import { Collection } from 'discord.js';
-import path from 'path';
-import requireAll from 'require-all';
+import { Routes } from "discord-api-types/v9";
+import { Collection } from "discord.js";
+import path from "path";
+import requireAll from "require-all";
 
-import Logger from '@classes/Logger';
-import { REST } from '@discordjs/rest';
-import RegistryError from '@errors/RegistryError';
-import Command from '@structures/Command';
-import DiscordClient from '@structures/DiscordClient';
-import Event from '@structures/Event';
-import { isConstructor } from '@utils/functions';
-import Embed from '@structures/Embed';
+import Logger from "@classes/Logger";
+import { REST } from "@discordjs/rest";
+import RegistryError from "@errors/RegistryError";
+import Command from "@structures/Command";
+import DiscordClient from "@structures/DiscordClient";
+import Event from "@structures/Event";
+import { isConstructor } from "@utils/functions";
+import Embed from "@structures/Embed";
 
 export default class Registry {
     /**
@@ -89,7 +89,7 @@ export default class Registry {
 
         this.events.set(event.name, event);
         this.client.on(event.name, event.run.bind(event));
-        Logger.log('INFO', `Event "${event.name}" loaded.`);
+        Logger.log("INFO", `Event "${event.name}" loaded.`);
     }
 
     /**
@@ -104,14 +104,14 @@ export default class Registry {
             });
 
         requireAll({
-            dirname: path.join(__dirname, '../events'),
+            dirname: path.join(__dirname, "../events"),
             recursive: true,
             filter: /\w*.[tj]s/g,
             resolve: x => events.push(x),
             map: (name, filePath) => {
-                if (filePath.endsWith('.ts') || filePath.endsWith('.js')) this.eventPaths.push(path.resolve(filePath));
+                if (filePath.endsWith(".ts") || filePath.endsWith(".js")) this.eventPaths.push(path.resolve(filePath));
                 return name;
-            }
+            },
         });
 
         for (let event of events) {
@@ -149,7 +149,7 @@ export default class Registry {
         if (command.info.autocomplete) {
             this.autocomplete.set(command.data.name, command.info.autocomplete);
         }
-        Logger.log('INFO', `Command "${command.data.name}" loaded.`);
+        Logger.log("INFO", `Command "${command.data.name}" loaded.`);
     }
 
     /**
@@ -164,14 +164,14 @@ export default class Registry {
             });
 
         requireAll({
-            dirname: path.join(__dirname, '../commands'),
+            dirname: path.join(__dirname, "../commands"),
             recursive: true,
             filter: /\w*.[tj]s/g,
             resolve: x => commands.push(x),
             map: (name, filePath) => {
-                if (filePath.endsWith('.ts') || filePath.endsWith('.js')) this.commandPaths.push(path.resolve(filePath));
+                if (filePath.endsWith(".ts") || filePath.endsWith(".js")) this.commandPaths.push(path.resolve(filePath));
                 return name;
-            }
+            },
         });
 
         for (let command of commands) {
@@ -198,14 +198,14 @@ export default class Registry {
             });
 
         requireAll({
-            dirname: path.join(__dirname, '../embeds'),
+            dirname: path.join(__dirname, "../embeds"),
             recursive: true,
             filter: /\w*.[tj]s/g,
             resolve: x => embeds.push(x),
             map: (name, filePath) => {
-                if (filePath.endsWith('.ts') || filePath.endsWith('.js')) this.embedPaths.push(path.resolve(filePath));
+                if (filePath.endsWith(".ts") || filePath.endsWith(".js")) this.embedPaths.push(path.resolve(filePath));
                 return name;
-            }
+            },
         });
 
         for (let embed of embeds) {
@@ -219,7 +219,7 @@ export default class Registry {
             if (!embed.hideFromClient) this.embeds.set(embed.name, embed);
         }
 
-        Logger.log('INFO', `${this.embeds.size} embeds loaded.`);
+        Logger.log("INFO", `${this.embeds.size} embeds loaded.`);
     }
     /**
      * Finds and returns the command by name.
@@ -257,17 +257,17 @@ export default class Registry {
      * Register slash commands
      */
     registerGuildSlashCommands() {
-        const rest = new REST({ version: '9' }).setToken(this.client.token);
+        const rest = new REST({ version: "9" }).setToken(this.client.token);
         (async () => {
             try {
                 await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
-                    body: this.commands.map(command => command.data.toJSON())
+                    body: this.commands.map(command => command.data.toJSON()),
                 });
 
-                Logger.log('INFO', `Loaded ${this.commands.size} application (/) commands.`);
+                Logger.log("INFO", `Loaded ${this.commands.size} application (/) commands.`);
             } catch (error) {
                 if (error instanceof Error) {
-                    Logger.log('ERROR', error.stack as string);
+                    Logger.log("ERROR", error.stack as string);
                 }
             }
         })();
