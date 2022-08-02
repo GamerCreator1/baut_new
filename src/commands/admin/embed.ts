@@ -222,7 +222,9 @@ export default class EmbedsCommand extends Command {
             new MessageSelectMenu()
                 .setCustomId("embed-select")
                 .setPlaceholder("Select an embed")
-                .addOptions(embedsList.map(e => ({ label: `${e.id}: ${e.title}`, description: e.description ?? "No description", value: e.id ? e.id.toString() : e.title })))
+                .addOptions(
+                    embedsList.map(e => ({ label: `${e.id}: ${e.title}`, description: e.description?.slice(0, 99) ?? "No description", value: e.id ? e.id.toString() : e.title }))
+                )
         );
         const reply = (await command.editReply({
             embeds: [

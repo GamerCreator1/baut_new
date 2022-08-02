@@ -49,3 +49,6 @@ export function formatSeconds(seconds: number, format: string = "Y [year] M [mon
     });
     return newStr.trim();
 }
+
+/** Get The Channel URL */
+export const getChannelURL = (channelId: string) => `https://discord.com/channels/${process.env.GUILD_ID}/${channelId}`;
