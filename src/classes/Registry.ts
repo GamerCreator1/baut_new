@@ -8,9 +8,9 @@ import { REST } from "@discordjs/rest";
 import RegistryError from "@errors/RegistryError";
 import Command from "@structures/Command";
 import DiscordClient from "@structures/DiscordClient";
+import Embed from "@structures/Embed";
 import Event from "@structures/Event";
 import { isConstructor } from "@utils/functions";
-import Embed from "@structures/Embed";
 
 export default class Registry {
     /**
@@ -51,7 +51,7 @@ export default class Registry {
     /**
      * Collection for command autocomplete options.
      */
-    private autocomplete: Collection<string, { name: string; value: string }[]>;
+    private autocomplete: Collection<string, () => { name: string; value: string }[]>;
 
     /**
      * Any hardcoded embeds
@@ -71,7 +71,7 @@ export default class Registry {
         this.events = new Collection<string, Event>();
         this.cooldowns = new Collection<string, Collection<string, number>>();
         this.groups = new Collection<string, string[]>();
-        this.autocomplete = new Collection<string, { name: string; value: string }[]>();
+        this.autocomplete = new Collection<string, () => { name: string; value: string }[]>();
         this.embeds = new Collection<string, Embed>();
     }
 

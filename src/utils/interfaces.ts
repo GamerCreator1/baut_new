@@ -59,7 +59,7 @@ export interface ICommandInfo {
     require?: ICommandRequire;
 
     /** Autocomplete Options */
-    autocomplete?: { name: string; value: string }[];
+    autocomplete?: () => { name: string; value: string }[];
 
     /** If the response should be ephemeral */
     ephemeral?: boolean;

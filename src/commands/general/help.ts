@@ -12,13 +12,12 @@ interface IGroup {
 
 export default class HelpCommand extends Command {
     constructor(client: DiscordClient) {
-        const commands = client.registry.getAllCommandNames().map(c => ({ name: c, value: c })) ?? [];
         super(
             client,
             {
                 group: "General",
                 cooldown: 30,
-                autocomplete: commands,
+                autocomplete: () => client.registry.getAllCommandNames().map(c => ({ name: c, value: c })) ?? [],
             },
             new SlashCommandBuilder()
                 .setName("help")
