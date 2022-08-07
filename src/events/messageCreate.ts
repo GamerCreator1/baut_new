@@ -23,6 +23,10 @@ export default class MessageEvent extends Event {
                     return;
                 }
             });
+
+            if (message.channel.id == process.env.INTRODUCTION_CHANNEL){
+                await message.member.roles.add("913766127451136002");
+            }
         }
         const urlFilter = new RegExp("[\\w]{1,1}[a-zA-Z0-9@:%._+~#=-]{0,256}\\.[a-zA-Z]{1,1}[a-zA-Z0-9()]{1,5}[\\/a-zA-z0-9\\-?=&%.,+]*\\b");
         const url = urlFilter.exec(message.content);
