@@ -24,5 +24,11 @@ export default class GuildMemberAddEvent extends Event {
             timestamp: new Date(),
         } as MessageEmbedOptions;
         Logger.logEvent(this.client, member.guild, "Members", embed);
+
+        try {
+            await member.roles.add(process.env.BUILDER_ROLE);
+        } catch (error) {
+            Logger.log("ERROR", error.stack);
+        }
     }
 }
