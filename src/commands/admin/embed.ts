@@ -21,8 +21,8 @@ import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { IEmbed } from "@utils/interfaces";
 
-import Command from "../../structures/Command";
-import DiscordClient from "../../structures/DiscordClient";
+import Command from "@structures/Command";
+import DiscordClient from "@structures/DiscordClient";
 
 export default class EmbedsCommand extends Command {
     constructor(client: DiscordClient) {

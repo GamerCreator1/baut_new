@@ -1,6 +1,6 @@
 import { Client, ClientOptions } from "discord.js";
 import { BotOptions } from "@utils/types";
-import { prisma } from "../providers/prisma";
+import { prisma } from "@providers/prisma";
 
 import Registry from "@classes/Registry";
 import config from "../config";

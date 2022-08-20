@@ -2,8 +2,8 @@ import { CommandInteraction, MessageEmbedOptions } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
-import Command from "../../structures/Command";
-import DiscordClient from "../../structures/DiscordClient";
+import Command from "@structures/Command";
+import DiscordClient from "@structures/DiscordClient";
 
 export default class LogsCommand extends Command {
     constructor(client: DiscordClient) {

@@ -1,10 +1,8 @@
-import {
-    AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel
-} from 'discord.js';
+import { AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel } from "discord.js";
 
-import { formatSeconds, isUserDeveloper } from '@utils/functions';
+import { formatSeconds, isUserDeveloper } from "@utils/functions";
 
-import DiscordClient from '../structures/DiscordClient';
+import DiscordClient from "@structures/DiscordClient";
 
 export default class CommandHandler {
     /**
