@@ -33,6 +33,27 @@ export default class MessageUpdateEvent extends Event {
                 inline: false,
             });
         }
+        if (oldMessage.attachments.size !== newMessage.attachments.size) {
+            embed.fields.push({
+                name: "Old Attachments",
+                value: oldMessage.attachments
+                    .mapValues(value => value.url)
+                    .toJSON()
+                    .join("\n"),
+                inline: true,
+            });
+            embed.fields.push({
+                name: "New Attachments",
+                value:
+                    newMessage.attachments.size > 0
+                        ? newMessage.attachments
+                              .mapValues(value => value.url)
+                              .toJSON()
+                              .join("\n")
+                        : "None",
+                inline: true,
+            });
+        }
         embed.fields.push(
             {
                 name: "Author",

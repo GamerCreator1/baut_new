@@ -5,12 +5,12 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import Command from "../../structures/Command";
 import DiscordClient from "../../structures/DiscordClient";
 
-export default class AddThreadChannelCommand extends Command {
+export default class ThreadChannelsCommand extends Command {
     constructor(client: DiscordClient) {
         super(
             client,
             {
-                group: "Developer",
+                group: "Admin",
                 require: {
                     developer: true,
                 },

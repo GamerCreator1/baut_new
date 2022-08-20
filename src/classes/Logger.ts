@@ -36,17 +36,19 @@ export default class Logger {
     }
 
     static async logEvent(client: DiscordClient, guild: Guild, eventName: string, embed: MessageEmbedOptions) {
-        const log = await client.db.log.findFirst({
+        const logs = await client.db.log.findMany({
             where: {
                 log_event: "Messages",
                 enabled: true,
             },
         });
-        if (log) {
-            const logChannel = guild.channels.cache.get(log.channel_id) as TextBasedChannel;
-            if (logChannel) {
-                await logChannel.send({ embeds: [embed] });
-            }
+        if (logs) {
+            logs.forEach(async log => {
+                const logChannel = guild.channels.cache.get(log.channel_id) as TextBasedChannel;
+                if (logChannel) {
+                    await logChannel.send({ embeds: [embed] });
+                }
+            });
         }
     }
 }
