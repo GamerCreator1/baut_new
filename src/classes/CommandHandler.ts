@@ -1,8 +1,10 @@
-import { AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel } from "discord.js";
+import {
+    AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel
+} from 'discord.js';
 
-import { formatSeconds, isUserDeveloper } from "@utils/functions";
+import { formatSeconds, isUserDeveloper } from '@utils/functions';
 
-import DiscordClient from "../structures/DiscordClient";
+import DiscordClient from '../structures/DiscordClient';
 
 export default class CommandHandler {
     /**
@@ -131,6 +133,6 @@ export default class CommandHandler {
      * Handles autocomplete
      */
     static handleAutocomplete(client: DiscordClient, interaction: AutocompleteInteraction) {
-        interaction.respond(client.registry.getAutocomplete().get(interaction.commandName) ?? []);
+        interaction.respond(client.registry.getAutocomplete().get(interaction.commandName)() ?? []);
     }
 }

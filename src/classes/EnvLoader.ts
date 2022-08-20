@@ -1,5 +1,6 @@
-import dotenv from "dotenv";
-import EnvError from "../errors/EnvError";
+import dotenv from 'dotenv';
+
+import EnvError from '../errors/EnvError';
 
 export default class EnvLoader {
     /** Loads and validates .env file. */

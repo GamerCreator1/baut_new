@@ -1,0 +1,191 @@
+[
+    {
+        "name": "Career",
+        "emoji": "👨‍💼",
+        "embed": {
+            "title": "What do you do?",
+            "description": "Choose what best defines your career"
+        },
+        "type": "Multi Select",
+        "options": [
+            {
+                "name": "Programming",
+                "emoji": "💻",
+                "role": "913789663767040001"
+            },
+            {
+                "name": "Design",
+                "emoji": "🎨",
+                "role": "913791003633266729"
+            },
+            {
+                "name": "Entreprenurship",
+                "emoji": "💼",
+                "role": "913791069378990100"
+            },
+            {
+                "name": "Web3",
+                "emoji": "🌐",
+                "role": "933713452285960213"
+            },
+            {
+                "name": "Finance",
+                "emoji": "💵",
+                "role": "933713354730659920"
+            },
+            {
+                "name": "Social Media",
+                "emoji": "🤳",
+                "role": "933712617573335051"
+            },
+            {
+                "name": "Creatorship",
+                "emoji": "🎬",
+                "role": "913791371163336744"
+            }
+        ],
+        "max": 4,
+        "customId": "career"
+    },
+    {
+        "name": "Experience",
+        "emoji": "📊",
+        "embed": {
+            "title": "Choose your experience level",
+            "description": "How much experience do you have in your current career(s)/hobby(s) (i.e Developer, Designer, Entrepreneur, Creator)?"
+        },
+        "type": "Single Select",
+        "options": [
+            {
+                "name": "Beginner(1 - 2 Years)",
+                "emoji": "💡",
+                "role": "913788809882251285"
+            },
+            {
+                "name": "Intermediate(3 - 5 Years)",
+                "emoji": "💡",
+                "role": "914060415997210644"
+            },
+            {
+                "name": "Advanced(6 - 8 Years)",
+                "emoji": "💡",
+                "role": "914060591491063808"
+            },
+            {
+                "name": "Expert(9+ Years)",
+                "emoji": "💡",
+                "role": "914061049949458462"
+            }
+        ],
+        "max": 1,
+        "customId": "experience"
+    },
+    {
+        "name": "Location",
+        "emoji": "🛩",
+        "embed": {
+            "title": "Where are you located?",
+            "description": "Choose which continent you live in."
+        },
+        "type": "Single Select",
+        "options": [
+            {
+                "name": "North America",
+                "role": "914062801331453952"
+            },
+            {
+                "name": "South America",
+                "role": "914062822491693076"
+            },
+            {
+                "name": "Europe",
+                "role": "914062876480794634"
+            },
+            {
+                "name": "Asia",
+                "role": "914062611618889798"
+            },
+            {
+                "name": "Africa",
+                "role": "914062909162803260"
+            },
+            {
+                "name": "Australia",
+                "role": "914062934479605760"
+            },
+            {
+                "name": "Antarctica",
+                "role": "914063088960036915"
+            }
+        ],
+        "max": 1,
+        "customId": "location"
+    },
+    {
+        "name": "Pronouns",
+        "emoji": "💁‍♂️",
+        "embed": {
+            "title": "What pronouns do you use?",
+            "description": "Select your pronouns (Skip if you'd rather not disclose)."
+        },
+        "type": "Multi Select",
+        "options": [
+            {
+                "name": "He / Him",
+                "emoji": "♂",
+                "role": "914059764542095360"
+            },
+            {
+                "name": "She / Her",
+                "emoji": "♀",
+                "role": "914059977382043699"
+            },
+            {
+                "name": "They / Them",
+                "emoji": "⚧",
+                "role": "914060117371125770"
+            },
+            {
+                "name": "Ask Me!",
+                "emoji": "❓",
+                "role": "929317868720488459"
+            }
+        ],
+        "max": 3,
+        "min": 0,
+        "customId": "pronouns"
+    },
+    {
+        "name": "Notifications",
+        "emoji": "🔔",
+        "embed": {
+            "title": "Notifications",
+            "description": "Choose which of the following you would like to be pinged for."
+        },
+        "type": "Multi Select",
+        "options": [
+            {
+                "name": "Event Ping",
+                "role": "929265782226042890"
+            },
+            {
+                "name": "Server Inactivity Ping",
+                "role": "913788985036382268"
+            },
+            {
+                "name": "Assistance Ping",
+                "role": "913789046092886037"
+            },
+            {
+                "name": "Poll Ping",
+                "role": "913789194395074601"
+            },
+            {
+                "name": "Announcement Ping",
+                "role": "913789232311599128"
+            }
+        ],
+        "max": 5,
+        "customId": "notifications"
+    }
+]

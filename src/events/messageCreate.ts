@@ -1,8 +1,8 @@
-import { DMChannel, Message, ThreadChannel } from "discord.js";
+import { DMChannel, Message, ThreadChannel } from 'discord.js';
 
-import CommandHandler from "@classes/CommandHandler";
-import DiscordClient from "@structures/DiscordClient";
-import Event from "@structures/Event";
+import CommandHandler from '@classes/CommandHandler';
+import DiscordClient from '@structures/DiscordClient';
+import Event from '@structures/Event';
 
 export default class MessageEvent extends Event {
     constructor(client: DiscordClient) {
@@ -24,7 +24,7 @@ export default class MessageEvent extends Event {
                 }
             });
 
-            if (message.channel.id == process.env.INTRODUCTION_CHANNEL){
+            if (message.channel.id == process.env.INTRODUCTION_CHANNEL) {
                 await message.member.roles.add("913766127451136002");
             }
         }
@@ -32,6 +32,7 @@ export default class MessageEvent extends Event {
         const url = urlFilter.exec(message.content);
         if (url && url.length > 0 && url[0].length >= 4 && !url[0].match("[.]{2,}")) {
             const domain = url[0].match("[\\w]{1,1}[a-zA-Z0-9@:%._+~#=-]{0,256}\\.[a-zA-Z]{1,1}[a-zA-Z0-9()]{1,5}\\b");
+            if (!domain) return;
             if (domain.length == 0) return;
             const domainName = domain[0];
             const isBlackListedChannel = await this.client.db.nolinkchannels.findFirst({

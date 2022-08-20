@@ -16,10 +16,10 @@ export default class AboutEmbed extends Embed {
                 image: { url: "https://us-east-1.tixte.net/uploads/aaryaman.tixte.co/Frame_2.png" },
                 color: "BLURPLE",
             },
-            ["test"],
+            [],
             [
                 new MessageActionRow().addComponents(
-                    new MessageButton().setLabel("Introduce Yourself").setCustomId("make-intro-button").setStyle("SUCCESS"),
+                    new MessageButton().setLabel("Introduce Yourself").setURL(getChannelURL(process.env.INTRODUCTION_CHANNEL)).setStyle("LINK"),
                     new MessageButton().setLabel("Select Roles").setURL(getChannelURL(process.env.ROLES_CHANNEL)).setStyle("LINK"),
                     new MessageButton().setLabel("Read the Rules").setURL(getChannelURL(process.env.RULES_CHANNEL)).setStyle("LINK"),
                     new MessageButton().setLabel("Find us on Twitter").setURL(bgTwitter).setStyle("LINK")
@@ -28,9 +28,5 @@ export default class AboutEmbed extends Embed {
         );
     }
 
-    async onInteraction(interaction: Interaction<CacheType>, client: DiscordClient): Promise<void> {
-        if (interaction.isButton() && interaction.id === "make-intro-button") {
-            // https://discord.com/channels/1000694607883030528/1003305137718169651
-        }
-    }
+    async onInteraction(interaction: Interaction<CacheType>, client: DiscordClient): Promise<void> {}
 }

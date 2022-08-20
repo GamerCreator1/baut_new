@@ -3,9 +3,10 @@ import moment from "moment-timezone";
 
 // Getting and validating .env file
 import EnvLoader from "./classes/EnvLoader";
-import DiscordClient from "./structures/DiscordClient";
 
 EnvLoader.load();
+
+import DiscordClient from "./structures/DiscordClient";
 
 moment.locale("en");
 moment.tz.setDefault("America/New_York");
