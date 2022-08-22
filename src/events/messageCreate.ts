@@ -1,8 +1,8 @@
-import { DMChannel, Message, ThreadChannel } from 'discord.js';
+import { DMChannel, Message, ThreadChannel } from "discord.js";
 
-import CommandHandler from '@classes/CommandHandler';
-import DiscordClient from '@structures/DiscordClient';
-import Event from '@structures/Event';
+import CommandHandler from "@classes/CommandHandler";
+import DiscordClient from "@structures/DiscordClient";
+import Event from "@structures/Event";
 
 export default class MessageEvent extends Event {
     constructor(client: DiscordClient) {
