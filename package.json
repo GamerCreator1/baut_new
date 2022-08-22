@@ -7,6 +7,11 @@
         "build": "yarn clean && tsc --project tsconfig.json && tscpaths -p tsconfig.json -s ./src -o ./dist/src",
         "start": "node dist/src/client.js",
         "dev": "nodemon -r tsconfig-paths/register ./src/client.ts",
+        "prisma:migrate": "prisma migrate",
+        "prisma:push": "prisma db push",
+        "prisma:generate": "prisma generate",
+        "prisma:format": "prisma format",
+        "prisma:genpush": "yarn prisma:generate && yarn prisma:push",
         "prettier": "prettier --write ."
     },
     "author": "Neesh774",
