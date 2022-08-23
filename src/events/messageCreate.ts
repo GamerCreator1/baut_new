@@ -3,6 +3,7 @@ import { ChannelType, DMChannel, Message, ThreadChannel } from "discord.js";
 import CommandHandler from "@classes/CommandHandler";
 import DiscordClient from "@structures/DiscordClient";
 import Event from "@structures/Event";
+import { URL } from "url";
 
 export default class MessageEvent extends Event {
     constructor(client: DiscordClient) {
@@ -16,7 +17,7 @@ export default class MessageEvent extends Event {
                 // @ts-ignore
                 if (threadChannels.some(threadChannel => threadChannel.channel_id === message.channel.id)) {
                     await message.startThread({
-                        name: message.content,
+                        name: message.content == "" ? "???" : message.content,
                         autoArchiveDuration: 1440,
                         reason: "[Baut AutoThread] Thread created for " + message.author.tag,
                     });
@@ -25,16 +26,16 @@ export default class MessageEvent extends Event {
             });
 
             if (message.channel.id == process.env.INTRODUCTION_CHANNEL) {
-                await message.member.roles.add("913766127451136002");
+                await message.member.roles.add(process.env.INTRODUCED_ROLE);
             }
         }
-        const urlFilter = new RegExp("[\\w]{1,1}[a-zA-Z0-9@:%._+~#=-]{0,256}\\.[a-zA-Z]{1,1}[a-zA-Z0-9()]{1,5}[\\/a-zA-z0-9\\-?=&%.,+]*\\b");
+        const expression =
+            /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+        const urlFilter = new RegExp(expression);
         const url = urlFilter.exec(message.content);
-        if (url && url.length > 0 && url[0].length >= 4 && !url[0].match("[.]{2,}")) {
-            const domain = url[0].match("[\\w]{1,1}[a-zA-Z0-9@:%._+~#=-]{0,256}\\.[a-zA-Z]{1,1}[a-zA-Z0-9()]{1,5}\\b");
-            if (!domain) return;
-            if (domain.length == 0) return;
-            const domainName = domain[0];
+        if (url && url.length > 0 && url[0].length >= 4) {
+            const link = new URL(url[0]);
+            const domainName = link.hostname;
             const isBlackListedChannel = await this.client.db.nolinkchannels.findFirst({
                 where: {
                     channel_id: message.channel.id,

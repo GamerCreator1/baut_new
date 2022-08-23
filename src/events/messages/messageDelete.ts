@@ -19,7 +19,7 @@ export default class MessageDeleteEvent extends Event {
             fields: [
                 {
                     name: "Message",
-                    value: message.content,
+                    value: message.content == "" ? "N/A" : message.content,
                     inline: true,
                 },
                 {

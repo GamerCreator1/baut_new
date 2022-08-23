@@ -38,7 +38,7 @@ export default class Logger {
     static async logEvent(client: DiscordClient, guild: Guild, eventName: string, embed: EmbedBuilder) {
         const logs = await client.db.log.findMany({
             where: {
-                log_event: "Messages",
+                log_event: eventName,
                 enabled: true,
             },
         });

@@ -20,7 +20,14 @@ const client = new DiscordClient(
             activities: [{ type: ActivityType.Watching, name: "buildergroop.com" }],
             status: "online",
         },
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessages],
+        intents: [
+            GatewayIntentBits.Guilds,
+            // GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildBans,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildMessageReactions,
+            GatewayIntentBits.GuildMessages,
+        ],
     },
     {
         token: process.env.npm_lifecycle_event == "start" ? process.env["TOKEN"] : process.env["TEST_TOKEN"],
