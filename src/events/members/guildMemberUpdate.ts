@@ -66,7 +66,7 @@ export default class GuildMemberUpdateEvent extends Event {
                 });
             }
         }
-        if (embed.fields.length > 1) {
+        if (embed.fields.length > 0) {
             Logger.logEvent(this.client, newMember.guild, "Members", new EmbedBuilder(embed));
         }
     }
