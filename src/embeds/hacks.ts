@@ -31,29 +31,28 @@ export default class BuilderHacksEmbed extends Embed {
             new EmbedBuilder({
                 author: {
                     iconURL: "https://cdn.discordapp.com/icons/913668807015407646/0c7bfee6abdb16bf7128a91da1e7a05a.png",
-                    name: "buildergroop",
+                    name: "BuilderHacks Season Two",
                 },
-                title: "BuilderHacks Season 2",
+                title: "Are you a young coder interested in winning the latest products from Apple?",
                 description: `
-                > Sponsored by the team @ Hop, we'll be hosting a hackathon on <t:1661522400:f> - <t:1661738400:f>.
+                _ _
+                > Announcing Buildergroop's SECOND Hackathon for Gen-Z, sponsored by https://hop.io. We've got a prize pool worth **$5000 USD**, loads of workshops on today's most important technologies, and tons of fun networking activities throughout the event. 
 
-                ▶️ Win cash prizes for M2 Macbooks, Apple Watches, Airpods, and Hop hosting credits.\n
-                ▶️ Learn more on our site: https://hacks.buildergroop.com/\n
-                ▶️ Check out Hop: https://hop.io/
+                _ _
 
-                **How can I sign up?**
-                1️⃣ Register on Devpost at the link below. *(EVERY ONE MUST REGISTER INDIVIDUALLY)*
-                2️⃣ Press the "Sign Up" button below once you have a team or you want to participate on your own. *(ONE PERSON ON EACH TEAM MUST DO THIS)*\n\n
-                *You will be prompted to select three **audit** times. Audits are our system of checking in on participants and will only take up to 10 minutes. All submissions MUST go through 3 audits to be eligible for prizes.*
+                \`●\`  The hackathon will start at <t:1661522400:f> 
+                \`●\`  You MUST click the "Register" Button to participate
+                \`●\`  You MUST click the "Get Notifications" Button to get very important updates
+                \`●\`  Check out <#1011706065496326265> if you're looking for a teammate.
+                \`●\`  Check out <#1011704361543532645> to answer any queries you might have.
                 `,
+                image: { url: "https://cdn.discordapp.com/attachments/989278314269122640/1011735270346981516/unknown.png" },
             }).setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable),
             ["register"],
             [
                 new ActionRowBuilder<ButtonBuilder>().addComponents(
-                    new ButtonBuilder().setLabel("Register on Devpost").setStyle(ButtonStyle.Link).setURL("https://builderhacks2.devpost.com/"),
-                    new ButtonBuilder().setLabel("Sign Up").setCustomId("register").setStyle(ButtonStyle.Primary)
-                ),
-                new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder().setLabel("Get Notifications").setCustomId("register").setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder().setLabel("Register").setStyle(ButtonStyle.Link).setURL("https://builderhacks2.devpost.com/"),
                     new ButtonBuilder().setLabel("Learn More").setStyle(ButtonStyle.Link).setURL("https://hacks.buildergroop.com/")
                 ),
             ]
