@@ -5,7 +5,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import Command from "@structures/Command";
 import DiscordClient from "@structures/DiscordClient";
 
-export default class ThreadChannelsCommand extends Command {
+export default class NoLinkChannelsCommand extends Command {
     constructor(client: DiscordClient) {
         super(
             client,
@@ -17,26 +17,26 @@ export default class ThreadChannelsCommand extends Command {
                 ephemeral: true,
             },
             new SlashCommandBuilder()
-                .setName("thread_channels")
-                .setDescription("Alter thread channels")
+                .setName("no_link_channels")
+                .setDescription("Alter no-link channels channels")
                 .addSubcommand(subcommand =>
                     subcommand
                         .setName("add")
-                        .setDescription("Add a thread channel")
+                        .setDescription("Add a no-link channel")
                         .addChannelOption(option => option.setName("channel").setDescription("The channel to add").setRequired(true))
                 )
                 .addSubcommand(subcommand =>
                     subcommand
                         .setName("remove")
-                        .setDescription("Remove a thread channel")
+                        .setDescription("Remove a no-link channel")
                         .addChannelOption(option => option.setName("channel").setDescription("The channel to remove").setRequired(true))
                 )
-                .addSubcommand(subcommand => subcommand.setName("list").setDescription("List all thread channels"))
+                .addSubcommand(subcommand => subcommand.setName("list").setDescription("List all no-link channels"))
         );
     }
 
-    private async addThreadChannel(command: ChatInputCommandInteraction) {
-        await this.client.db.threadchannels.create({
+    private async addNoLinkchannel(command: ChatInputCommandInteraction) {
+        await this.client.db.nolinkchannels.create({
             data: {
                 channel_id: command.options.getChannel("channel")!.id,
             },
@@ -46,14 +46,14 @@ export default class ThreadChannelsCommand extends Command {
                 {
                     color: Colors.Green,
                     title: "✅ Success",
-                    description: `Added thread channel ${command.options.getChannel("channel")!.toString()}`,
+                    description: `Added no-link channel ${command.options.getChannel("channel")!.toString()}`,
                 },
             ],
         });
     }
 
-    private async removeThreadChannel(command: ChatInputCommandInteraction) {
-        await this.client.db.threadchannels.deleteMany({
+    private async removeNoLinkchannel(command: ChatInputCommandInteraction) {
+        await this.client.db.nolinkchannels.deleteMany({
             where: {
                 channel_id: command.options.getChannel("channel")!.id,
             },
@@ -63,35 +63,35 @@ export default class ThreadChannelsCommand extends Command {
                 {
                     color: Colors.Green,
                     title: "✅ Success",
-                    description: `Removed thread channel ${command.options.getChannel("channel")!.toString()}`,
+                    description: `Removed no-link channel ${command.options.getChannel("channel")!.toString()}`,
                 },
             ],
         });
     }
 
-    private async listThreadChannels(command: ChatInputCommandInteraction) {
-        const threadChannels = await this.client.db.threadchannels.findMany({
+    private async listNoLinkchannels(command: ChatInputCommandInteraction) {
+        const noLinkChannels = await this.client.db.nolinkchannels.findMany({
             select: {
                 channel_id: true,
             },
         });
-        if (!threadChannels)
+        if (!noLinkChannels)
             return command.editReply({
                 embeds: [
                     {
                         color: Colors.Red,
                         title: "❌ Error",
-                        description: "Failed to get thread channels",
+                        description: "Failed to get no-link channels",
                     },
                 ],
             });
-        const channels = threadChannels.map(threadChannel => this.client.channels.cache.get(threadChannel.channel_id));
+        const channels = noLinkChannels.map(noLinkChannel => this.client.channels.cache.get(noLinkChannel.channel_id));
         return command.editReply({
             embeds: [
                 {
                     color: Colors.Green,
                     title: "📁 Thread Channels",
-                    description: channels.length > 0 ? channels.map(channel => channel?.toString()).join("\n") : "No thread channels",
+                    description: channels.length > 0 ? channels.map(channel => channel?.toString()).join("\n") : "No no-link channels",
                 },
             ],
         });
@@ -100,13 +100,13 @@ export default class ThreadChannelsCommand extends Command {
     async run(command: ChatInputCommandInteraction) {
         switch (command.options.getSubcommand()) {
             case "add":
-                await this.addThreadChannel(command);
+                await this.addNoLinkchannel(command);
                 break;
             case "remove":
-                await this.removeThreadChannel(command);
+                await this.removeNoLinkchannel(command);
                 break;
             case "list":
-                await this.listThreadChannels(command);
+                await this.listNoLinkchannels(command);
                 break;
         }
     }

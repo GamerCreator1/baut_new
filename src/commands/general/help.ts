@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember, MessageEmbed } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, EmbedBuilder, Colors, PermissionResolvable } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import Command from "@structures/Command";
@@ -28,7 +28,7 @@ export default class HelpCommand extends Command {
         );
     }
 
-    getAvailableGroups(command: CommandInteraction): IGroup[] {
+    getAvailableGroups(command: ChatInputCommandInteraction): IGroup[] {
         const registry = this.client.registry;
         const groupKeys = registry.getAllGroupNames();
         const groups: IGroup[] = [];
@@ -41,7 +41,7 @@ export default class HelpCommand extends Command {
                 const commandObj = registry.findCommand(commandName) as Command;
                 if (!commandObj.isUsable(command)) return;
                 if (commandObj.info.require && commandObj.info.require.permissions && !isUserDeveloper(this.client, command.user.id)) {
-                    const hasPerms = commandObj.info.require.permissions.every(perm => (command.member as GuildMember).permissions.has(perm));
+                    const hasPerms = commandObj.info.require.permissions.every(perm => (command.member as GuildMember).permissions.has(perm as PermissionResolvable));
                     if (!hasPerms) return;
                 }
                 commands.push(commandName);
@@ -53,20 +53,20 @@ export default class HelpCommand extends Command {
         return groups;
     }
 
-    async sendHelpMessage(command: CommandInteraction, groups: IGroup[]) {
-        const embed = new MessageEmbed({
-            color: "BLUE",
+    async sendHelpMessage(command: ChatInputCommandInteraction, groups: IGroup[]) {
+        const embed = new EmbedBuilder({
+            color: Colors.Blue,
             title: "Help",
             footer: {
                 text: `Type "/help [command-name]" for more information.`,
             },
         });
 
-        groups.forEach(group => embed.addField(`${group.name} Commands`, group.commands.map(x => `\`${x}\``).join(" ")));
+        groups.forEach(group => embed.addFields([{ name: `${group.name} Commands`, value: group.commands.map(x => `\`${x}\``).join(" ") }]));
         await command.editReply({ embeds: [embed] });
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const groups = this.getAvailableGroups(command);
 
         const option = command.options.getString("command_name");
@@ -83,8 +83,8 @@ export default class HelpCommand extends Command {
 
         if (!isAvailable) return await this.sendHelpMessage(command, groups);
 
-        const embed = new MessageEmbed({
-            color: "BLUE",
+        const embed = new EmbedBuilder({
+            color: Colors.Blue,
             title: "Help",
             fields: [
                 {
@@ -116,7 +116,8 @@ export default class HelpCommand extends Command {
 
         if (commandObj.info.require) {
             if (commandObj.info.require.developer) embed.setFooter({ text: "This is a developer command." });
-            if (commandObj.info.require.permissions) embed.addField("Permission Requirements", commandObj.info.require.permissions.map(x => `\`${x}\``).join("\n"));
+            if (commandObj.info.require.permissions)
+                embed.addFields([{ name: "Permission Requirements", value: commandObj.info.require.permissions.map(x => `\`${x}\``).join("\n") }]);
         }
 
         await command.editReply({ embeds: [embed] });

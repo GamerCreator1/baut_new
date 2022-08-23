@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbedOptions } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Colors, ColorResolvable } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
@@ -19,13 +19,13 @@ export default class UserInfoCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const user = await (command.options.getUser("user") ?? command.user).fetch(true);
         const member = await command.guild.members.fetch(user.id);
-        const embed = {
-            color: member.displayColor,
-            title: "User Information",
-            fields: [
+        const embed = new EmbedBuilder()
+            .setColor(member.displayColor as ColorResolvable)
+            .setTitle("User Information")
+            .setFields([
                 {
                     name: "Username",
                     value: member.displayName,
@@ -56,12 +56,9 @@ export default class UserInfoCommand extends Command {
                     value: member.roles.cache.size.toString(),
                     inline: true,
                 },
-            ],
-            thumbnail: {
-                url: member.displayAvatarURL({ dynamic: true }),
-            },
-        } as MessageEmbedOptions;
-        if (user.banner) embed.image = { url: user.bannerURL({ format: "png", dynamic: true, size: 2048 }) };
+            ])
+            .setThumbnail(member.displayAvatarURL());
+        if (user.banner) embed.setImage(user.bannerURL());
         await command.editReply({
             embeds: [embed],
         });

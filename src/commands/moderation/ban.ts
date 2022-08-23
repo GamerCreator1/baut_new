@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -13,7 +13,7 @@ export default class BanCommand extends Command {
             {
                 group: "Moderation",
                 require: {
-                    permissions: ["BAN_MEMBERS"],
+                    permissions: [PermissionsBitField.Flags.BanMembers],
                 },
             },
             new SlashCommandBuilder()
@@ -36,26 +36,26 @@ export default class BanCommand extends Command {
         );
     }
 
-    private async ban(command: CommandInteraction) {
+    private async ban(command: ChatInputCommandInteraction) {
         const user = command.options.getUser("user");
         const reason = command.options.getString("reason");
         const days = command.options.getInteger("days");
 
         const member = await command.guild.members.fetch(user);
 
-        await member.ban({ reason, days });
+        await member.ban({ reason, deleteMessageDays: days });
 
         await command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     description: `${command.user.toString()}, ${member.toString()} has been banned.`,
                 },
             ],
         });
     }
 
-    private async unban(command: CommandInteraction) {
+    private async unban(command: ChatInputCommandInteraction) {
         const user = command.options.getString("user_id");
 
         const member = await command.guild.members.unban(user);
@@ -63,14 +63,14 @@ export default class BanCommand extends Command {
         await command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     description: `${command.user.toString()}, ${member?.toString() ?? "N/A"} has been unbanned.`,
                 },
             ],
         });
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const subcommand = command.options.getSubcommand();
         switch (subcommand) {
             case "ban":

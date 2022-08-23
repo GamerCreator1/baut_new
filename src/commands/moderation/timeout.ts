@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -13,7 +13,7 @@ export default class TimeoutCommand extends Command {
             {
                 group: "Moderation",
                 require: {
-                    permissions: ["MODERATE_MEMBERS"],
+                    permissions: [PermissionsBitField.Flags.ModerateMembers],
                 },
             },
             new SlashCommandBuilder()
@@ -49,7 +49,7 @@ export default class TimeoutCommand extends Command {
         return seconds;
     }
 
-    private async setTimeout(command: CommandInteraction) {
+    private async setTimeout(command: ChatInputCommandInteraction) {
         const user = command.options.getUser("user");
         const time = this.durationSeconds(command.options.getString("time")) * 1000;
         const reason = command.options.getString("reason") ?? "No reason provided by " + command.user.toString();
@@ -60,28 +60,28 @@ export default class TimeoutCommand extends Command {
         await command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     description: `${command.user.toString()}, ${member.toString()} has been timed out for \`${command.options.getString("time")}\` because of: \`${reason}\`.`,
                 },
             ],
         });
     }
 
-    private async removeTimeout(command: CommandInteraction) {
+    private async removeTimeout(command: ChatInputCommandInteraction) {
         const user = command.options.getUser("user");
         const member = await command.guild.members.fetch(user);
         await member.timeout(null);
         await command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     description: `${command.user.toString()}, ${member.toString()} has had their timeout removed.`,
                 },
             ],
         });
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const subcommand = command.options.getSubcommand();
         switch (subcommand) {
             case "set":

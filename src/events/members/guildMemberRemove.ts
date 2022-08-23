@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { GuildMember, TextBasedChannel, Colors, EmbedBuilder, AuditLogEvent } from "discord.js";
 
 import Logger from "@classes/Logger";
 import DiscordClient from "@structures/DiscordClient";
@@ -10,8 +10,8 @@ export default class GuildMemberAddEvent extends Event {
     }
 
     async run(member: GuildMember) {
-        const auditLogChannelBans = await member.guild.fetchAuditLogs({ limit: 1, type: "MEMBER_BAN_ADD" });
-        const auditLogChannelKicks = await member.guild.fetchAuditLogs({ limit: 1, type: "MEMBER_KICK" });
+        const auditLogChannelBans = await member.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberBanAdd });
+        const auditLogChannelKicks = await member.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberKick });
         if (
             (!!auditLogChannelBans?.entries.first() && auditLogChannelBans.entries.first().target.id == member.id) ||
             (!!auditLogChannelKicks?.entries.first() && auditLogChannelKicks.entries.first().target.id == member.id)
@@ -19,7 +19,7 @@ export default class GuildMemberAddEvent extends Event {
             return;
         const embed = {
             author: { name: "Members" },
-            color: "DARK_PURPLE",
+            color: Colors.DarkPurple,
             title: "Member Left",
             fields: [
                 {
@@ -29,7 +29,7 @@ export default class GuildMemberAddEvent extends Event {
                 },
             ],
             timestamp: new Date(),
-        } as MessageEmbedOptions;
-        Logger.logEvent(this.client, member.guild, "Members", embed);
+        };
+        Logger.logEvent(this.client, member.guild, "Members", new EmbedBuilder(embed));
     }
 }

@@ -1,5 +1,5 @@
 import { Routes } from "discord-api-types/v9";
-import { Collection } from "discord.js";
+import { Collection, Colors, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import path from "path";
 import requireAll from "require-all";
 
@@ -260,6 +260,16 @@ export default class Registry {
         const rest = new REST({ version: "9" }).setToken(this.client.token);
         (async () => {
             try {
+                const permissions = [];
+                this.commands.forEach(cmd => {
+                    if (cmd.info.require?.permissions?.length > 0) {
+                        permissions.push((cmd.data as SlashCommandBuilder).setDefaultMemberPermissions(new PermissionsBitField().add(...cmd.info.require.permissions).bitfield));
+                    } else if (cmd.info.require?.developer) {
+                        permissions.push((cmd.data as SlashCommandBuilder).setDefaultMemberPermissions(0));
+                    } else {
+                        return cmd.data as SlashCommandBuilder;
+                    }
+                });
                 await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
                     body: this.commands.map(command => command.data.toJSON()),
                 });

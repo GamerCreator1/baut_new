@@ -19,7 +19,7 @@ Config files go in `.env`, example is shown at `.env.example`.
 -   Add command template.
 
 ```ts
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Colors } from "discord.js";
 import { SlashCommandBuilder } from "@discordjs/builders";
 
 import Command from "../../structures/Command";
@@ -39,7 +39,7 @@ export default class ExampleCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         await command.reply("Wow, example command working!");
     }
 }
@@ -52,7 +52,7 @@ export default class ExampleCommand extends Command {
 -   Add event template.
 
 ```ts
-import { GuildMember } from "discord.js";
+import { GuildMember, Colors } from "discord.js";
 
 import DiscordClient from "../structures/DiscordClient";
 import Event from "../structures/Event";

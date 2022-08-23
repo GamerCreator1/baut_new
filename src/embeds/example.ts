@@ -1,4 +1,4 @@
-import { CacheType, Interaction, MessageActionRow, MessageButton } from "discord.js";
+import { CacheType, Interaction, ActionRowBuilder, ButtonBuilder, Colors, EmbedBuilder, ButtonStyle } from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
 import Embed from "@structures/Embed";
@@ -7,11 +7,11 @@ export default class ExampleEmbed extends Embed {
     constructor() {
         super(
             "Example",
-            {
+            new EmbedBuilder({
                 title: "Example Embed",
-            },
+            }),
             ["test"],
-            [new MessageActionRow().addComponents(new MessageButton().setLabel("Test").setCustomId("test").setStyle("PRIMARY"))]
+            [new ActionRowBuilder<ButtonBuilder>().addComponents(new ButtonBuilder().setLabel("Test").setCustomId("test").setStyle(ButtonStyle.Primary))]
         );
     }
 

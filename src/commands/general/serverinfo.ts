@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbedOptions } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Colors, ChannelType, ColorResolvable } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
@@ -16,12 +16,12 @@ export default class ServerInfoCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const owner = await command.guild.fetchOwner();
-        const embed = {
-            color: process.env.BUILDERGROOP_COLOR,
-            title: "Server Information",
-            fields: [
+        const embed = new EmbedBuilder()
+            .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
+            .setTitle("Server Information")
+            .setFields([
                 {
                     name: "Name",
                     value: command.guild.name,
@@ -44,9 +44,9 @@ export default class ServerInfoCommand extends Command {
                 },
                 {
                     name: "Channels",
-                    value: ` ${command.guild.channels.cache.filter(c => c.type === "GUILD_CATEGORY").size} 📁 / ${
-                        command.guild.channels.cache.filter(c => c.type === "GUILD_TEXT").size
-                    } 💬 / ${command.guild.channels.cache.filter(c => c.type === "GUILD_VOICE").size} 🔉`,
+                    value: ` ${command.guild.channels.cache.filter(c => c.type === ChannelType.GuildCategory).size} 📁 / ${
+                        command.guild.channels.cache.filter(c => c.type === ChannelType.GuildText).size
+                    } 💬 / ${command.guild.channels.cache.filter(c => c.type === ChannelType.GuildVoice).size} 🔉`,
                     inline: true,
                 },
                 {
@@ -69,13 +69,10 @@ export default class ServerInfoCommand extends Command {
                     value: `<t:${command.guild.createdAt.getTime().toString().substring(0, 10)}:f>`,
                     inline: true,
                 },
-            ],
-            thumbnail: {
-                url: command.guild.iconURL() ?? "https://cdn.discordapp.com/embed/avatars/0.png",
-            },
-        } as MessageEmbedOptions;
+            ])
+            .setThumbnail(command.guild.iconURL() ?? "https://cdn.discordapp.com/embed/avatars/0.png");
         // add banner if server has one
-        if (command.guild.bannerURL()) embed.image = { url: command.guild.bannerURL() };
+        if (command.guild.bannerURL()) embed.setImage(command.guild.bannerURL());
         await command.editReply({ embeds: [embed] });
     }
 }

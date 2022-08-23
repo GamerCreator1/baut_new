@@ -1,24 +1,30 @@
 import { MessageOptions } from "child_process";
 import {
-    CommandInteraction,
     HexColorString,
     Interaction,
     Message,
-    MessageActionRow,
-    MessageButton,
+    ActionRowBuilder,
+    ButtonBuilder,
     MessageComponentInteraction,
-    MessageEmbed,
-    MessageEmbedOptions,
-    MessageSelectMenu,
-    Modal,
-    ModalActionRowComponent,
+    EmbedBuilder,
+    SelectMenuBuilder,
+    ModalBuilder,
     ModalSubmitInteraction,
     SelectMenuInteraction,
-    TextInputComponent,
+    ModalActionRowComponentBuilder,
+    TextInputBuilder,
+    TextInputStyle,
+    ButtonStyle,
+    SlashCommandBuilder,
+    ComponentType,
+    ChatInputCommandInteraction,
+    ChannelType,
+    TextChannel,
+    MessageActionRowComponentBuilder,
+    PermissionsBitField,
 } from "discord.js";
 
 import Logger from "@classes/Logger";
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { IEmbed } from "@utils/interfaces";
 
 import Command from "@structures/Command";
@@ -30,7 +36,7 @@ export default class EmbedsCommand extends Command {
             client,
             {
                 group: "Admin",
-                require: { permissions: ["MANAGE_MESSAGES"] },
+                require: { permissions: [PermissionsBitField.Flags.Administrator] },
                 ephemeral: true,
             },
             new SlashCommandBuilder()
@@ -61,69 +67,69 @@ export default class EmbedsCommand extends Command {
         );
     }
 
-    private async showModal(command: CommandInteraction, prev?: IEmbed, id?: number) {
-        const modal = new Modal()
+    private async showModal(command: ChatInputCommandInteraction, prev?: IEmbed, id?: number) {
+        const modal = new ModalBuilder()
             .setCustomId("embed-create")
             .setTitle(prev ? "Edit embed" : "Create embed")
             .addComponents(
-                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                    new TextInputComponent()
+                new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
                         .setLabel("Title")
-                        .setStyle("SHORT")
+                        .setStyle(TextInputStyle.Short)
                         .setCustomId("title")
                         .setMaxLength(256)
                         .setValue(prev?.title ?? "")
                 ),
-                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                    new TextInputComponent()
+                new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
                         .setLabel("Description")
-                        .setStyle("PARAGRAPH")
+                        .setStyle(TextInputStyle.Paragraph)
                         .setCustomId("description")
                         .setValue(prev?.description ?? "")
                 ),
-                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                    new TextInputComponent()
+                new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
                         .setLabel("Color (#Hex)")
-                        .setStyle("SHORT")
+                        .setStyle(TextInputStyle.Short)
                         .setCustomId("color")
                         .setMaxLength(7)
                         .setValue(prev?.color.toString() ?? "#000000")
                 ),
-                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                    new TextInputComponent()
+                new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
                         .setLabel("URL")
-                        .setStyle("SHORT")
+                        .setStyle(TextInputStyle.Short)
                         .setCustomId("url")
                         .setMaxLength(200)
                         .setValue(prev?.url ?? "")
                 ),
-                new MessageActionRow<ModalActionRowComponent>().addComponents(
-                    new TextInputComponent()
+                new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+                    new TextInputBuilder()
                         .setLabel("Image URL")
-                        .setStyle("SHORT")
+                        .setStyle(TextInputStyle.Short)
                         .setCustomId("image-url")
                         .setMaxLength(200)
                         .setValue(prev?.image ?? "")
                 )
             );
 
+        const button = new ButtonBuilder()
+            .setCustomId("embed-create-button")
+            .setLabel(`${prev ? "Edit" : "Create"} Embed`)
+            .setStyle(ButtonStyle.Primary);
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+
         // Send a button to show the modal
         const reply = (await command.editReply({
             content: `Click here to ${prev ? "edit" : "create"} an embed.`,
-            components: [
-                new MessageActionRow().addComponents(
-                    new MessageButton()
-                        .setCustomId("embed-create-button")
-                        .setLabel(`${prev ? "Edit" : "Create"} Embed`)
-                        .setStyle("PRIMARY")
-                ),
-            ],
+            components: [row],
         })) as Message;
+
         const modalOpenFilter = (i: MessageComponentInteraction) => i.customId === "embed-create-button" && i.user.id === command.user.id;
 
         // Wait for the button to be pressed
         await reply
-            .awaitMessageComponent({ filter: modalOpenFilter, componentType: "BUTTON", time: 10000 })
+            .awaitMessageComponent({ filter: modalOpenFilter, componentType: ComponentType.Button, time: 10000 })
             .then(async (interaction: MessageComponentInteraction) => {
                 interaction.showModal(modal);
                 const modalSubmitFilter = (i: ModalSubmitInteraction) => i.customId === "embed-create" && i.user.id === command.user.id;
@@ -132,6 +138,7 @@ export default class EmbedsCommand extends Command {
                 await interaction
                     .awaitModalSubmit({ filter: modalSubmitFilter, time: 60000 })
                     .then(async (modalSubmit: ModalSubmitInteraction) => {
+                        if (!modalSubmit.isFromMessage()) return;
                         // Create the embed object and upload it to db
                         const title = modalSubmit.fields.getTextInputValue("title");
                         const description = modalSubmit.fields.getTextInputValue("description");
@@ -171,7 +178,7 @@ export default class EmbedsCommand extends Command {
 
                         modalSubmit.update({
                             content: `Embed ${prev ? "edited" : "created"}! [Embed ID: ${id}]`,
-                            embeds: [embed as MessageEmbedOptions],
+                            embeds: [embed],
                             components: [],
                         });
                     })
@@ -186,7 +193,7 @@ export default class EmbedsCommand extends Command {
             .catch(() => command.editReply({ content: "You took too long to create an embed.", components: [] }));
     }
 
-    private async listEmbeds(command: CommandInteraction) {
+    private async listEmbeds(command: ChatInputCommandInteraction) {
         const embeds = await this.client.db.embeds.findMany();
         if (embeds.length == 0 && this.client.registry.getEmbeds().size == 0) {
             command.editReply({
@@ -209,17 +216,17 @@ export default class EmbedsCommand extends Command {
             ...this.client.registry.getEmbeds().map(embed => {
                 return {
                     id: embed.id,
-                    title: embed.embed.title,
-                    description: embed.embed.description,
-                    color: embed.embed.color,
-                    url: embed.embed.url,
-                    image: embed.embed.image?.url,
+                    title: embed.embed.data.title,
+                    description: embed.embed.data.description,
+                    color: embed.embed.data.color,
+                    url: embed.embed.data.url,
+                    image: embed.embed.data.image?.url,
                 } as IEmbed;
             })
         );
         // select menu to select embed
-        const row = new MessageActionRow().addComponents(
-            new MessageSelectMenu()
+        const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+            new SelectMenuBuilder()
                 .setCustomId("embed-select")
                 .setPlaceholder("Select an embed")
                 .addOptions(
@@ -228,7 +235,7 @@ export default class EmbedsCommand extends Command {
         );
         const reply = (await command.editReply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setTitle("Embeds")
                     .setDescription("Select an option to view info about an embed")
                     .setFooter({ text: `${embedsList.length} embeds found.` }),
@@ -236,22 +243,22 @@ export default class EmbedsCommand extends Command {
             components: [row],
         })) as Message;
         const selectFilter = (i: MessageComponentInteraction) => i.customId === "embed-select" && i.user.id === command.user.id;
-        const collector = reply.createMessageComponentCollector({ filter: selectFilter, componentType: "SELECT_MENU", time: 60000 });
+        const collector = reply.createMessageComponentCollector({ filter: selectFilter, componentType: ComponentType.SelectMenu, time: 60000 });
         collector.on("collect", async (interaction: SelectMenuInteraction) => {
             let embed = embedsList.find(e => e.id?.toString() === interaction.values[0]);
             if (!embed) {
                 // search for embed in registry
-                const hcEmbed = this.client.registry.getEmbeds().find(e => e.embed.title === interaction.values[0]);
+                const hcEmbed = this.client.registry.getEmbeds().find(e => e.embed.data.title === interaction.values[0]);
                 embed = {
                     id: hcEmbed.id,
-                    title: hcEmbed.embed.title,
-                    description: hcEmbed.embed.description,
-                    color: hcEmbed.embed.color,
-                    url: hcEmbed.embed.url,
-                    image: hcEmbed.embed.image?.url,
+                    title: hcEmbed.embed.data.title,
+                    description: hcEmbed.embed.data.description,
+                    color: hcEmbed.embed.data.color,
+                    url: hcEmbed.embed.data.url,
+                    image: hcEmbed.embed.data.image?.url,
                 } as IEmbed;
             }
-            const msgEmbed = new MessageEmbed();
+            const msgEmbed = new EmbedBuilder();
             if (embed.title) msgEmbed.setTitle(embed.title);
             if (embed.description) msgEmbed.setDescription(embed.description);
             if (embed.color) msgEmbed.setColor(embed.color as HexColorString);
@@ -270,7 +277,7 @@ export default class EmbedsCommand extends Command {
         });
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         switch (command.options.getSubcommand()) {
             case "create":
                 this.showModal(command);
@@ -301,7 +308,7 @@ export default class EmbedsCommand extends Command {
                 const sendId = command.options.getString("id");
                 let sendEmbedMessage: MessageOptions;
                 const sendChannel = command.options.getChannel("channel") ?? command.channel;
-                if (sendChannel.type != "GUILD_TEXT") {
+                if (sendChannel.type != ChannelType.GuildText) {
                     command.editReply({ content: "You can only send embeds to text channels." });
                     return;
                 }
@@ -313,7 +320,7 @@ export default class EmbedsCommand extends Command {
                         command.editReply({ content: "Embed not found." });
                         return;
                     }
-                    sendChannel.send({ embeds: [sendEmbed.embed], components: sendEmbed.components });
+                    (sendChannel as TextChannel).send({ embeds: [sendEmbed.embed], components: sendEmbed.components });
                     command.editReply({ content: "Embed sent." });
                 } else {
                     // DB Embeds
@@ -323,14 +330,14 @@ export default class EmbedsCommand extends Command {
                         return;
                     }
                     const sendEmbedObject = JSON.parse(sendEmbed.content);
-                    const embed = new MessageEmbed();
+                    const embed = new EmbedBuilder();
                     if (sendEmbedObject.title) embed.setTitle(sendEmbedObject.title);
                     if (sendEmbedObject.description) embed.setDescription(sendEmbedObject.description);
                     if (sendEmbedObject.color) embed.setColor(sendEmbedObject.color as HexColorString);
                     if (sendEmbedObject.url) embed.setURL(sendEmbedObject.url);
                     if (sendEmbedObject.image) embed.setImage(sendEmbedObject.image);
 
-                    sendChannel.send({ embeds: [embed] });
+                    (sendChannel as TextChannel).send({ embeds: [embed] });
                     command.editReply({ content: "Embed sent." });
                 }
                 break;

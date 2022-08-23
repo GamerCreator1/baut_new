@@ -1,4 +1,4 @@
-import { Message, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { Message, TextBasedChannel, Colors, EmbedBuilder } from "discord.js";
 
 import Logger from "@classes/Logger";
 import DiscordClient from "@structures/DiscordClient";
@@ -14,13 +14,13 @@ export default class MessageUpdateEvent extends Event {
         const embed = {
             author: { name: "Messages" },
             title: "Message Updated",
-            color: "DARK_PURPLE",
+            color: Colors.DarkPurple,
             fields: [],
             timestamp: new Date(),
             footer: {
                 text: "Author ID: " + newMessage.author.id,
             },
-        } as MessageEmbedOptions;
+        };
         if (oldMessage.content !== newMessage.content) {
             embed.fields.push({
                 name: "Old Content",
@@ -66,6 +66,6 @@ export default class MessageUpdateEvent extends Event {
                 inline: false,
             }
         );
-        Logger.logEvent(this.client, newMessage.guild, "Messages", embed);
+        Logger.logEvent(this.client, newMessage.guild, "Messages", new EmbedBuilder(embed));
     }
 }

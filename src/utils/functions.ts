@@ -3,6 +3,7 @@ import "moment-duration-format";
 import moment from "moment-timezone";
 
 import DiscordClient from "@structures/DiscordClient";
+import { PermissionFlagsBits } from "discord.js";
 
 const isConstructorProxyHandler = {
     construct() {
@@ -52,3 +53,11 @@ export function formatSeconds(seconds: number, format: string = "Y [year] M [mon
 
 /** Get The Channel URL */
 export const getChannelURL = (channelId: string) => `https://discord.com/channels/${process.env.GUILD_ID}/${channelId}`;
+
+export function getPermission(perm: bigint) {
+    for (const key in PermissionFlagsBits) {
+        if (PermissionFlagsBits[key] === perm) {
+            return key;
+        }
+    }
+}

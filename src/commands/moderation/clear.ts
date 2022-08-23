@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { ChatInputCommandInteraction, TextBasedChannel, Colors, EmbedBuilder, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -13,7 +13,7 @@ export default class ClearCommand extends Command {
             {
                 group: "Moderation",
                 require: {
-                    permissions: ["MANAGE_MESSAGES"],
+                    permissions: [PermissionsBitField.Flags.ManageMessages],
                 },
             },
             new SlashCommandBuilder()
@@ -23,7 +23,7 @@ export default class ClearCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const amount = command.options.getNumber("amount");
         const channel = command.channel;
         const user = command.user;
@@ -32,17 +32,17 @@ export default class ClearCommand extends Command {
         await channel.send({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     description: `${user.toString()}, ${deleted.size} messages have been deleted.`,
                     footer: { text: "If I was unable to delete all the messages, it might be because some of them are more than 2 weeks old." },
                 },
             ],
         });
-        const embed = {
-            author: { name: "Messages" },
-            title: "Messages Bulk Deleted",
-            color: "DARK_PURPLE",
-            fields: [
+        const embed = new EmbedBuilder()
+            .setAuthor({ name: "Messages" })
+            .setTitle("Messages Bulk Deleted")
+            .setColor(Colors.DarkPurple)
+            .setFields([
                 {
                     name: "Channel",
                     value: channel.toString() ?? "N/A",
@@ -58,9 +58,8 @@ export default class ClearCommand extends Command {
                     value: deleted.size.toString() ?? "N/A",
                     inline: true,
                 },
-            ],
-            timestamp: new Date(),
-        } as MessageEmbedOptions;
+            ])
+            .setTimestamp(new Date());
         Logger.logEvent(this.client, command.guild, "Messages", embed);
     }
 }

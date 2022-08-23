@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { GuildMember, TextBasedChannel, Colors, EmbedBuilder } from "discord.js";
 
 import Logger from "@classes/Logger";
 import DiscordClient from "@structures/DiscordClient";
@@ -12,7 +12,7 @@ export default class GuildMemberAddEvent extends Event {
     async run(member: GuildMember) {
         const embed = {
             author: { name: "Members" },
-            color: "DARK_PURPLE",
+            color: Colors.DarkPurple,
             title: "Member Joined",
             fields: [
                 {
@@ -22,8 +22,8 @@ export default class GuildMemberAddEvent extends Event {
                 },
             ],
             timestamp: new Date(),
-        } as MessageEmbedOptions;
-        Logger.logEvent(this.client, member.guild, "Members", embed);
+        };
+        Logger.logEvent(this.client, member.guild, "Members", new EmbedBuilder(embed));
 
         try {
             await member.roles.add(process.env.BUILDER_ROLE);
