@@ -1,4 +1,4 @@
-import { Interaction, Colors } from "discord.js";
+import { Interaction, Colors, InteractionType, ChatInputCommandInteraction } from "discord.js";
 
 import CommandHandler from "@classes/CommandHandler";
 import DiscordClient from "@structures/DiscordClient";
@@ -10,9 +10,9 @@ export default class InteractionEvent extends Event {
     }
 
     async run(interaction: Interaction) {
-        if (interaction.isChatInputCommand()) return await CommandHandler.handleCommand(this.client, interaction);
-        else if (interaction.isAutocomplete()) return CommandHandler.handleAutocomplete(this.client, interaction);
-        else if (interaction.isMessageComponent()) {
+        if (interaction.type == InteractionType.ApplicationCommand) return await CommandHandler.handleCommand(this.client, interaction as ChatInputCommandInteraction);
+        else if (interaction.type == InteractionType.ApplicationCommandAutocomplete) return CommandHandler.handleAutocomplete(this.client, interaction);
+        else if (interaction.type == InteractionType.MessageComponent) {
             const id = interaction.customId;
             this.client.registry.getEmbeds().forEach(async embed => {
                 if (embed.interactionIds.some(i => id.startsWith(i))) {
