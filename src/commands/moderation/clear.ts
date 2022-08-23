@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, TextBasedChannel, Colors, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, TextBasedChannel, Colors, EmbedBuilder, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -13,7 +13,7 @@ export default class ClearCommand extends Command {
             {
                 group: "Moderation",
                 require: {
-                    permissions: ["MANAGE_MESSAGES"],
+                    permissions: [PermissionsBitField.Flags.ManageMessages],
                 },
             },
             new SlashCommandBuilder()

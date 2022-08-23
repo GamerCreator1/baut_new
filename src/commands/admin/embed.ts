@@ -21,6 +21,7 @@ import {
     ChannelType,
     TextChannel,
     MessageActionRowComponentBuilder,
+    PermissionsBitField,
 } from "discord.js";
 
 import Logger from "@classes/Logger";
@@ -35,7 +36,7 @@ export default class EmbedsCommand extends Command {
             client,
             {
                 group: "Admin",
-                require: { permissions: ["MANAGE_MESSAGES"] },
+                require: { permissions: [PermissionsBitField.Flags.Administrator] },
                 ephemeral: true,
             },
             new SlashCommandBuilder()

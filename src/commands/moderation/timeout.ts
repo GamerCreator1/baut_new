@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -13,7 +13,7 @@ export default class TimeoutCommand extends Command {
             {
                 group: "Moderation",
                 require: {
-                    permissions: ["MODERATE_MEMBERS"],
+                    permissions: [PermissionsBitField.Flags.ModerateMembers],
                 },
             },
             new SlashCommandBuilder()

@@ -1,6 +1,17 @@
-import { AutocompleteInteraction, ChatInputCommandInteraction, EmbedBuilder, Guild, GuildMember, PermissionFlagsBits, TextChannel, Colors, PermissionResolvable } from "discord.js";
+import {
+    AutocompleteInteraction,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    Guild,
+    GuildMember,
+    PermissionFlagsBits,
+    TextChannel,
+    Colors,
+    PermissionResolvable,
+    PermissionsBitField,
+} from "discord.js";
 
-import { formatSeconds, isUserDeveloper } from "@utils/functions";
+import { formatSeconds, getPermission, isUserDeveloper } from "@utils/functions";
 
 import DiscordClient from "@structures/DiscordClient";
 
@@ -60,8 +71,8 @@ export default class CommandHandler {
             if (cmd.info.require.permissions && !isUserDeveloper(client, command.user.id)) {
                 const perms: string[] = [];
                 cmd.info.require.permissions.forEach(permission => {
-                    if ((command.member as GuildMember).permissions.has(permission as PermissionResolvable)) return;
-                    else return perms.push(`\`${permission}\``);
+                    if ((command.member as GuildMember).permissions.has(permission)) return;
+                    else return perms.push(`\`${getPermission(permission)}\``);
                 });
                 if (perms.length)
                     return await command.editReply({

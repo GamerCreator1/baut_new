@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, GuildMember, TextChannel, Colors, PermissionResolvable } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, TextChannel, Colors, PermissionResolvable, PermissionFlagsBits } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@discordjs/builders";
@@ -61,7 +61,7 @@ export default abstract class Command {
             if (this.info.require.permissions && !isUserDeveloper(this.client, command.user.id)) {
                 const perms = [];
                 this.info.require.permissions.forEach(permission => {
-                    if ((command.member as GuildMember).permissions.has(permission as PermissionResolvable)) return;
+                    if ((command.member as GuildMember).permissions.has(permission)) return;
                     else return perms.push(permission);
                 });
                 if (perms.length) return false;

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, ColorResolvable, Colors, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, ColorResolvable, Colors, EmbedBuilder, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -12,7 +12,7 @@ export default class LogsCommand extends Command {
             {
                 group: "Admin",
                 require: {
-                    permissions: ["MANAGE_GUILD"],
+                    permissions: [PermissionsBitField.Flags.ManageGuild],
                 },
             },
             new SlashCommandBuilder()

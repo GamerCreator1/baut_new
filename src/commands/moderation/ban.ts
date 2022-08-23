@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -13,7 +13,7 @@ export default class BanCommand extends Command {
             {
                 group: "Moderation",
                 require: {
-                    permissions: ["BAN_MEMBERS"],
+                    permissions: [PermissionsBitField.Flags.BanMembers],
                 },
             },
             new SlashCommandBuilder()
