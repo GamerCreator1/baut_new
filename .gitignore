@@ -4,3 +4,6 @@ node_modules
 yarn-error.log
 .env.dev
 package-lock.json
+.vscode
+.vscode/settings.json
+.vscode/extensions.json

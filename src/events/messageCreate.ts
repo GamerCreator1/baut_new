@@ -17,7 +17,7 @@ export default class MessageEvent extends Event {
                 // @ts-ignore
                 if (threadChannels.some(threadChannel => threadChannel.channel_id === message.channel.id)) {
                     await message.startThread({
-                        name: message.content == "" ? "???" : message.content,
+                        name: message.content == "" ? "???" : message.content.slice(0, 97).split(" ").slice(0, -1).join(" ") + "...", // make sure the message isn't too long without cutting off between words
                         autoArchiveDuration: 1440,
                         reason: "[Baut AutoThread] Thread created for " + message.author.tag,
                     });

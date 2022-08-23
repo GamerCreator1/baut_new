@@ -22,7 +22,7 @@ const client = new DiscordClient(
         },
         intents: [
             GatewayIntentBits.Guilds,
-            // GatewayIntentBits.MessageContent,
+            GatewayIntentBits.MessageContent,
             GatewayIntentBits.GuildBans,
             GatewayIntentBits.GuildMembers,
             GatewayIntentBits.GuildMessageReactions,
