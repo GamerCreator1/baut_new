@@ -1,4 +1,4 @@
-import { AutocompleteInteraction, CommandInteraction, Guild, GuildMember, TextChannel } from "discord.js";
+import { AutocompleteInteraction, ChatInputCommandInteraction, EmbedBuilder, Guild, GuildMember, PermissionFlagsBits, TextChannel, Colors, PermissionResolvable } from "discord.js";
 
 import { formatSeconds, isUserDeveloper } from "@utils/functions";
 
@@ -9,14 +9,14 @@ export default class CommandHandler {
      * Handles the commands.
      * @param command Message object
      */
-    static async handleCommand(client: DiscordClient, command: CommandInteraction) {
-        const self = (command.guild as Guild).me as GuildMember;
-        if (!self.permissions.has("SEND_MESSAGES")) return;
-        if (!self.permissions.has("ADMINISTRATOR"))
+    static async handleCommand(client: DiscordClient, command: ChatInputCommandInteraction) {
+        const self = (command.guild as Guild).members.me as GuildMember;
+        if (!self.permissions.has(PermissionFlagsBits.SendMessages)) return;
+        if (!self.permissions.has(PermissionFlagsBits.Administrator))
             return await command.reply({
                 embeds: [
                     {
-                        color: "RED",
+                        color: Colors.Red,
                         title: "🚨 Missing Permission",
                         description: `${command.user.toString()}, bot requires \`ADMINISTRATOR\` permission to be run.`,
                     },
@@ -28,11 +28,7 @@ export default class CommandHandler {
             if (client.config.unknownErrorMessage)
                 await command.reply({
                     embeds: [
-                        {
-                            color: "#D1D1D1",
-                            title: "🔎 Unknown Command",
-                            description: `${command.user.toString()}, type \`/help\` to see the command list.`,
-                        },
+                        new EmbedBuilder().setTitle("🔎 Unknown Command").setDescription(`${command.user.toString()}, type \`/help\` to see the command list.`).setColor("#D1D1D1"),
                     ],
                 });
             return;
@@ -43,11 +39,7 @@ export default class CommandHandler {
         if (cmd.info.onlyNsfw === true && !(command.channel as TextChannel).nsfw && !isUserDeveloper(client, command.user.id)) {
             await command.editReply({
                 embeds: [
-                    {
-                        color: "#EEB4D5",
-                        title: "🔞 Be Careful",
-                        description: `${command.user.toString()}, you can't use this command on non-nsfw channels.`,
-                    },
+                    new EmbedBuilder().setTitle("🔞 Be Careful").setDescription(`${command.user.toString()}, you can't use this command on non-nsfw channels.`).setColor("#EEB4D5"),
                 ],
             });
             return;
@@ -57,11 +49,10 @@ export default class CommandHandler {
             if (cmd.info.require.developer && !isUserDeveloper(client, command.user.id)) {
                 await command.editReply({
                     embeds: [
-                        {
-                            color: "#EEB4D5",
-                            title: "⚠️ Developer Only",
-                            description: `${command.user.toString()}, you must be one of my developers to use this command!`,
-                        },
+                        new EmbedBuilder()
+                            .setTitle("⚠️ Developer Only")
+                            .setDescription(`${command.user.toString()}, you must be one of my developers to use this command!`)
+                            .setColor("#EEB4D5"),
                     ],
                 });
                 return;
@@ -69,17 +60,16 @@ export default class CommandHandler {
             if (cmd.info.require.permissions && !isUserDeveloper(client, command.user.id)) {
                 const perms: string[] = [];
                 cmd.info.require.permissions.forEach(permission => {
-                    if ((command.member as GuildMember).permissions.has(permission)) return;
+                    if ((command.member as GuildMember).permissions.has(permission as PermissionResolvable)) return;
                     else return perms.push(`\`${permission}\``);
                 });
                 if (perms.length)
                     return await command.editReply({
                         embeds: [
-                            {
-                                color: "#FCE100",
-                                title: "⚠️ Missing Permissions",
-                                description: `${command.user.toString()}, you must have these permissions to run this command.\n\n${perms.join("\n")}`,
-                            },
+                            new EmbedBuilder()
+                                .setTitle("⚠️ Missing Permissions")
+                                .setDescription(`${command.user.toString()}, you must have these permissions to run this command.\n\n${perms.join("\n")}`)
+                                .setColor("#EEB4D5"),
                         ],
                     });
             }
@@ -100,11 +90,10 @@ export default class CommandHandler {
                     const timeLeft = (expirationTime - now) / 1000;
                     return await command.editReply({
                         embeds: [
-                            {
-                                color: "ORANGE",
-                                title: "⏰ Calm Down",
-                                description: `${command.user.toString()}, you must wait \`${formatSeconds(Math.floor(timeLeft))}\` to run this command.`,
-                            },
+                            new EmbedBuilder()
+                                .setTitle("⏰ Calm Down")
+                                .setDescription(`${command.user.toString()}, you must wait \`${formatSeconds(Math.floor(timeLeft))}\` to run this command.`)
+                                .setColor("#EEB4D5"),
                         ],
                     });
                 }

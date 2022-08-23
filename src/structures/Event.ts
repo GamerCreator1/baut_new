@@ -1,4 +1,4 @@
-import { ClientEvents } from "discord.js";
+import { ClientEvents, Colors } from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
 

@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { ChatInputCommandInteraction, TextBasedChannel, Colors, EmbedBuilder } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -24,7 +24,7 @@ export default class KickCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const user = command.options.getUser("user");
         const reason = command.options.getString("reason");
         const member = await command.guild.members.fetch(user);
@@ -33,24 +33,24 @@ export default class KickCommand extends Command {
         await command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     description: `${command.user.toString()}, ${member.toString()} has been kicked for: \`${reason ?? "N/A"}\`.`,
                 },
             ],
         });
-        const embed = {
-            author: { name: "Members" },
-            color: "DARK_PURPLE",
-            title: "Member Kicked",
-            fields: [
+        const embed = new EmbedBuilder()
+            .setAuthor({ name: "Members" })
+            .setColor(Colors.DarkPurple)
+            .setTitle("Member Kicked")
+            .setFields([
                 {
                     name: "Member",
                     value: member.user.toString(),
                     inline: true,
                 },
-            ],
-            timestamp: new Date(),
-        } as MessageEmbedOptions;
+            ])
+            .setTimestamp(new Date());
+
         Logger.logEvent(this.client, command.guild, "Members", embed);
     }
 }

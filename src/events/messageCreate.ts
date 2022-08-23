@@ -1,8 +1,8 @@
-import { DMChannel, Message, ThreadChannel } from 'discord.js';
+import { ChannelType, DMChannel, Message, ThreadChannel } from "discord.js";
 
-import CommandHandler from '@classes/CommandHandler';
-import DiscordClient from '@structures/DiscordClient';
-import Event from '@structures/Event';
+import CommandHandler from "@classes/CommandHandler";
+import DiscordClient from "@structures/DiscordClient";
+import Event from "@structures/Event";
 
 export default class MessageEvent extends Event {
     constructor(client: DiscordClient) {
@@ -10,8 +10,8 @@ export default class MessageEvent extends Event {
     }
 
     async run(message: Message) {
-        if (message.author.bot || message.channel.type === "DM") return;
-        if (message.channel.type == "GUILD_TEXT") {
+        if (message.author.bot || message.channel.type === ChannelType.DM) return;
+        if (message.channel.type == ChannelType.GuildText && message.guild.id == this.client.config.guildId) {
             await this.client.db.threadchannels.findMany().then(async threadChannels => {
                 // @ts-ignore
                 if (threadChannels.some(threadChannel => threadChannel.channel_id === message.channel.id)) {

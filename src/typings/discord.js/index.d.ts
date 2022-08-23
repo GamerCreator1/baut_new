@@ -1,4 +1,4 @@
-import { UserResolvable } from "discord.js";
+import { UserResolvable, Colors } from "discord.js";
 
 declare module "discord.js" {
     interface ClientEvents {

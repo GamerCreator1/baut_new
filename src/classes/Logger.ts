@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { Guild, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { EmbedBuilder, Guild, TextBasedChannel, Colors } from "discord.js";
 import moment from "moment-timezone";
 
 import DiscordClient from "@structures/DiscordClient";
@@ -35,7 +35,7 @@ export default class Logger {
         console.log(`${spaces ? "\n" : ""}${chalk.magenta(`${moment().format(format)}`)} ${chalk[color].bold(`${type}`)} ${message}${spaces ? "\n" : ""}`);
     }
 
-    static async logEvent(client: DiscordClient, guild: Guild, eventName: string, embed: MessageEmbedOptions) {
+    static async logEvent(client: DiscordClient, guild: Guild, eventName: string, embed: EmbedBuilder) {
         const logs = await client.db.log.findMany({
             where: {
                 log_event: "Messages",

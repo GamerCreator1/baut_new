@@ -1,4 +1,4 @@
-import { DMChannel, GuildChannel, MessageEmbedOptions, TextBasedChannel, TextChannel } from "discord.js";
+import { DMChannel, GuildChannel, TextBasedChannel, TextChannel, Colors, ChannelType, EmbedBuilder, AuditLogEvent } from "discord.js";
 
 import Logger from "@classes/Logger";
 import DiscordClient from "@structures/DiscordClient";
@@ -11,24 +11,21 @@ export default class ChannelUpdateEvent extends Event {
 
     async run(oldChannel: GuildChannel | DMChannel, newChannel: GuildChannel | DMChannel) {
         if (newChannel instanceof DMChannel || oldChannel instanceof DMChannel) return;
-        const auditLogChannel = await newChannel.guild.fetchAuditLogs({ limit: 1, type: "CHANNEL_UPDATE" });
+        const auditLogChannel = await newChannel.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.ChannelUpdate });
         if (auditLogChannel?.entries.first()) {
             let type: string;
             switch (newChannel.type) {
-                case "GUILD_TEXT":
+                case ChannelType.GuildText:
                     type = "💬 Text";
                     break;
-                case "GUILD_VOICE":
+                case ChannelType.GuildVoice:
                     type = "🔊 Voice";
                     break;
-                case "GUILD_NEWS":
+                case ChannelType.GuildNews:
                     type = "📰 News";
                     break;
-                case "GUILD_STORE":
-                    type = "🛒 Store";
-                    break;
-                case "GUILD_PRIVATE_THREAD":
-                case "GUILD_PUBLIC_THREAD":
+                case ChannelType.GuildPrivateThread:
+                case ChannelType.GuildPublicThread:
                     type = "🧵 Thread";
                     break;
                 default:
@@ -36,8 +33,8 @@ export default class ChannelUpdateEvent extends Event {
                     break;
             }
             const embed = {
-                author: "Channels",
-                color: "DARK_PURPLE",
+                author: { name: "Channels" },
+                color: Colors.DarkPurple,
                 title: `${type} Channel Updated`,
                 fields: [
                     {
@@ -55,8 +52,8 @@ export default class ChannelUpdateEvent extends Event {
                 footer: {
                     text: `ID: ${newChannel.id}`,
                 },
-            } as MessageEmbedOptions;
-            if (oldChannel.type == "GUILD_TEXT") {
+            };
+            if (oldChannel.type == ChannelType.GuildText) {
                 const oldTextChannel = oldChannel as TextChannel;
                 const newTextChannel = newChannel as TextChannel;
                 if (oldTextChannel.topic != newTextChannel.topic) {
@@ -80,7 +77,7 @@ export default class ChannelUpdateEvent extends Event {
                         inline: true,
                     });
                 }
-                Logger.logEvent(this.client, newChannel.guild, "Channels", embed);
+                Logger.logEvent(this.client, newChannel.guild, "Channels", new EmbedBuilder(embed));
             }
         }
     }

@@ -1,4 +1,4 @@
-import { Interaction } from "discord.js";
+import { Interaction, Colors } from "discord.js";
 
 import CommandHandler from "@classes/CommandHandler";
 import DiscordClient from "@structures/DiscordClient";
@@ -10,7 +10,7 @@ export default class InteractionEvent extends Event {
     }
 
     async run(interaction: Interaction) {
-        if (interaction.isCommand()) return await CommandHandler.handleCommand(this.client, interaction);
+        if (interaction.isChatInputCommand()) return await CommandHandler.handleCommand(this.client, interaction);
         else if (interaction.isAutocomplete()) return CommandHandler.handleAutocomplete(this.client, interaction);
         else if (interaction.isMessageComponent()) {
             const id = interaction.customId;

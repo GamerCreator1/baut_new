@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageEmbedOptions } from "discord.js";
+import { ChatInputCommandInteraction, ColorResolvable, Colors, EmbedBuilder } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -65,7 +65,7 @@ export default class LogsCommand extends Command {
         );
     }
 
-    private async enable(command: CommandInteraction) {
+    private async enable(command: ChatInputCommandInteraction) {
         const log = await this.client.db.log.findFirst({
             where: {
                 log_event: command.options.getString("category")!,
@@ -75,7 +75,7 @@ export default class LogsCommand extends Command {
             return command.editReply({
                 embeds: [
                     {
-                        color: "RED",
+                        color: Colors.Red,
                         title: "❌ Error",
                         description: `Logs for \`${command.options.getString("category")}\` are already enabled in <#${log.channel_id}>`,
                     },
@@ -92,7 +92,7 @@ export default class LogsCommand extends Command {
             return command.editReply({
                 embeds: [
                     {
-                        color: "GREEN",
+                        color: Colors.Green,
                         title: "✅ Success",
                         description: `Enabled logs for \`${command.options.getString("category")}\``,
                     },
@@ -101,7 +101,7 @@ export default class LogsCommand extends Command {
         }
     }
 
-    private async disable(command: CommandInteraction) {
+    private async disable(command: ChatInputCommandInteraction) {
         await this.client.db.log.deleteMany({
             where: {
                 log_event: command.options.getString("category")!,
@@ -110,7 +110,7 @@ export default class LogsCommand extends Command {
         return command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     title: "✅ Success",
                     description: `Disabled logs for \`${command.options.getString("category")}\``,
                 },
@@ -118,27 +118,28 @@ export default class LogsCommand extends Command {
         });
     }
 
-    private async list(command: CommandInteraction) {
+    private async list(command: ChatInputCommandInteraction) {
         const logs = await this.client.db.log.findMany();
-        const embed = {
-            title: "Logs",
-            timestamp: new Date(),
-            color: process.env.BUILDERGROOP_COLOR,
-        } as MessageEmbedOptions;
+        const embed = new EmbedBuilder()
+            .setTitle("Logs")
+            .setTimestamp(new Date())
+            .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable);
         if (logs.length === 0) {
-            embed.description = "No logs are enabled for this channel";
+            embed.setDescription("No logs are enabled for this channel");
         } else {
-            embed.fields = logs.map(log => ({
-                name: log.log_event,
-                value: "<#" + log.channel_id + ">",
-            }));
+            embed.setFields(
+                logs.map(log => ({
+                    name: log.log_event,
+                    value: "<#" + log.channel_id + ">",
+                }))
+            );
         }
         return command.editReply({
             embeds: [embed],
         });
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         switch (command.options.getSubcommand()) {
             case "enable":
                 return this.enable(command);

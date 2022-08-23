@@ -1,6 +1,7 @@
 // Setting up moment-timezone
 import Logger from "@classes/Logger";
 import moment from "moment-timezone";
+import { ActivityType, GatewayIntentBits, Colors } from "discord.js";
 
 // Getting and validating .env file
 import EnvLoader from "@classes/EnvLoader";
@@ -16,10 +17,10 @@ Logger.log("INFO", "Starting up in " + (process.env.npm_lifecycle_event == "star
 const client = new DiscordClient(
     {
         presence: {
-            activities: [{ type: "WATCHING", name: "buildergroop.com" }],
+            activities: [{ type: ActivityType.Watching, name: "buildergroop.com" }],
             status: "online",
         },
-        intents: ["GUILDS", "GUILD_MEMBERS", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGES"],
+        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessages],
     },
     {
         token: process.env.npm_lifecycle_event == "start" ? process.env["TOKEN"] : process.env["TEST_TOKEN"],

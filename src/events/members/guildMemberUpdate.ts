@@ -1,4 +1,4 @@
-import { GuildMember, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { GuildMember, TextBasedChannel, Colors, EmbedData, EmbedBuilder } from "discord.js";
 
 import Logger from "@classes/Logger";
 import DiscordClient from "@structures/DiscordClient";
@@ -12,7 +12,7 @@ export default class GuildMemberUpdateEvent extends Event {
     async run(oldMember: GuildMember, newMember: GuildMember) {
         const embed = {
             title: "Member Updated",
-            color: "DARK_PURPLE",
+            color: Colors.DarkPurple,
             fields: [
                 {
                     name: "Member",
@@ -20,7 +20,7 @@ export default class GuildMemberUpdateEvent extends Event {
                     inline: true,
                 },
             ],
-        } as MessageEmbedOptions;
+        } as EmbedData;
         if (oldMember.displayName !== newMember.displayName) {
             embed.fields.push({
                 name: "Name",
@@ -67,7 +67,7 @@ export default class GuildMemberUpdateEvent extends Event {
             }
         }
         if (embed.fields.length > 1) {
-            Logger.logEvent(this.client, newMember.guild, "Members", embed);
+            Logger.logEvent(this.client, newMember.guild, "Members", new EmbedBuilder(embed));
         }
     }
 }

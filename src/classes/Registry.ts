@@ -1,5 +1,5 @@
 import { Routes } from "discord-api-types/v9";
-import { Collection } from "discord.js";
+import { Collection, Colors } from "discord.js";
 import path from "path";
 import requireAll from "require-all";
 

@@ -1,4 +1,4 @@
-import { CommandInteraction, GuildMember, MessageEmbedOptions, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, GuildMember, TextChannel, Colors, PermissionResolvable } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from "@discordjs/builders";
@@ -33,14 +33,14 @@ export default abstract class Command {
      * @param command Command Object
      * @param error Error message
      */
-    async onError(command: CommandInteraction, error: any) {
+    async onError(command: ChatInputCommandInteraction, error: any) {
         Logger.log("ERROR", `An error occurred in "${this.data.name}" command.\n${error}\n`, true);
         console.log(command);
         const embed = {
-            color: "RED",
+            color: Colors.Red,
             title: "💥 Oops...",
             description: `${command.user.toString()}, an error occurred while running this command. Please try again later.`,
-        } as MessageEmbedOptions;
+        };
         if (command.deferred) {
             command.editReply({ embeds: [embed] });
         } else {
@@ -53,15 +53,15 @@ export default abstract class Command {
      * @param command Message object
      * @param checkNsfw Checking nsfw channel
      */
-    isUsable(command: CommandInteraction, checkNsfw: boolean = false): boolean {
+    isUsable(command: ChatInputCommandInteraction, checkNsfw: boolean = false): boolean {
         if (this.info.enabled === false) return false;
         if (checkNsfw && this.info.onlyNsfw === true && !(command.channel as TextChannel).nsfw && !isUserDeveloper(this.client, command.user.id)) return false;
         if (this.info.require) {
             if (this.info.require.developer && !isUserDeveloper(this.client, command.user.id)) return false;
             if (this.info.require.permissions && !isUserDeveloper(this.client, command.user.id)) {
-                const perms: string[] = [];
+                const perms = [];
                 this.info.require.permissions.forEach(permission => {
-                    if ((command.member as GuildMember).permissions.has(permission)) return;
+                    if ((command.member as GuildMember).permissions.has(permission as PermissionResolvable)) return;
                     else return perms.push(permission);
                 });
                 if (perms.length) return false;
@@ -77,5 +77,5 @@ export default abstract class Command {
      * @param args Arguments
      * @param cancelCooldown Cancels cooldown when function called
      */
-    abstract run(command: CommandInteraction, cancelCooldown?: () => void): Promise<any>;
+    abstract run(command: ChatInputCommandInteraction, cancelCooldown?: () => void): Promise<any>;
 }

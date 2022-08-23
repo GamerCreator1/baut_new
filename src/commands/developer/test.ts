@@ -1,4 +1,4 @@
-import { CommandInteraction, MessageActionRow, Modal, ModalActionRowComponent, TextInputComponent } from "discord.js";
+import { ChatInputCommandInteraction, ActionRowBuilder, ModalBuilder, ModalActionRowComponentBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
@@ -22,14 +22,14 @@ export default class SayCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         const attachment = command.options.getAttachment("attachment");
-        const modal = new Modal()
+        const modal = new ModalBuilder()
             .setTitle("Test")
             .setCustomId("test")
             .addComponents(
-                new MessageActionRow<ModalActionRowComponent>().addComponents([
-                    new TextInputComponent().setLabel("Test").setStyle("SHORT").setCustomId("test-input").setValue(attachment.url),
+                new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents([
+                    new TextInputBuilder().setLabel("Test").setStyle(TextInputStyle.Short).setCustomId("test-input").setValue(attachment.url),
                 ])
             );
         await command.deleteReply();

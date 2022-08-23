@@ -1,4 +1,4 @@
-import { ColorResolvable, PermissionString } from "discord.js";
+import { ColorResolvable, Colors, Permissions } from "discord.js";
 
 /**
  * Config interface for client.
@@ -77,7 +77,7 @@ export interface ICommandRequire {
      *
      * Developers are not affected
      */
-    permissions?: PermissionString[];
+    permissions?: Permissions[];
 }
 
 export interface IEmbed {

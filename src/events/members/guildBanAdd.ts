@@ -1,4 +1,4 @@
-import { GuildBan, MessageEmbedOptions, TextBasedChannel } from "discord.js";
+import { GuildBan, TextBasedChannel, Colors, EmbedBuilder, AuditLogEvent } from "discord.js";
 
 import Logger from "@classes/Logger";
 import DiscordClient from "@structures/DiscordClient";
@@ -10,11 +10,11 @@ export default class GuildBanEvent extends Event {
     }
 
     async run(ban: GuildBan) {
-        const auditLogChannel = await ban.guild.fetchAuditLogs({ limit: 1, type: "MEMBER_BAN_ADD" });
+        const auditLogChannel = await ban.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.MemberBanAdd });
         if (auditLogChannel?.entries.first()) {
             const embed = {
                 author: { name: "Members" },
-                color: "DARK_PURPLE",
+                color: Colors.DarkPurple,
                 title: "Member Banned",
                 fields: [
                     {
@@ -29,8 +29,8 @@ export default class GuildBanEvent extends Event {
                     },
                 ],
                 timestamp: new Date(),
-            } as MessageEmbedOptions;
-            Logger.logEvent(this.client, ban.guild, "Members", embed);
+            };
+            Logger.logEvent(this.client, ban.guild, "Members", new EmbedBuilder(embed));
         }
     }
 }

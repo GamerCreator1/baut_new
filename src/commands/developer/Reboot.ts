@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Colors } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
@@ -19,7 +19,7 @@ export default class RebootCommand extends Command {
         );
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         Logger.log("WARNING", `Bot rebooting... (Requested by ${command.user.toString()})`, true);
 
         // Destroying client so we can work without bugs
@@ -37,7 +37,7 @@ export default class RebootCommand extends Command {
             await command.editReply({
                 embeds: [
                     {
-                        color: "GREEN",
+                        color: Colors.Green,
                         description: `${command.user.toString()}, bot rebooted successfully.`,
                     },
                 ],

@@ -1,4 +1,4 @@
-import { Client, ClientOptions } from "discord.js";
+import { Client, ClientOptions, Colors } from "discord.js";
 import { BotOptions } from "@utils/types";
 import { prisma } from "@providers/prisma";
 

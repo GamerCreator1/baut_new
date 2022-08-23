@@ -1,4 +1,17 @@
-import { CacheType, GuildMember, Interaction, Message, MessageActionRow, MessageButton, MessageEmbedOptions, MessageSelectMenu, SelectMenuInteraction } from "discord.js";
+import {
+    CacheType,
+    GuildMember,
+    Interaction,
+    Message,
+    ActionRowBuilder,
+    ButtonBuilder,
+    SelectMenuBuilder,
+    SelectMenuInteraction,
+    Colors,
+    EmbedBuilder,
+    ButtonStyle,
+    ComponentType,
+} from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
 import Embed from "@structures/Embed";
@@ -9,21 +22,21 @@ export default class ReactionRolesEmbed extends Embed {
     constructor() {
         super(
             "Reaction Roles",
-            {
+            new EmbedBuilder({
                 title: "Roles",
                 image: {
                     url: "https://images-ext-1.discordapp.net/external/q-I6wm9ZetC7r9vpdjehTqOeTIWUn5CZ6sImEz3nsCc/https/i.ibb.co/yPLwMRJ/roles.png",
                 },
-            },
+            }),
             ["roles/option"],
             [
-                new MessageActionRow().addComponents(
+                new ActionRowBuilder<ButtonBuilder>().addComponents(
                     ...ReactionRoles.map(role =>
-                        new MessageButton()
+                        new ButtonBuilder()
                             .setCustomId("roles/option/" + role.customId)
                             .setLabel(role.name)
                             .setEmoji(role.emoji || "")
-                            .setStyle("PRIMARY")
+                            .setStyle(ButtonStyle.Primary)
                     )
                 ),
             ]
@@ -43,9 +56,9 @@ export default class ReactionRolesEmbed extends Embed {
                 footer: {
                     text: roleObj.type,
                 },
-            } as MessageEmbedOptions;
-            const selectMenu = new MessageActionRow().addComponents(
-                new MessageSelectMenu()
+            };
+            const selectMenu = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+                new SelectMenuBuilder()
                     .addOptions(
                         ...roleObj.options.map(option => ({
                             label: option.name,
@@ -66,7 +79,7 @@ export default class ReactionRolesEmbed extends Embed {
             const roleSelectorFilter = (i: SelectMenuInteraction) => {
                 return i.user.id == user.id && i.customId.startsWith("roles/selection/");
             };
-            const collector = message.createMessageComponentCollector({ componentType: "SELECT_MENU", time: 60000, filter: roleSelectorFilter });
+            const collector = message.createMessageComponentCollector({ componentType: ComponentType.SelectMenu, time: 60000, filter: roleSelectorFilter });
             collector.on("collect", async (select: SelectMenuInteraction) => {
                 await select.deferReply({ ephemeral: true });
                 if (roleObj.type == "Multi Select") {

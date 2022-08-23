@@ -1,4 +1,4 @@
-import { CommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Colors } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -35,7 +35,7 @@ export default class ThreadChannelsCommand extends Command {
         );
     }
 
-    private async addThreadChannel(command: CommandInteraction) {
+    private async addThreadChannel(command: ChatInputCommandInteraction) {
         await this.client.db.threadchannels.create({
             data: {
                 channel_id: command.options.getChannel("channel")!.id,
@@ -44,7 +44,7 @@ export default class ThreadChannelsCommand extends Command {
         return command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     title: "✅ Success",
                     description: `Added thread channel ${command.options.getChannel("channel")!.toString()}`,
                 },
@@ -52,7 +52,7 @@ export default class ThreadChannelsCommand extends Command {
         });
     }
 
-    private async removeThreadChannel(command: CommandInteraction) {
+    private async removeThreadChannel(command: ChatInputCommandInteraction) {
         await this.client.db.threadchannels.deleteMany({
             where: {
                 channel_id: command.options.getChannel("channel")!.id,
@@ -61,7 +61,7 @@ export default class ThreadChannelsCommand extends Command {
         return command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     title: "✅ Success",
                     description: `Removed thread channel ${command.options.getChannel("channel")!.toString()}`,
                 },
@@ -69,7 +69,7 @@ export default class ThreadChannelsCommand extends Command {
         });
     }
 
-    private async listThreadChannels(command: CommandInteraction) {
+    private async listThreadChannels(command: ChatInputCommandInteraction) {
         const threadChannels = await this.client.db.threadchannels.findMany({
             select: {
                 channel_id: true,
@@ -79,7 +79,7 @@ export default class ThreadChannelsCommand extends Command {
             return command.editReply({
                 embeds: [
                     {
-                        color: "RED",
+                        color: Colors.Red,
                         title: "❌ Error",
                         description: "Failed to get thread channels",
                     },
@@ -89,7 +89,7 @@ export default class ThreadChannelsCommand extends Command {
         return command.editReply({
             embeds: [
                 {
-                    color: "GREEN",
+                    color: Colors.Green,
                     title: "📁 Thread Channels",
                     description: channels.length > 0 ? channels.map(channel => channel?.toString()).join("\n") : "No thread channels",
                 },
@@ -97,7 +97,7 @@ export default class ThreadChannelsCommand extends Command {
         });
     }
 
-    async run(command: CommandInteraction) {
+    async run(command: ChatInputCommandInteraction) {
         switch (command.options.getSubcommand()) {
             case "add":
                 await this.addThreadChannel(command);
