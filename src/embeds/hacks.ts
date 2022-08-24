@@ -20,7 +20,7 @@ export default class BuilderHacksEmbed extends Embed {
 \`●\`  You MUST click the "Register" Button to participate.
 \`●\`  You MUST click the "Get Notifications" Button to get important updates during the hackathon.
 
-\`●\`  The hackathon will start at <t:1661522400:f>.
+\`●\`  The hackathon will start at <t:1662136200:f>.
 \`●\`  Check out <#1011706065496326265> if you're looking for a teammate.
 \`●\`  Check out <#1011704361543532645> to answer any queries you might have.
 _ _
