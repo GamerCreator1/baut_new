@@ -64,6 +64,7 @@ export default class BuilderHacksEmbed extends Embed {
                 await (interaction.member as GuildMember).roles.add(role);
             } catch (e) {
                 Logger.log("ERROR", e.stack);
+                await interaction.editReply(`Something went wrong. Please try again later.`);
             }
             // const channel = interaction.channel;
             // const hacksParticipants = await client.db.hacksParticipants.findMany();
