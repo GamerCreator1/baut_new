@@ -1,25 +1,7 @@
-import {
-    CacheType,
-    Interaction,
-    ActionRowBuilder,
-    ButtonBuilder,
-    Colors,
-    EmbedBuilder,
-    ButtonStyle,
-    ColorResolvable,
-    Collection,
-    ChannelType,
-    ThreadAutoArchiveDuration,
-    ButtonInteraction,
-    ComponentType,
-    Message,
-    GuildMember,
-    AttachmentBuilder,
-} from "discord.js";
+import { CacheType, Interaction, ActionRowBuilder, ButtonBuilder, ButtonStyle, Collection, GuildMember, AttachmentBuilder } from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
 import Embed from "@structures/Embed";
-import { HacksParticipant } from "@utils/interfaces";
 import Logger from "@classes/Logger";
 
 export default class BuilderHacksEmbed extends Embed {
@@ -31,17 +13,17 @@ export default class BuilderHacksEmbed extends Embed {
             "BuilderHacks",
             {
                 content: `
-                **Are you a young coder interested in winning the latest products from Apple?**
-                _ _
-                > Announcing Buildergroop's SECOND Hackathon for Gen-Z, sponsored by https://hop.io. We've got a prize pool worth **$5000 USD**, loads of workshops on today's most important technologies, and tons of fun networking activities throughout the event. 
+**Are YOU a *young* programmer interested in winning the latest products from Apple?**
 
-                _ _
+> Announcing Buildergroop's SECOND Hackathon for Gen-Z, sponsored by https://hop.io. We've got a prize pool worth **$5000 USD**, loads of workshops on today's most important technologies, and tons of fun networking activities throughout the event. 
 
-                \`●\`  The hackathon will start at <t:1661522400:f> 
-                \`●\`  You MUST click the "Register" Button to participate
-                \`●\`  You MUST click the "Get Notifications" Button to get very important updates
-                \`●\`  Check out <#1011706065496326265> if you're looking for a teammate.
-                \`●\`  Check out <#1011704361543532645> to answer any queries you might have.
+\`●\`  You MUST click the "Register" Button to participate.
+\`●\`  You MUST click the "Get Notifications" Button to get important updates during the hackathon.
+
+\`●\`  The hackathon will start at <t:1661522400:f>.
+\`●\`  Check out <#1011706065496326265> if you're looking for a teammate.
+\`●\`  Check out <#1011704361543532645> to answer any queries you might have.
+_ _
                 `,
                 files: [new AttachmentBuilder("https://cdn.discordapp.com/attachments/989278314269122640/1011735270346981516/unknown.png")],
             },
@@ -62,6 +44,7 @@ export default class BuilderHacksEmbed extends Embed {
             try {
                 const role = await interaction.guild.roles.fetch(process.env.BUILDERHACKS_ROLE);
                 await (interaction.member as GuildMember).roles.add(role);
+                await interaction.editReply("You will now be notified of important updates during BuilderHacks Season Two! Make sure you keep an eye on this channel :)");
             } catch (e) {
                 Logger.log("ERROR", e.stack);
                 await interaction.editReply(`Something went wrong. Please try again later.`);
