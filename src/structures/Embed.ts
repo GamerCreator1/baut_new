@@ -9,13 +9,14 @@ export default abstract class Embed {
     readonly name: string;
 
     /** Embed object to be sent */
-    readonly embed: EmbedBuilder;
+    readonly message: MessageOptions;
 
     /** Components to be sent with the message */
     readonly components: ActionRowBuilder<MessageActionRowComponentBuilder>[];
 
     /** A list of customIds this embed needs to be notified of. */
     readonly interactionIds: string[];
+    an;
 
     /** An internal ID */
     readonly id: string;
@@ -25,9 +26,15 @@ export default abstract class Embed {
 
     static numEmbeds: number = 0;
 
-    constructor(name: string, embed: EmbedBuilder, interactionIds: string[], components?: ActionRowBuilder<MessageActionRowComponentBuilder>[], hideFromClient?: boolean) {
+    constructor(
+        name: string,
+        message: EmbedBuilder | MessageOptions,
+        interactionIds: string[],
+        components?: ActionRowBuilder<MessageActionRowComponentBuilder>[],
+        hideFromClient?: boolean
+    ) {
         this.name = name;
-        this.embed = embed;
+        this.message = message instanceof EmbedBuilder ? { embeds: [message] } : message;
         this.components = components;
         this.interactionIds = interactionIds;
         this.id = "E" + Embed.numEmbeds++;

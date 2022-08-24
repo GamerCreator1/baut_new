@@ -14,6 +14,7 @@ import {
     ComponentType,
     Message,
     GuildMember,
+    AttachmentBuilder,
 } from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
@@ -28,13 +29,9 @@ export default class BuilderHacksEmbed extends Embed {
     constructor(client: DiscordClient) {
         super(
             "BuilderHacks",
-            new EmbedBuilder({
-                author: {
-                    iconURL: "https://cdn.discordapp.com/icons/913668807015407646/0c7bfee6abdb16bf7128a91da1e7a05a.png",
-                    name: "BuilderHacks Season Two",
-                },
-                title: "Are you a young coder interested in winning the latest products from Apple?",
-                description: `
+            {
+                content: `
+                **Are you a young coder interested in winning the latest products from Apple?**
                 _ _
                 > Announcing Buildergroop's SECOND Hackathon for Gen-Z, sponsored by https://hop.io. We've got a prize pool worth **$5000 USD**, loads of workshops on today's most important technologies, and tons of fun networking activities throughout the event. 
 
@@ -46,8 +43,8 @@ export default class BuilderHacksEmbed extends Embed {
                 \`●\`  Check out <#1011706065496326265> if you're looking for a teammate.
                 \`●\`  Check out <#1011704361543532645> to answer any queries you might have.
                 `,
-                image: { url: "https://cdn.discordapp.com/attachments/989278314269122640/1011735270346981516/unknown.png" },
-            }).setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable),
+                files: [new AttachmentBuilder("https://cdn.discordapp.com/attachments/989278314269122640/1011735270346981516/unknown.png")],
+            },
             ["register"],
             [
                 new ActionRowBuilder<ButtonBuilder>().addComponents(

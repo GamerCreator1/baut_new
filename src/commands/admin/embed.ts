@@ -22,6 +22,7 @@ import {
     TextChannel,
     MessageActionRowComponentBuilder,
     PermissionsBitField,
+    APIEmbed,
 } from "discord.js";
 
 import Logger from "@classes/Logger";
@@ -213,15 +214,25 @@ export default class EmbedsCommand extends Command {
             } as IEmbed;
         });
         embedsList.push(
-            ...this.client.registry.getEmbeds().map(embed => {
-                return {
-                    id: embed.id,
-                    title: embed.embed.data.title,
-                    description: embed.embed.data.description,
-                    color: embed.embed.data.color,
-                    url: embed.embed.data.url,
-                    image: embed.embed.data.image?.url,
-                } as IEmbed;
+            ...this.client.registry.getEmbeds().map(msg => {
+                if (msg.message.embeds && msg.message.embeds.length > 0) {
+                    const embed = msg.message.embeds[0] as APIEmbed as EmbedBuilder;
+                    return {
+                        id: msg.id,
+                        title: embed.data.title,
+                        description: embed.data.description,
+                        color: embed.data.color,
+                        url: embed.data.url,
+                        image: embed.data.image?.url,
+                    } as IEmbed;
+                } else {
+                    return {
+                        id: msg.id,
+                        title: msg.name,
+                        description: msg.message.content,
+                        color: process.env.BUILDERGROOP_COLOR,
+                    } as IEmbed;
+                }
             })
         );
         // select menu to select embed
@@ -248,14 +259,15 @@ export default class EmbedsCommand extends Command {
             let embed = embedsList.find(e => e.id?.toString() === interaction.values[0]);
             if (!embed) {
                 // search for embed in registry
-                const hcEmbed = this.client.registry.getEmbeds().find(e => e.embed.data.title === interaction.values[0]);
+                const hcEmbed = this.client.registry.getEmbeds().find(e => (e.message.embeds[0] as APIEmbed as EmbedBuilder).data.title === interaction.values[0]);
+                const embedObj = hcEmbed.message.embeds[0] as APIEmbed as EmbedBuilder;
                 embed = {
                     id: hcEmbed.id,
-                    title: hcEmbed.embed.data.title,
-                    description: hcEmbed.embed.data.description,
-                    color: hcEmbed.embed.data.color,
-                    url: hcEmbed.embed.data.url,
-                    image: hcEmbed.embed.data.image?.url,
+                    title: embedObj.data.title,
+                    description: embedObj.data.description,
+                    color: embedObj.data.color,
+                    url: embedObj.data.url,
+                    image: embedObj.data.image?.url,
                 } as IEmbed;
             }
             const msgEmbed = new EmbedBuilder();
@@ -320,7 +332,7 @@ export default class EmbedsCommand extends Command {
                         command.editReply({ content: "Embed not found." });
                         return;
                     }
-                    (sendChannel as TextChannel).send({ embeds: [sendEmbed.embed], components: sendEmbed.components });
+                    (sendChannel as TextChannel).send({ ...sendEmbed.message, components: sendEmbed.components });
                     command.editReply({ content: "Embed sent." });
                 } else {
                     // DB Embeds
