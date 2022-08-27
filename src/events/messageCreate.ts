@@ -12,12 +12,36 @@ export default class MessageEvent extends Event {
 
     async run(message: Message) {
         if (message.author.bot || message.channel.type === ChannelType.DM) return;
+        const expression =
+            /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+        const urlFilter = new RegExp(expression);
+        const url = urlFilter.exec(message.content);
+        const link = url && url.length > 0 && url[0].length >= 4 ? new URL(url[0]) : null;
         if (message.channel.type == ChannelType.GuildText && message.guild.id == this.client.config.guildId) {
             await this.client.db.threadchannels.findMany().then(async threadChannels => {
                 // @ts-ignore
                 if (threadChannels.some(threadChannel => threadChannel.channel_id === message.channel.id)) {
+                    const words = [];
+                    if (link) {
+                        message.content
+                            .slice(0, 97)
+                            .split(/\s+/)
+                            .forEach(word => {
+                                if (!urlFilter.test(word.toLowerCase().trim())) {
+                                    words.push(word.trim());
+                                }
+                            });
+                    }
+                    let title;
+                    if (words.length == 1) {
+                        title = words[0];
+                    } else if (words.join(" ").length > 97) {
+                        title = words.slice(0, -1).join(" ") + "...";
+                    } else {
+                        title = words.join(" ");
+                    }
                     await message.startThread({
-                        name: message.content == "" ? "???" : message.content.slice(0, 97).split(" ").slice(0, -1).join(" ") + "...", // make sure the message isn't too long without cutting off between words
+                        name: title,
                         autoArchiveDuration: 1440,
                         reason: "[Baut AutoThread] Thread created for " + message.author.tag,
                     });
@@ -29,12 +53,7 @@ export default class MessageEvent extends Event {
                 await message.member.roles.add(process.env.INTRODUCED_ROLE);
             }
         }
-        const expression =
-            /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
-        const urlFilter = new RegExp(expression);
-        const url = urlFilter.exec(message.content);
-        if (url && url.length > 0 && url[0].length >= 4) {
-            const link = new URL(url[0]);
+        if (link) {
             const domainName = link.hostname;
             const isBlackListedChannel = await this.client.db.nolinkchannels.findFirst({
                 where: {
