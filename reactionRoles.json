@@ -169,10 +169,6 @@
                 "role": "929265782226042890"
             },
             {
-                "name": "Server Inactivity Ping",
-                "role": "913788985036382268"
-            },
-            {
                 "name": "Assistance Ping",
                 "role": "913789046092886037"
             },
@@ -185,7 +181,7 @@
                 "role": "913789232311599128"
             }
         ],
-        "max": 5,
+        "max": 4,
         "customId": "notifications"
     }
 ]
