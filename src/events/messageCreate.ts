@@ -1,4 +1,4 @@
-import { ChannelType, DMChannel, Message, ThreadChannel } from "discord.js";
+import { ChannelType, DMChannel, Message, TextChannel, ThreadChannel } from "discord.js";
 
 import CommandHandler from "@classes/CommandHandler";
 import DiscordClient from "@structures/DiscordClient";
@@ -40,6 +40,8 @@ export default class MessageEvent extends Event {
                     } else {
                         title = words.join(" ");
                     }
+
+                    if (title == "") title = `${(message.channel as TextChannel).name} - ${message.author.username}`;
                     await message.startThread({
                         name: title,
                         autoArchiveDuration: 1440,
