@@ -163,7 +163,9 @@ export default class RegisterEmbed extends Embed {
                 await interaction.editReply("Perfect! You're now registered for BuilderHacks. Happy hacking!");
                 try {
                     team.forEach(user =>
-                        user.send(`You're now registered for BuilderHacks 2022!\nTeam Name: ${teamName}\nMembers: ${team.map(user => user.toString()).join(", ")}\n`)
+                        user.send(`You're now registered for BuilderHacks 2022!\nTeam Name: ${teamName}\nMembers: ${team.map(user => user.toString()).join(", ")}\n`).catch(e => {
+                            Logger.log("ERROR", e);
+                        })
                     );
                 } catch (e) {
                     Logger.log("ERROR", e.stack);
