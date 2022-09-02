@@ -137,11 +137,18 @@ export default class RegisterEmbed extends Embed {
             await thread.send("Got it! Now, please type your team name.");
 
             const nameFilter = (msg: Message) => msg.author.id === user.id && msg.content.length > 0;
-            await thread.awaitMessages({ filter: nameFilter, max: 1, time: 60000 }).then(collected => {
-                const msg = collected.first();
-                thread.send(`Registering you as ${msg.content}...`);
-                teamName = msg.content;
-            });
+            await thread
+                .awaitMessages({ filter: nameFilter, max: 1, time: 60000 })
+                .then(collected => {
+                    const msg = collected.first();
+                    thread.send(`Registering you as ${msg.content}...`);
+                    teamName = msg.content;
+                })
+                .catch(async e => {
+                    await interaction.editReply("There was an error, please try again.");
+                    await thread.delete();
+                    throw "Timed out";
+                });
 
             try {
                 await client.db.hacksTeam.create({
@@ -152,7 +159,13 @@ export default class RegisterEmbed extends Embed {
                     },
                 });
                 await interaction.editReply("Perfect! You're now registered for BuilderHacks. Happy hacking!");
-                team.forEach(user => user.send(`You're now registered for BuilderHacks 2022!\nTeam Name: ${teamName}\nMembers: ${team.map(user => user.toString()).join(", ")}\n`));
+                try {
+                    team.forEach(user =>
+                        user.send(`You're now registered for BuilderHacks 2022!\nTeam Name: ${teamName}\nMembers: ${team.map(user => user.toString()).join(", ")}\n`)
+                    );
+                } catch (e) {
+                    Logger.log("ERROR", e.stack);
+                }
             } catch (e) {
                 await thread.send(`There was an error. Please try again later.`);
                 Logger.log("ERROR", e.stack);
