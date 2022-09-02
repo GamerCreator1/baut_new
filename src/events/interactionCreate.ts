@@ -17,7 +17,7 @@ export default class InteractionEvent extends Event {
             this.client.registry.getEmbeds().forEach(async embed => {
                 if (embed.interactionIds.some(i => id.startsWith(i))) {
                     try {
-                        embed.onInteraction(interaction, this.client);
+                        await embed.onInteraction(interaction, this.client);
                     } catch (e) {
                         await embed.onError(e);
                     }
