@@ -55,7 +55,7 @@ export default class RegisterEmbed extends Embed {
                 Logger.log("ERROR", e.stack);
             }
             if (RegisterEmbed.sessions.has(user.id)) {
-                await interaction.editReply(`You are already registering at ${RegisterEmbed.sessions.get(user.id)}.`);
+                await interaction.editReply(`You are already registering at <#${RegisterEmbed.sessions.get(user.id)}>.`);
                 return;
             }
             const previousTeam = await client.db.hacksTeam.findFirst({
@@ -129,6 +129,7 @@ export default class RegisterEmbed extends Embed {
                     if (e == "Teammate already in a team") {
                         throw e;
                     }
+                    RegisterEmbed.sessions.delete(user.id);
                     await interaction.editReply("Timed out");
                     await thread.delete();
                     throw "Timed out";
@@ -147,6 +148,7 @@ export default class RegisterEmbed extends Embed {
                 .catch(async e => {
                     await interaction.editReply("Timed out");
                     await thread.delete();
+                    RegisterEmbed.sessions.delete(user.id);
                     throw "Timed out";
                 });
 
