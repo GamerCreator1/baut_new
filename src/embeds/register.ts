@@ -108,6 +108,17 @@ export default class RegisterEmbed extends Embed {
                         } else {
                             thread.send(`Registering you as a team with ${teammate.toString()}...\n*Your teammate will NOT need to go through this process*`);
                             team.push(teammate);
+                            try {
+                                const role = await interaction.guild.roles.fetch(process.env.BUILDERHACKS_ROLE);
+                                const auditOnerole = await interaction.guild.roles.fetch("1015306817217245216");
+                                const auditTworole = await interaction.guild.roles.fetch("1015306866194133012");
+                                const teammateGuildMember = await interaction.guild.members.fetch(teammate.id);
+                                await teammateGuildMember.roles.add(role);
+                                await teammateGuildMember.roles.add(auditOnerole);
+                                await teammateGuildMember.roles.add(auditTworole);
+                            } catch (e) {
+                                Logger.log("ERROR", e.stack);
+                            }
                             return;
                         }
                     }
