@@ -77,8 +77,8 @@ export default class RegisterEmbed extends Embed {
                 name: `${user.username} | Hacks`.slice(0, 32),
                 autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
                 type: process.env.npm_lifecycle_event == "start" ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread,
-                invitable: false,
             });
+            thread.send(user.toString());
             RegisterEmbed.sessions.set(user.id, thread.id);
 
             await interaction.editReply(`Created a process in ${thread.toString()}`);
