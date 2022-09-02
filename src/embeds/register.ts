@@ -46,7 +46,11 @@ export default class RegisterEmbed extends Embed {
             const user = interaction.user;
             try {
                 const role = await interaction.guild.roles.fetch(process.env.BUILDERHACKS_ROLE);
+                const auditOnerole = await interaction.guild.roles.fetch("1015306817217245216");
+                const auditTworole = await interaction.guild.roles.fetch("1015306866194133012");
                 await (interaction.member as GuildMember).roles.add(role);
+                await (interaction.member as GuildMember).roles.add(auditOnerole);
+                await (interaction.member as GuildMember).roles.add(auditTworole);
             } catch (e) {
                 Logger.log("ERROR", e.stack);
             }
