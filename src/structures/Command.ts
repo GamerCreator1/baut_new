@@ -17,6 +17,8 @@ export default abstract class Command {
      */
     readonly info: ICommandInfo;
 
+    enabled: boolean = true;
+
     /**
      * Slash Command builder
      */

@@ -48,7 +48,7 @@ export default abstract class Embed {
      */
     abstract onInteraction(interaction: Interaction, client: DiscordClient): Promise<void>;
 
-    async onError() {
-        Logger.log("WARNING", `An error occured in Embed ${this.id}: ${this.name}`);
+    async onError(e) {
+        Logger.log("WARNING", `An error occured in Embed ${this.id}: ${this.name}\n${e.stack}`);
     }
 }

@@ -19,7 +19,7 @@ export default class InteractionEvent extends Event {
                     try {
                         embed.onInteraction(interaction, this.client);
                     } catch (e) {
-                        await embed.onError();
+                        await embed.onError(e);
                     }
                 }
             });

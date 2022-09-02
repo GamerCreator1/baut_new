@@ -23,6 +23,7 @@
         "discord-api-types": "^0.33.0",
         "discord.js": "^14.3.0",
         "dotenv": "^10.0.0",
+        "luxon": "^3.0.3",
         "moment-duration-format": "^2.3.2",
         "moment-timezone": "^0.5.33",
         "path": "^0.12.7",
@@ -30,6 +31,7 @@
         "tscpaths": "^0.0.9"
     },
     "devDependencies": {
+        "@types/luxon": "^3.0.0",
         "@types/moment-duration-format": "^2.2.3",
         "@types/node": "^14.14.10",
         "@types/require-all": "^3.0.3",

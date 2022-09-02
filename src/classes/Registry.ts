@@ -177,11 +177,10 @@ export default class Registry {
         for (let command of commands) {
             const valid = isConstructor(command, Command) || isConstructor(command.default, Command) || command instanceof Command || command.default instanceof Command;
             if (!valid) continue;
-
             if (isConstructor(command, Command)) command = new command(this.client);
             else if (isConstructor(command.default, Command)) command = new command.default(this.client);
             if (!(command instanceof Command)) throw new RegistryError(`Invalid command object to register: ${command}`);
-
+            if (!command.enabled) continue;
             this.registerCommand(command);
         }
     }
