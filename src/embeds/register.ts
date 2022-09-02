@@ -76,7 +76,8 @@ export default class RegisterEmbed extends Embed {
             const thread = await (interaction.channel as TextChannel).threads.create({
                 name: `${user.username} | Hacks`.slice(0, 32),
                 autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
-                type: client.config.prod ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread,
+                type: process.env.npm_lifecycle_event == "start" ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread,
+                invitable: false,
             });
             RegisterEmbed.sessions.set(user.id, thread.id);
 
