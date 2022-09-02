@@ -89,7 +89,7 @@ export default class RegisterEmbed extends Embed {
                 msg.author.id === user.id &&
                 ((msg.mentions.users.size > 0 && !msg.mentions.users.first().bot && msg.mentions.users.first().id != user.id) || msg.content == "none");
             await thread
-                .awaitMessages({ filter: msgFilter, max: 1, time: 60000 })
+                .awaitMessages({ filter: msgFilter, max: 1, time: 60000, errors: ["time"] })
                 .then(async collected => {
                     const msg = collected.first();
                     if (msg.content != "none") {
@@ -129,8 +129,8 @@ export default class RegisterEmbed extends Embed {
                     if (e == "Teammate already in a team") {
                         throw e;
                     }
-                    interaction.editReply("Timed out");
-                    thread.delete();
+                    await interaction.editReply("Timed out");
+                    await thread.delete();
                     throw "Timed out";
                 });
 
@@ -138,14 +138,14 @@ export default class RegisterEmbed extends Embed {
 
             const nameFilter = (msg: Message) => msg.author.id === user.id && msg.content.length > 0;
             await thread
-                .awaitMessages({ filter: nameFilter, max: 1, time: 60000 })
+                .awaitMessages({ filter: nameFilter, max: 1, time: 60000, errors: ["time"] })
                 .then(collected => {
                     const msg = collected.first();
                     thread.send(`Registering you as ${msg.content}...`);
                     teamName = msg.content;
                 })
                 .catch(async e => {
-                    await interaction.editReply("There was an error, please try again.");
+                    await interaction.editReply("Timed out");
                     await thread.delete();
                     throw "Timed out";
                 });
