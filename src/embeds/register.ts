@@ -47,7 +47,6 @@ export default class RegisterEmbed extends Embed {
             try {
                 const role = await interaction.guild.roles.fetch(process.env.BUILDERHACKS_ROLE);
                 await (interaction.member as GuildMember).roles.add(role);
-                await interaction.editReply("You will now be notified of important updates during BuilderHacks Season Two! Make sure you keep an eye on this channel :)");
             } catch (e) {
                 Logger.log("ERROR", e.stack);
             }
