@@ -31,7 +31,7 @@ export default class GuildMemberUpdateEvent extends Event {
                 const auditors = await this.client.db.hacksAuditors.findMany({});
                 for (let auditChannel of auditChannels) {
                     const channel = await newState.member.guild.channels.fetch(auditChannel.channel, { force: true });
-                    if (!channel || channel.type != ChannelType.GuildVoice) {
+                    if (!channel || channel.type != ChannelType.GuildVoice || channel.members.size == 0) {
                         continue;
                     }
                     if (auditChannel.queue) {
