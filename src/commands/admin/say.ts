@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
@@ -10,9 +10,9 @@ export default class SayCommand extends Command {
         super(
             client,
             {
-                group: "Developer",
+                group: "Admin",
                 require: {
-                    developer: true,
+                    permissions: [PermissionsBitField.Flags.ManageGuild],
                 },
             },
             new SlashCommandBuilder()

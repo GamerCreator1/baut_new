@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -12,7 +12,7 @@ export default class BlacklistedLinksCommand extends Command {
             {
                 group: "Admin",
                 require: {
-                    developer: true,
+                    permissions: [PermissionsBitField.Flags.ManageGuild],
                 },
                 ephemeral: true,
             },

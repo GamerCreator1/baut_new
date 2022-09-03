@@ -1,4 +1,4 @@
-import { ChannelType, ChatInputCommandInteraction, Colors } from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 
@@ -11,6 +11,9 @@ export default class AuditChannelsCommand extends Command {
             client,
             {
                 group: "Admin",
+                require: {
+                    permissions: [PermissionsBitField.Flags.ManageGuild],
+                },
                 ephemeral: true,
             },
             new SlashCommandBuilder()
@@ -21,7 +24,6 @@ export default class AuditChannelsCommand extends Command {
                         .setName("add")
                         .setDescription("Add a audit channel")
                         .addChannelOption(option => option.setName("channel").setDescription("The channel to add").setRequired(true))
-                        .addUserOption(option => option.setName("auditor").setDescription("The auditor that will be monitoring this channel").setRequired(true))
                 )
                 .addSubcommand(subcommand =>
                     subcommand
@@ -54,7 +56,6 @@ export default class AuditChannelsCommand extends Command {
         await this.client.db.auditChannels.create({
             data: {
                 channel: command.options.getChannel("channel")!.id,
-                auditor: !queue ? command.options.getUser("auditor")!.id : "",
                 queue: queue,
             },
         });
@@ -100,6 +101,7 @@ export default class AuditChannelsCommand extends Command {
             });
         type AuditVoice = typeof auditChannels[0] & { available: boolean };
         const voiceChannels = [] as AuditVoice[];
+        const auditors = await this.client.db.hacksAuditors.findMany({});
         for (let auditChannel of auditChannels) {
             const channel = await command.guild.channels.fetch(auditChannel.channel, { force: true });
             if (!channel || channel.type != ChannelType.GuildVoice) {
@@ -115,7 +117,7 @@ export default class AuditChannelsCommand extends Command {
 
             voiceChannels.push({
                 ...auditChannel,
-                available: channel.members.size == 1 && channel.members.has(auditChannel.auditor),
+                available: channel.members.size == 1 && auditors.map(a => a.userId).includes(channel.members.first()!.id),
             });
         }
 

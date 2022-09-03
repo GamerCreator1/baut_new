@@ -1,7 +1,7 @@
 // Setting up moment-timezone
 import Logger from "@classes/Logger";
 import moment from "moment-timezone";
-import { ActivityType, GatewayIntentBits, Colors } from "discord.js";
+import { ActivityType, GatewayIntentBits, Colors, Partials } from "discord.js";
 
 // Getting and validating .env file
 import EnvLoader from "@classes/EnvLoader";
@@ -29,6 +29,7 @@ const client = new DiscordClient(
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.GuildVoiceStates,
         ],
+        partials: [Partials.GuildMember],
     },
     {
         token: process.env.npm_lifecycle_event == "start" ? process.env["TOKEN"] : process.env["TEST_TOKEN"],

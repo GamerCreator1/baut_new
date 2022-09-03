@@ -82,16 +82,7 @@ model Achievement {
 }
 
 model HacksAuditors {
-  userId         String       @id
-  zone           String       @db.VarChar
-  scheduledSlots HacksSlots[]
-  availSlots     String[]
-}
-
-model HacksSlots {
-  id       Int             @id @default(autoincrement())
-  user     String          @db.VarChar
-  auditors HacksAuditors[]
+  userId String @id
 }
 
 model HacksTeam {
@@ -104,6 +95,5 @@ model HacksTeam {
 model AuditChannels {
   id      Int     @id @default(autoincrement())
   channel String  @db.VarChar
-  auditor String? @db.VarChar
   queue   Boolean @default(false)
 }

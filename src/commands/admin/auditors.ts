@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors } from "discord.js";
+import { ChatInputCommandInteraction, Colors, PermissionsBitField } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { DateTime } from "luxon";
@@ -12,7 +12,7 @@ export default class AuditorsCommand extends Command {
             {
                 group: "Admin",
                 require: {
-                    developer: true,
+                    permissions: [PermissionsBitField.Flags.ManageGuild],
                 },
                 ephemeral: true,
             },
@@ -24,54 +24,6 @@ export default class AuditorsCommand extends Command {
                         .setName("add")
                         .setDescription("Add an auditor")
                         .addUserOption(option => option.setName("user").setDescription("The user to add as an auditor").setRequired(true))
-                        .addStringOption(option =>
-                            option
-                                .setName("time_zone")
-                                .setChoices(
-                                    {
-                                        name: "PST",
-                                        value: "PST",
-                                    },
-                                    {
-                                        name: "EST",
-                                        value: "EST",
-                                    },
-                                    {
-                                        name: "IST",
-                                        value: "IST",
-                                    },
-                                    {
-                                        name: "CST (Central)",
-                                        value: "UTC-5",
-                                    },
-                                    {
-                                        name: "CST (China)",
-                                        value: "UTC+8",
-                                    },
-                                    {
-                                        name: "CEST",
-                                        value: "CEST",
-                                    },
-                                    {
-                                        name: "UTC+4",
-                                        value: "UTC+4",
-                                    },
-                                    {
-                                        name: "BST",
-                                        value: "BST",
-                                    },
-                                    {
-                                        name: "UTC+8",
-                                        value: "UTC+8",
-                                    },
-                                    {
-                                        name: "AEST",
-                                        value: "AEST",
-                                    }
-                                )
-                                .setDescription("The time zone of the auditor")
-                                .setRequired(true)
-                        )
                 )
                 .addSubcommand(subcommand =>
                     subcommand
@@ -81,7 +33,6 @@ export default class AuditorsCommand extends Command {
                 )
                 .addSubcommand(subcommand => subcommand.setName("list").setDescription("List all auditors"))
         );
-        this.enabled = false;
     }
 
     private async addAuditor(command: ChatInputCommandInteraction) {
@@ -96,18 +47,9 @@ export default class AuditorsCommand extends Command {
                 ],
             });
         }
-        const zone = command.options.getString("time_zone");
-        const startTime = DateTime.now().set({ hour: 6, minute: 0, second: 0, millisecond: 0 }).setZone(zone, { keepLocalTime: true });
-        const endTime = DateTime.now().set({ hour: 20, minute: 0, second: 0, millisecond: 0 }).setZone(zone, { keepLocalTime: true });
-        // every 15 minute slot from startTime to endTime
-        const availSlots = Array.from({ length: Math.floor((endTime.diff(startTime).as("minutes") + 1) / 15) }, (_, i) => startTime.plus({ minutes: i * 15 })).map(time =>
-            time.toISO()
-        );
         await this.client.db.hacksAuditors.create({
             data: {
                 userId: command.options.getUser("user")!.id,
-                zone: command.options.getString("time_zone"),
-                availSlots: availSlots,
             },
         });
         return command.editReply({
