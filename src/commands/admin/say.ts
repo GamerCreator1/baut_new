@@ -14,6 +14,7 @@ export default class SayCommand extends Command {
                 require: {
                     permissions: [PermissionsBitField.Flags.ManageGuild],
                 },
+                ephemeral: true,
             },
             new SlashCommandBuilder()
                 .setName("say")
