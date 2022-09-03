@@ -19,7 +19,7 @@ export default class GuildMemberUpdateEvent extends Event {
                     },
                 },
             });
-            if (queue) {
+            if (queue && queue.length > 0) {
                 const auditorsChannel = await newState.member.guild.channels.fetch(process.env.AUDITORS_CHANNEL);
                 if (!auditorsChannel || auditorsChannel.type != ChannelType.GuildText) {
                     Logger.log("ERROR", "Failed to get auditors channel");
