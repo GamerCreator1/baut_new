@@ -117,7 +117,7 @@ export default class AuditChannelsCommand extends Command {
 
             voiceChannels.push({
                 ...auditChannel,
-                available: channel.members.size == 1 && auditors.map(a => a.userId).includes(channel.members.first()!.id),
+                available: channel.members.every(m => auditors.map(a => a.userId).includes(m.id)),
             });
         }
 
