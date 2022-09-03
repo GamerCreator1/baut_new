@@ -14,7 +14,9 @@ export default class GuildMemberUpdateEvent extends Event {
             const queue = await this.client.db.auditChannels.findMany({
                 where: {
                     channel: newState.channelId,
-                    queue: true,
+                    queue: {
+                        equals: true,
+                    },
                 },
             });
             if (queue) {
@@ -43,7 +45,10 @@ export default class GuildMemberUpdateEvent extends Event {
                     voiceChannels.push({
                         ...auditChannel,
                         available: channel.members.every(m => auditors.map(a => a.userId).includes(m.id)),
-                        auditor: auditors.find(a => a.userId == channel.members.first().id).userId,
+                        auditor: auditors
+                            .filter(a => a.userId == channel.members.first().id)
+                            .map(a => a.userId)
+                            .join(", "),
                     });
                 }
                 let pings = "";
