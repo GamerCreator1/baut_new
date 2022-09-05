@@ -55,23 +55,29 @@ export default class FinalistsCommand extends Command {
                 const modalSubmitFilter = (i: ModalSubmitInteraction) => i.customId === "finalist-add-modal" && i.user.id === command.user.id;
 
                 // wait for modal to be submitted
-                await interaction.awaitModalSubmit({ filter: modalSubmitFilter, time: 600000 }).then(async (modalSubmit: ModalSubmitInteraction) => {
+                await interaction.awaitModalSubmit({ filter: modalSubmitFilter, time: 60000 }).then(async (modalSubmit: ModalSubmitInteraction) => {
                     const getInput = (input: addFinalistModalFieldsType) => modalSubmit.fields.getTextInputValue(input);
 
                     const creatorDiscordIds = getInput("creator-ids").split(",");
                     const urls = getInput("urls").split(",");
-                    await this.client.db.hacksFinalist.create({
-                        data: {
-                            projectName: getInput("project-name"),
-                            description: getInput("description"),
-                            creatorDiscordIds,
-                            githubURL: urls[0],
-                            devpostURL: urls[1] || "",
-                            liveURL: urls[2] || "",
-                            bannerURL: getInput("bannerURL"),
-                            videoURL: getInput("video"),
-                        },
-                    });
+                    const media = getInput("media").split(",");
+
+                    try {
+                        await this.client.db.hacksFinalist.create({
+                            data: {
+                                projectName: getInput("project-name"),
+                                description: getInput("description"),
+                                creatorDiscordIds,
+                                githubURL: urls[0],
+                                devpostURL: urls[1] || "",
+                                liveURL: urls[2] || "",
+                                bannerURL: media[0] || "",
+                                videoURL: media[1] || "",
+                            },
+                        });
+                    } catch (e) {
+                        console.error(e);
+                    }
                 });
             })
             .catch(() => command.editReply({ content: "Timed out." }));
@@ -111,7 +117,7 @@ export default class FinalistsCommand extends Command {
                         color: Colors.Blurple,
                         url: project.liveURL || undefined,
                         author: {
-                            name: "BuilderHacks S2 Finalist",
+                            name: project.liveURL || "BuilderHacks S2 Finalist",
                             icon_url: "https://media.discordapp.net/attachments/913668807015407649/1016344619002384394/Buildergroop_Logo_Discord.png",
                         },
                         footer: {
@@ -124,6 +130,8 @@ export default class FinalistsCommand extends Command {
                 ],
                 components: [row],
             });
+
+            await command.channel.send("_ _");
         }
 
         await command.editReply("Sent Projects!");

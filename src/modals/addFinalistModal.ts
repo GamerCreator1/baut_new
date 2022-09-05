@@ -17,12 +17,11 @@ export const addFinalistModal = new ModalBuilder()
             // URL ORDER: github, devpost, live
             new TextInputBuilder().setLabel("URL's").setStyle(TextInputStyle.Paragraph).setCustomId("urls").setRequired(false).setRequired(false)
         ),
+
+        // URL ORDER: banner, video
         new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-            new TextInputBuilder().setLabel("Video").setStyle(TextInputStyle.Short).setCustomId("video").setRequired(false).setRequired(false)
-        ),
-        new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-            new TextInputBuilder().setLabel("BannerURL").setStyle(TextInputStyle.Short).setCustomId("bannerURL").setRequired(false).setRequired(false)
+            new TextInputBuilder().setLabel("Media").setStyle(TextInputStyle.Short).setCustomId("media").setRequired(false).setRequired(false)
         )
     );
 
-export type addFinalistModalFieldsType = "project-name" | "creator-ids" | "description" | "urls" | "video" | "bannerURL";
+export type addFinalistModalFieldsType = "project-name" | "creator-ids" | "description" | "urls" | "media";

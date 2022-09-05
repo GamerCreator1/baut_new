@@ -112,7 +112,7 @@ model HacksFinalist {
 
   creatorDiscordIds String[]
 
-  projectName String
+  projectName String @unique
   description String
 
   githubURL  String
