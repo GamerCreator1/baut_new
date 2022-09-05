@@ -20,11 +20,11 @@ export default class ChannelCreateEvent extends Event {
                 case ChannelType.GuildVoice:
                     type = "🔊 Voice";
                     break;
-                case ChannelType.GuildNews:
+                case ChannelType.GuildAnnouncement:
                     type = "📰 News";
                     break;
-                case ChannelType.GuildPrivateThread:
-                case ChannelType.GuildPublicThread:
+                case ChannelType.PrivateThread:
+                case ChannelType.PublicThread:
                     type = "🧵 Thread";
                     break;
                 default:

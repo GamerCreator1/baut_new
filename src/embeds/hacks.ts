@@ -65,7 +65,7 @@ _ _
             //         name: "BuilderHacks Registration",
             //         autoArchiveDuration: ThreadAutoArchiveDuration.OneHour,
             //         reason: `${interaction.user.tag} started registering for BuilderHacks.`,
-            //         type: client.config.prod ? ChannelType.GuildPrivateThread : ChannelType.GuildPublicThread,
+            //         type: client.config.prod ? ChannelType.PrivateThread : ChannelType.PublicThread,
             //     });
             //     BuilderHacksEmbed.sessions.set(interaction.user.id, thread.id);
             //     await interaction.editReply(`Started a thread for you to register your team: <#${thread.id}>`);

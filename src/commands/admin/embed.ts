@@ -320,7 +320,7 @@ export default class EmbedsCommand extends Command {
                 const sendId = command.options.getString("id");
                 let sendEmbedMessage: MessageOptions;
                 const sendChannel = command.options.getChannel("channel") ?? command.channel;
-                if (sendChannel.type != ChannelType.GuildText && sendChannel.type != ChannelType.GuildNews) {
+                if (sendChannel.type != ChannelType.GuildText && sendChannel.type != ChannelType.GuildAnnouncement) {
                     command.editReply({ content: "You can only send embeds to text channels." });
                     return;
                 }
