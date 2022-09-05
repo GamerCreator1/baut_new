@@ -25,14 +25,26 @@ export default class FinalistsEmbed extends Embed {
 
             const userAlreadyVoted = !!(await client.db.hackVote.findUnique({ where: { voterDiscordID: interaction.user.id } }));
 
-            if (!userAlreadyVoted) {
-                const guild = client.guilds.cache.get(process.env.GUILD_ID);
-                const member = await guild.members.fetch(interaction.user);
+            const guild = client.guilds.cache.get(process.env.GUILD_ID);
+            const member = await guild.members.fetch(interaction.user);
 
-                console.log(member.joinedAt);
-                const joinedBeforeHackathon = moment(member.joinedAt).isBefore("2022-09-05T12:51:11-04:00");
+            console.log(member.joinedAt);
+            const joinedBeforeHackathon = moment(member.joinedAt).isBefore("2022-09-05T12:51:11-04:00");
 
-                if (joinedBeforeHackathon) {
+            if (joinedBeforeHackathon) {
+                if (userAlreadyVoted) {
+                    const previousVote = await client.db.hackVote.findUnique({ where: { voterDiscordID: interaction.user.id } });
+
+                    await client.db.hackVote.update({
+                        where: { voterDiscordID: interaction.user.id },
+                        data: { HacksFinalist: { connect: { id } } },
+                    });
+
+                    await client.db.hacksFinalist.update({ where: { id }, data: { voteCount: { increment: 1 } } });
+                    await client.db.hacksFinalist.update({ where: { id: previousVote.hacksFinalistId }, data: { voteCount: { decrement: 1 } } });
+
+                    interaction.editReply(`Your vote has been changed to "${project.projectName}"! The results will be declared **<t:1662481800:R>**.`);
+                } else {
                     await client.db.hackVote.create({
                         data: {
                             voterDiscordID: interaction.user.id,
@@ -42,11 +54,9 @@ export default class FinalistsEmbed extends Embed {
                     await client.db.hacksFinalist.update({ where: { id }, data: { voteCount: { increment: 1 } } });
 
                     interaction.editReply(`Your vote has been anonymously casted for the project "${project.projectName}"! The results will be declared **<t:1662481800:R>**.`);
-                } else {
-                    interaction.editReply("Apologies! As a safety precaution, voting is disabled for members that joined after BuilderHacks Season Two ended.");
                 }
             } else {
-                interaction.editReply("Sorry, You've already voted!");
+                interaction.editReply("Apologies! As a safety precaution, voting is disabled for members that joined after BuilderHacks Season Two ended.");
             }
         }
     }
