@@ -11,7 +11,8 @@
            "@utils/*": ["utils/*"],
            "@classes/*": ["classes/*"],
            "@errors/*": ["errors/*"],
-           "@providers/*": ["providers/*"]
+           "@providers/*": ["providers/*"],
+           "@modals/*": ["modals/*"]
          },
         "typeRoots": [
            "./src/typings/",

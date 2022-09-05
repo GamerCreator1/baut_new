@@ -14,7 +14,7 @@ import {
 import { SlashCommandBuilder } from "@discordjs/builders";
 import Command from "@structures/Command";
 import DiscordClient from "@structures/DiscordClient";
-import { addFinalistModal, addFinalistModalFieldsType } from "modals/addFinalistModal";
+import { addFinalistModal, addFinalistModalFieldsType } from "@modals/addFinalistModal";
 import { HacksFinalist } from "@prisma/client";
 
 export default class FinalistsCommand extends Command {
