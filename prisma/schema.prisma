@@ -97,3 +97,31 @@ model AuditChannels {
   channel String  @db.VarChar
   queue   Boolean @default(false)
 }
+
+model HackVote {
+  id Int @id @default(autoincrement())
+
+  voterDiscordID String @unique
+
+  HacksFinalist   HacksFinalist? @relation(fields: [hacksFinalistId], references: [id])
+  hacksFinalistId Int?
+}
+
+model HacksFinalist {
+  id Int @id @default(autoincrement())
+
+  creatorDiscordIds String[]
+
+  projectName String
+  description String
+
+  githubURL  String
+  devpostURL String?
+  liveURL    String?
+
+  bannerURL String?
+  videoURL  String?
+
+  votes     HackVote[]
+  voteCount Int        @default(0)
+}
