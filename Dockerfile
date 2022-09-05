@@ -3,6 +3,6 @@ WORKDIR /baut_new
 COPY package.json .
 RUN yarn install
 COPY . .
-RUN yarn build 
 RUN yarn prisma:generate
+RUN yarn build 
 CMD [ "yarn", "start" ]
