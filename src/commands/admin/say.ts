@@ -26,7 +26,6 @@ export default class SayCommand extends Command {
     async run(command: ChatInputCommandInteraction) {
         const message = command.options.getString("message");
 
-        await command.deleteReply();
         await command.channel.send({
             content: message,
             options: {
