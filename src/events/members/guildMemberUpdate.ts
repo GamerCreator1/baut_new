@@ -10,7 +10,6 @@ export default class GuildMemberUpdateEvent extends Event {
     }
 
     async run(oldMember: GuildMember, newMember: GuildMember) {
-        console.log("update");
         const embed = {
             title: "Member Updated",
             color: Colors.DarkPurple,

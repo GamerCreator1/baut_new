@@ -54,19 +54,14 @@ export default class MessageEvent extends Event {
             if (message.channel.id == process.env.INTRODUCTION_CHANNEL) {
                 await message.member.roles.add(process.env.INTRODUCED_ROLE);
             }
-
-            const discordMessageLinkExp = /https:\/\/discord.com\/channels\/\d+\/\d+\/\d+/;
-            const discordMessageLink = discordMessageLinkExp.exec(message.content);
-            if (discordMessageLink && discordMessageLink.length > 0) {
-                const url = new URL(discordMessageLink[0]);
-                const channelId = url.pathname.split("/")[3];
-                const messageId = url.pathname.split("/")[4];
+            if (link && link.hostname.endsWith("discord.com") && link.pathname.startsWith("/channels")) {
+                const channelId = link.pathname.split("/")[3];
+                const messageId = link.pathname.split("/")[4];
                 const channel = await message.guild.channels.fetch(channelId);
                 if (channel) {
-                    const memberHasAccessToChannel = channel instanceof DMChannel || channel instanceof ThreadChannel || channel.permissionsFor(message.member).has(PermissionFlagsBits.ViewChannel);
-                    if (!memberHasAccessToChannel) return;
                     const linkedMsg = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
-                    if (linkedMsg && linkedMsg.type == MessageType.Default) {
+                    const validMessageTypes = [MessageType.Default, MessageType.Reply, MessageType.ThreadStarterMessage]
+                    if (linkedMsg && validMessageTypes.includes(linkedMsg.type)) {
                         const embed = new EmbedBuilder()
                             .setTitle("Message Link")
                             .setURL(linkedMsg.url)

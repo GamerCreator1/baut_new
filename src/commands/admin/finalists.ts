@@ -85,11 +85,8 @@ export default class FinalistsCommand extends Command {
 
     private async listFinalists(command: ChatInputCommandInteraction) {
         const finalistProjects = await this.client.db.hacksFinalist.findMany();
-        console.log(finalistProjects);
         for (let i = 0; i < finalistProjects.length; i++) {
-            console.log(i);
             const project = finalistProjects[i];
-            console.log(project);
 
             const voteButton = new ButtonBuilder().setCustomId(`finalists-vote/${project.id}`).setLabel(`Cast Your Vote`).setStyle(ButtonStyle.Primary);
             const githubButton = new ButtonBuilder().setLabel(`Github`).setStyle(ButtonStyle.Link).setURL(project.githubURL);

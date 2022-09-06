@@ -28,7 +28,6 @@ export default class FinalistsEmbed extends Embed {
             const guild = client.guilds.cache.get(process.env.GUILD_ID);
             const member = await guild.members.fetch(interaction.user);
 
-            console.log(member.joinedAt);
             const joinedBeforeHackathon = moment(member.joinedAt).isBefore("2022-09-05T12:51:11-04:00");
 
             if (joinedBeforeHackathon) {
