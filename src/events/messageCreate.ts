@@ -1,4 +1,4 @@
-import { ChannelType, DMChannel, Message, TextChannel, ThreadChannel } from "discord.js";
+import { ChannelType, ColorResolvable, DMChannel, EmbedBuilder, Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
 
 import CommandHandler from "@classes/CommandHandler";
 import DiscordClient from "@structures/DiscordClient";
@@ -53,6 +53,35 @@ export default class MessageEvent extends Event {
 
             if (message.channel.id == process.env.INTRODUCTION_CHANNEL) {
                 await message.member.roles.add(process.env.INTRODUCED_ROLE);
+            }
+
+            const discordMessageLinkExp = /https:\/\/discord.com\/channels\/\d+\/\d+\/\d+/;
+            const discordMessageLink = discordMessageLinkExp.exec(message.content);
+            if (discordMessageLink && discordMessageLink.length > 0) {
+                const url = new URL(discordMessageLink[0]);
+                const channelId = url.pathname.split("/")[3];
+                const messageId = url.pathname.split("/")[4];
+                const channel = await message.guild.channels.fetch(channelId);
+                if (channel) {
+                    const message = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
+                    if (message && message.type == MessageType.Default) {
+                        const embed = new EmbedBuilder()
+                            .setTitle("Message Link")
+                            .setURL(message.url)
+                            .setAuthor({
+                                name: message.author.tag,
+                                iconURL: message.author.displayAvatarURL()
+                            })
+                            .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
+                            .setDescription(message.content)
+                            .setTimestamp(message.createdAt)
+                            .setFooter({
+                                text: `#${(channel as TextChannel).name}`
+                            })
+                            .setImage(message.attachments.first()?.url)
+                        await message.channel.send({ embeds: [embed] });
+                    }
+                }
             }
         }
         if (link) {
