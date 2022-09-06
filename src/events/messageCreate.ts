@@ -61,6 +61,7 @@ export default class MessageEvent extends Event {
                 if (channel) {
                     const linkedMsg = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
                     const validMessageTypes = [MessageType.Default, MessageType.Reply, MessageType.ThreadStarterMessage]
+                    console.log(linkedMsg.type)
                     if (linkedMsg && validMessageTypes.includes(linkedMsg.type)) {
                         const embed = new EmbedBuilder()
                             .setTitle("Message Link")
