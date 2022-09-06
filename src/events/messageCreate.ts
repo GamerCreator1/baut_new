@@ -1,4 +1,4 @@
-import { ChannelType, ColorResolvable, DMChannel, EmbedBuilder, Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
+import { ChannelType, ColorResolvable, DMChannel, EmbedBuilder, Message, MessageType, PermissionFlagsBits, TextChannel, ThreadChannel } from "discord.js";
 
 import CommandHandler from "@classes/CommandHandler";
 import DiscordClient from "@structures/DiscordClient";
@@ -62,23 +62,24 @@ export default class MessageEvent extends Event {
                 const channelId = url.pathname.split("/")[3];
                 const messageId = url.pathname.split("/")[4];
                 const channel = await message.guild.channels.fetch(channelId);
-                if (channel) {
-                    const message = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
-                    if (message && message.type == MessageType.Default) {
+                const memberHasAccessToChannel = channel instanceof DMChannel || channel instanceof ThreadChannel || channel.permissionsFor(message.member).has(PermissionFlagsBits.ViewChannel);
+                if (channel && memberHasAccessToChannel) {
+                    const linkedMsg = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
+                    if (linkedMsg && linkedMsg.type == MessageType.Default) {
                         const embed = new EmbedBuilder()
                             .setTitle("Message Link")
-                            .setURL(message.url)
+                            .setURL(linkedMsg.url)
                             .setAuthor({
-                                name: message.author.tag,
-                                iconURL: message.author.displayAvatarURL()
+                                name: linkedMsg.author.tag,
+                                iconURL: linkedMsg.author.displayAvatarURL()
                             })
                             .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
-                            .setDescription(message.content)
-                            .setTimestamp(message.createdAt)
+                            .setDescription(linkedMsg.content)
+                            .setTimestamp(linkedMsg.createdAt)
                             .setFooter({
                                 text: `#${(channel as TextChannel).name}`
                             })
-                            .setImage(message.attachments.first()?.url)
+                            .setImage(linkedMsg.attachments.first()?.url)
                         await message.channel.send({ embeds: [embed] });
                     }
                 }
