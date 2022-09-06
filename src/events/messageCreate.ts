@@ -62,8 +62,9 @@ export default class MessageEvent extends Event {
                 const channelId = url.pathname.split("/")[3];
                 const messageId = url.pathname.split("/")[4];
                 const channel = await message.guild.channels.fetch(channelId);
-                const memberHasAccessToChannel = channel instanceof DMChannel || channel instanceof ThreadChannel || channel.permissionsFor(message.member).has(PermissionFlagsBits.ViewChannel);
-                if (channel && memberHasAccessToChannel) {
+                if (channel) {
+                    const memberHasAccessToChannel = channel instanceof DMChannel || channel instanceof ThreadChannel || channel.permissionsFor(message.member).has(PermissionFlagsBits.ViewChannel);
+                    if (!memberHasAccessToChannel) return;
                     const linkedMsg = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
                     if (linkedMsg && linkedMsg.type == MessageType.Default) {
                         const embed = new EmbedBuilder()
