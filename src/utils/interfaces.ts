@@ -114,11 +114,3 @@ export interface AchievementItem {
     createdAt: Date;
     creatorId: string;
 }
-
-export interface HacksParticipant {
-    userIds: string[];
-    teamName: string;
-    audit1: Date;
-    audit2: Date;
-    audit3: Date;
-}
