@@ -24,22 +24,24 @@ export default class MessageUpdateEvent extends Event {
         if (oldMessage.content !== newMessage.content) {
             embed.fields.push({
                 name: "Old Content",
-                value: oldMessage.content,
+                value: oldMessage.content || "`No content`",
                 inline: false,
             });
             embed.fields.push({
                 name: "New Content",
-                value: newMessage.content,
+                value: newMessage.content || "`No content`",
                 inline: false,
             });
         }
         if (oldMessage.attachments.size !== newMessage.attachments.size) {
             embed.fields.push({
                 name: "Old Attachments",
-                value: oldMessage.attachments
-                    .mapValues(value => value.url)
-                    .toJSON()
-                    .join("\n"),
+                value: oldMessage.attachments.size > 0
+                    ? oldMessage.attachments
+                        .mapValues(value => value.url)
+                        .toJSON()
+                        .join("\n")
+                    : "None",
                 inline: true,
             });
             embed.fields.push({
@@ -47,9 +49,9 @@ export default class MessageUpdateEvent extends Event {
                 value:
                     newMessage.attachments.size > 0
                         ? newMessage.attachments
-                              .mapValues(value => value.url)
-                              .toJSON()
-                              .join("\n")
+                            .mapValues(value => value.url)
+                            .toJSON()
+                            .join("\n")
                         : "None",
                 inline: true,
             });
