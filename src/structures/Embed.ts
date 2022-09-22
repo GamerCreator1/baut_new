@@ -1,4 +1,4 @@
-import { Interaction, ActionRowBuilder, EmbedBuilder, MessageOptions, MessageActionRowComponentBuilder, Colors } from "discord.js";
+import { Interaction, ActionRowBuilder, EmbedBuilder, BaseMessageOptions, MessageActionRowComponentBuilder, Colors } from "discord.js";
 
 import Logger from "@classes/Logger";
 
@@ -9,7 +9,7 @@ export default abstract class Embed {
     readonly name: string;
 
     /** Embed object to be sent */
-    readonly message: MessageOptions;
+    readonly message: BaseMessageOptions;
 
     /** Components to be sent with the message */
     readonly components: ActionRowBuilder<MessageActionRowComponentBuilder>[];
@@ -27,7 +27,7 @@ export default abstract class Embed {
 
     constructor(
         name: string,
-        message: EmbedBuilder | MessageOptions,
+        message: EmbedBuilder | BaseMessageOptions,
         interactionIds: string[],
         components?: ActionRowBuilder<MessageActionRowComponentBuilder>[],
         hideFromClient?: boolean
