@@ -32,6 +32,7 @@ export default class CommandHandler {
                         description: `${command.user.toString()}, bot requires \`ADMINISTRATOR\` permission to be run.`,
                     },
                 ],
+                ephemeral: true
             });
 
         const cmd = client.registry.findCommand(command.commandName);
@@ -41,6 +42,7 @@ export default class CommandHandler {
                     embeds: [
                         new EmbedBuilder().setTitle("🔎 Unknown Command").setDescription(`${command.user.toString()}, type \`/help\` to see the command list.`).setColor("#D1D1D1"),
                     ],
+                    ephemeral: true
                 });
             return;
         }

@@ -10,6 +10,7 @@ import Command from "@structures/Command";
 import DiscordClient from "@structures/DiscordClient";
 import Embed from "@structures/Embed";
 import Event from "@structures/Event";
+import ContextMenu from "@structures/ContextMenu";
 import { isConstructor } from "@utils/functions";
 
 export default class Registry {
@@ -37,6 +38,16 @@ export default class Registry {
      * Event paths
      */
     private eventPaths: string[] = [];
+
+    /**
+     * Collection for context menus
+     */
+    private contextMenus: Collection<string, ContextMenu>;
+
+    /**
+     * Context Menu paths
+     */
+    private contextMenuPaths: string[] = [];
 
     /**
      * Collection for command cooldown registration.
@@ -73,6 +84,7 @@ export default class Registry {
         this.groups = new Collection<string, string[]>();
         this.autocomplete = new Collection<string, () => { name: string; value: string }[]>();
         this.embeds = new Collection<string, Embed>();
+        this.contextMenus = new Collection<string, ContextMenu>();
     }
 
     constructor(client: DiscordClient) {
@@ -123,6 +135,49 @@ export default class Registry {
             if (!(event instanceof Event)) throw new RegistryError(`Invalid event object to register: ${event}`);
 
             this.registerEvent(event);
+        }
+    }
+
+    /**
+     * Register context menu
+     */
+    private registerContextMenu(contextMenu: ContextMenu) {
+        if (this.contextMenus.some(e => e.name === contextMenu.name)) throw new RegistryError(`A context menu with the name "${contextMenu.name}" is already registered.`);
+        this.contextMenus.set(contextMenu.name, contextMenu);
+        Logger.log("INFO", `Context menu "${contextMenu.name}" loaded.`);
+    }
+
+    /**
+     * Registers all context menus;
+     */
+    private registerAllContextMenus() {
+        const contextMenus: any[] = [];
+
+        if (this.contextMenuPaths.length)
+            this.contextMenuPaths.forEach(p => {
+                delete require.cache[p];
+            });
+
+        requireAll({
+            dirname: path.join(__dirname, "../context_menus"),
+            recursive: true,
+            filter: /\w*.[tj]s/g,
+            resolve: x => contextMenus.push(x),
+            map: (name, filePath) => {
+                if (filePath.endsWith(".ts") || filePath.endsWith(".js")) this.contextMenuPaths.push(path.resolve(filePath));
+                return name;
+            },
+        });
+
+        for (let contextMenu of contextMenus) {
+            const valid = isConstructor(contextMenu, ContextMenu) || isConstructor(contextMenu.default, ContextMenu) || event instanceof ContextMenu || contextMenu.default instanceof ContextMenu;
+            if (!valid) continue;
+
+            if (isConstructor(contextMenu, ContextMenu)) contextMenu = new contextMenu(this.client);
+            else if (isConstructor(contextMenu.default, ContextMenu)) contextMenu = new contextMenu.default(this.client);
+            if (!(contextMenu instanceof ContextMenu)) throw new RegistryError(`Invalid context menu object to register: ${contextMenu}`);
+
+            this.registerContextMenu(contextMenu);
         }
     }
 
@@ -220,6 +275,7 @@ export default class Registry {
 
         Logger.log("INFO", `${this.embeds.size} embeds loaded.`);
     }
+
     /**
      * Finds and returns the command by name.
      * @param command Name
@@ -259,7 +315,9 @@ export default class Registry {
         const rest = new REST({ version: "9" }).setToken(this.client.token);
         (async () => {
             try {
+                // Slash commands
                 const permissions = [];
+                let allCommands = new Collection<string, any>();
                 this.commands.forEach(cmd => {
                     if (cmd.info.require?.permissions?.length > 0) {
                         permissions.push((cmd.data as SlashCommandBuilder).setDefaultMemberPermissions(new PermissionsBitField().add(...cmd.info.require.permissions).bitfield));
@@ -269,8 +327,13 @@ export default class Registry {
                         return cmd.data as SlashCommandBuilder;
                     }
                 });
+                allCommands = this.commands;
+
+                // Context Menus
+                allCommands = allCommands.concat(this.contextMenus);
+
                 await rest.put(Routes.applicationGuildCommands(this.client.config.clientId, this.client.config.guildId) as unknown as `/{string}`, {
-                    body: this.commands.map(command => command.data.toJSON()),
+                    body: allCommands.map(command => command.data.toJSON()),
                 });
 
                 Logger.log("INFO", `Loaded ${this.commands.size} application (/) commands.`);
@@ -296,6 +359,7 @@ export default class Registry {
         this.registerAllEmbeds();
         this.registerAllCommands();
         this.registerAllEvents();
+        this.registerAllContextMenus();
         this.registerGuildSlashCommands();
     }
 
@@ -323,5 +387,12 @@ export default class Registry {
      */
     getEmbeds() {
         return this.embeds;
+    }
+
+    /**
+     * Returns the context menu by name.
+     */
+    findContextMenu(name: string) {
+        return this.contextMenus.get(name);
     }
 }
