@@ -7,4 +7,4 @@ package-lock.json
 .vscode
 .vscode/settings.json
 .vscode/extensions.json
-prisma/schema.prisma
+yarn.lock

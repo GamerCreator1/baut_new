@@ -16,7 +16,6 @@ export default abstract class Embed {
 
     /** A list of customIds this embed needs to be notified of. */
     readonly interactionIds: string[];
-    an;
 
     /** An internal ID */
     readonly id: string;
