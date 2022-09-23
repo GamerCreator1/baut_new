@@ -20,16 +20,25 @@ export default class BookmarkMenu extends ContextMenu {
             }
         )
         if (created) {
-            await interaction.editReply({ content: "This message is already bookmarked. Try using `/bookmark remove` to remove it." })
+            await interaction.editReply({ content: "This message is already bookmarked. Check out the `/bookmark` command for some help." })
             return;
         }
-        await client.db.bookmark.create({
+        const numCreated = await client.db.bookmark.count({
+            where: {
+                userId: interaction.user.id
+            }
+        })
+        if (numCreated >= 25) {
+            await interaction.editReply({ content: "You have reached the maximum number of bookmarks. Try removing some bookmarks before adding more. Check out the `/bookmark` command for some help." })
+            return;
+        }
+        const { id } = await client.db.bookmark.create({
             data: {
                 channelId: message.channel.id,
                 messageID: messageId,
                 userId: interaction.user.id
             }
         })
-        await interaction.editReply({ content: "Message bookmarked!" })
+        await interaction.editReply({ content: `Message bookmarked! [ID: ${id}]` })
     }
 }
