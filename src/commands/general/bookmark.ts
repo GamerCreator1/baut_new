@@ -87,14 +87,16 @@ export default class UserInfoCommand extends Command {
             const message = filteredMessages.find(message => message.bookmarkId == i.values[0]);
             const embed = new EmbedBuilder()
                 .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
-                .setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL(), url: message.url })
+                .setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
+                .setTitle(`Bookmark ${message.bookmarkId}`)
+                .setURL(message.url)
                 .setDescription(message.content)
                 .setTimestamp(message.createdAt)
                 .setFooter({ text: `ID: ${message.id}` })
             await i.update({ embeds: [embed] })
         })
         collector.on("end", async () => {
-            await response.edit({ content: "Session ended.", components: [] })
+            await response.edit({ content: "Session ended.", components: [] }).catch(() => null)
         })
     }
 
