@@ -66,38 +66,44 @@ export default class UserInfoCommand extends Command {
             await command.editReply({ content: "You have no bookmarks. Use the context menu on a message to bookmark it." })
             return;
         }
-        const selectMenu = new SelectMenuBuilder()
-            .setOptions(filteredMessages.map((message) => ({
-                label: `${message.bookmarkId}: ` + ((message.channel as Exclude<TextBasedChannel, DMChannel | PartialDMChannel>).name + " - " + message.author.username).substring(0, 20),
-                value: message.bookmarkId.toString(),
-                description: message.content.substring(0, 50),
-            })))
-            .setCustomId("bookmark-list")
-            .setPlaceholder("Select a bookmark")
-        const response = await command.editReply({
-            embeds: [
-                new EmbedBuilder()
-                    .setDescription("Select a bookmark to view it.")
-            ], components: [new ActionRowBuilder<SelectMenuBuilder>().addComponents(selectMenu)]
-        })
+        try {
+            const selectMenu = new SelectMenuBuilder()
+                .setOptions(filteredMessages.map((message) => ({
+                    label: `${message.bookmarkId}: ` + ((message.channel as Exclude<TextBasedChannel, DMChannel | PartialDMChannel>).name + " - " + message.author.username).substring(0, 20),
+                    value: message.bookmarkId.toString(),
+                    description: message.content.substring(0, 50),
+                })))
+                .setCustomId("bookmark-list")
+                .setPlaceholder("Select a bookmark")
+            const response = await command.editReply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setDescription("Select a bookmark to view it.")
+                ], components: [new ActionRowBuilder<SelectMenuBuilder>().addComponents(selectMenu)]
+            })
 
-        const filter = (i: SelectMenuInteraction) => i.user == command.user && i.customId == "bookmark-list";
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.SelectMenu, filter, time: 60000 })
-        collector.on("collect", async (i: SelectMenuInteraction) => {
-            const message = filteredMessages.find(message => message.bookmarkId == i.values[0]);
-            const embed = new EmbedBuilder()
-                .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
-                .setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
-                .setTitle(`Bookmark ${message.bookmarkId}`)
-                .setURL(message.url)
-                .setDescription(message.content)
-                .setTimestamp(message.createdAt)
-                .setFooter({ text: `ID: ${message.id}` })
-            await i.update({ embeds: [embed] })
-        })
-        collector.on("end", async () => {
-            await response.edit({ content: "Session ended.", components: [] }).catch(() => null)
-        })
+            const filter = (i: SelectMenuInteraction) => i.user == command.user && i.customId == "bookmark-list";
+            const collector = response.createMessageComponentCollector({ componentType: ComponentType.SelectMenu, filter, time: 60000 })
+            collector.on("collect", async (i: SelectMenuInteraction) => {
+                const message = filteredMessages.find(message => message.bookmarkId == i.values[0]);
+                const embed = new EmbedBuilder()
+                    .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
+                    .setAuthor({ name: message.author.tag, iconURL: message.author.displayAvatarURL() })
+                    .setTitle(`Bookmark ${message.bookmarkId}`)
+                    .setURL(message.url)
+                    .setDescription(message.content)
+                    .setTimestamp(message.createdAt)
+                    .setFooter({ text: `ID: ${message.id}` })
+                await i.update({ embeds: [embed] })
+            })
+
+            collector.on("end", async () => {
+                await response.edit({ content: "Session ended.", components: [] }).catch(() => null)
+            })
+        } catch (e) {
+            Logger.log("ERROR", e.stack)
+            await command.editReply({ content: "An error occurred, please try that again :)" })
+        }
     }
 
     private async delete(command: ChatInputCommandInteraction) {
