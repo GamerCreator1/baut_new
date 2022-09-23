@@ -93,7 +93,7 @@ export default class UserInfoCommand extends Command {
                     .setURL(message.url)
                     .setDescription(message.content)
                     .setTimestamp(message.createdAt)
-                    .setFooter({ text: `ID: ${message.id}` })
+                    .setFooter({ text: `ID: ${message.bookmarkId}` })
                 await i.update({ embeds: [embed] })
             })
 
