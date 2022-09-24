@@ -87,3 +87,13 @@ model Bookmark {
   messageID String @db.VarChar
   userId    String
 }
+
+model Member {
+  userId   String   @id
+  messages String[]
+}
+
+model Settings {
+  name  String @id
+  value String
+}
