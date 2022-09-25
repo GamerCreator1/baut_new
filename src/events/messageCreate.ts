@@ -70,7 +70,7 @@ export default class MessageEvent extends Event {
                             text: `#${(channel as TextChannel).name}`
                         })
                         .setImage(linkedMsg.attachments.first()?.url)
-                    await message.channel.send({ embeds: [embed] });
+                    await message.channel.send({ embeds: [embed], reply: { messageReference: message.id } });
                 }
             }
         }
@@ -127,13 +127,13 @@ export default class MessageEvent extends Event {
                 }
             })
             if (value && user.messages.length >= parseInt(value)) {
-                const { value: roleId } = await this.client.db.settings.findUnique({
+                const activityRole = await this.client.db.settings.findUnique({
                     where: {
                         name: "activity_role"
                     }
                 })
-                if (roleId) {
-                    const role = await message.guild.roles.fetch(roleId);
+                if (activityRole) {
+                    const role = await message.guild.roles.fetch(activityRole.value);
                     if (role) {
                         await message.member.roles.add(role);
                     }
