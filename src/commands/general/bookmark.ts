@@ -36,7 +36,7 @@ export default class UserInfoCommand extends Command {
             }
         })
         const messages = await Promise.all(bookmarks.map(async (bookmark) => {
-            const channel = await this.client.channels.fetch(bookmark.channelId).catch(() => null);
+            const channel = await command.guild.channels.fetch(bookmark.channelId).catch(() => null);
             if (!channel.isTextBased()) {
                 await this.client.db.bookmark.delete({
                     where: {

@@ -97,11 +97,14 @@ export default class MessageEvent extends Event {
     }
 
     async handleActivity(message: Message) {
+        const ignoredChannels = await this.client.db.settings.findUnique({ where: { name: "activity_ignored" } })
+        if (ignoredChannels && ignoredChannels.value.includes(message.channel.id)) return;
         const user = await this.client.db.member.findFirst({
             where: {
                 userId: message.author.id,
             }
         })
+
         if (!user) {
             await this.client.db.member.create({
                 data: {
@@ -111,6 +114,13 @@ export default class MessageEvent extends Event {
             })
         }
         else {
+            const timeout = await this.client.db.settings.findUnique({ where: { name: "activity_timeout" } }) // in minutes
+            const lastMessage = new Date(user.messages[user.messages.length - 1])
+            const now = new Date()
+            if (now.getTime() - lastMessage.getTime() < (parseInt(timeout?.value) * 60000)) {
+                return;
+            }
+
             user.messages.filter(msg => new Date(msg).getTime() > new Date().getTime() - 48 * 60 * 60 * 60 * 1000)
             user.messages.push(new Date(message.createdTimestamp).toISOString())
             await this.client.db.member.update({

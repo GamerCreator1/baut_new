@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Colors, PermissionsBitField, Role } from "discord.js";
+import { ChatInputCommandInteraction, Colors, GuildChannel, PermissionsBitField, Role } from "discord.js";
 
 import Logger from "@classes/Logger";
 import { SlashCommandBuilder } from "@discordjs/builders";
@@ -31,6 +31,24 @@ export default class ActivityCommand extends Command {
                     .addRoleOption(option => option
                         .setName("role")
                         .setDescription("The role to give")))
+                .addSubcommandGroup(group => group
+                    .setName("channels")
+                    .setDescription("Manage activity status for channels")
+                    .addSubcommand(subcommand => subcommand
+                        .setName("ignore")
+                        .setDescription("Toggle a channel's activity status")
+                        .addChannelOption(option => option
+                            .setName("channel")
+                            .setDescription("The channel to toggle")))
+                    .addSubcommand(subcommand => subcommand
+                        .setName("list")
+                        .setDescription("List all channels that are ignored")))
+                .addSubcommand(subcommand => subcommand
+                    .setName("timeout")
+                    .setDescription("Set or view how much time between messages is required to be considered active")
+                    .addNumberOption(option => option
+                        .setName("number")
+                        .setDescription("The number of minutes")))
         );
     }
 
@@ -64,7 +82,7 @@ export default class ActivityCommand extends Command {
                 {
                     color: Colors.Green,
                     title: "✅ Success",
-                    description: `Activity threshold set to ${number}`,
+                    description: `Activity threshold set to \`${number}\``,
                 },
             ],
         });
@@ -129,7 +147,7 @@ export default class ActivityCommand extends Command {
                 {
                     color: Colors.Green,
                     title: "✅ Success",
-                    description: `Activity threshold is ${threshold.value}`,
+                    description: `Activity threshold is \`${threshold.value}\``,
                 },
             ],
         });
@@ -163,8 +181,188 @@ export default class ActivityCommand extends Command {
         });
     }
 
+    private async setTimeout(command: ChatInputCommandInteraction) {
+        const number = command.options.getNumber("number");
+        if (number < 1) {
+            return command.editReply({
+                embeds: [
+                    {
+                        color: Colors.Red,
+                        title: "❌ Error",
+                        description: "Number must be greater than 0",
+                    },
+                ],
+            });
+        }
+        await this.client.db.settings.upsert({
+            where: {
+                name: "activity_timeout"
+            },
+            create: {
+                name: "activity_timeout",
+                value: number.toString(),
+            },
+            update: {
+                value: number.toString(),
+            }
+        });
+        return command.editReply({
+            embeds: [
+                {
+                    color: Colors.Green,
+                    title: "✅ Success",
+                    description: `Activity timeout set to \`${number}\``,
+                },
+            ],
+        });
+    }
+
+    private async getTimeout(command: ChatInputCommandInteraction) {
+        const timeout = await this.client.db.settings.findUnique({
+            where: {
+                name: "activity_timeout"
+            }
+        });
+        if (!timeout) {
+            return command.editReply({
+                embeds: [
+                    {
+                        color: Colors.Red,
+                        title: "❌ Error",
+                        description: "Activity timeout not set",
+                    },
+                ],
+            });
+        }
+        return command.editReply({
+            embeds: [
+                {
+                    color: Colors.Green,
+                    title: "✅ Success",
+                    description: `Activity timeout is \`${timeout.value}\``,
+                },
+            ],
+        });
+    }
+
+    private async ignoreChannel(command: ChatInputCommandInteraction) {
+        // client.db.settings where name = activity_ignored and value is a stringified array of channel_ids
+        const channel = command.options.getChannel("channel") as GuildChannel;
+        const ignored = await this.client.db.settings.findUnique({
+            where: {
+                name: "activity_ignored"
+            }
+        });
+        if (!ignored) {
+            await this.client.db.settings.create({
+                data: {
+                    name: "activity_ignored",
+                    value: JSON.stringify([channel.id])
+                }
+            });
+            return command.editReply({
+                embeds: [
+                    {
+                        color: Colors.Green,
+                        title: "✅ Success",
+                        description: `Channel ${channel.toString()} is now ignored`,
+                    },
+                ],
+            });
+        }
+        const channels = JSON.parse(ignored.value) as string[];
+        if (channels.includes(channel.id)) {
+            const index = channels.indexOf(channel.id);
+            channels.splice(index, 1);
+            await this.client.db.settings.update({
+                where: {
+                    name: "activity_ignored"
+                },
+                data: {
+                    value: JSON.stringify(channels)
+                }
+            });
+            return command.editReply({
+                embeds: [
+                    {
+                        color: Colors.Green,
+                        title: "✅ Success",
+                        description: `Channel ${channel.toString()} is no longer ignored`,
+                    },
+                ],
+            });
+        }
+        channels.push(channel.id);
+        await this.client.db.settings.update({
+            where: {
+                name: "activity_ignored"
+            },
+            data: {
+                value: JSON.stringify(channels)
+            }
+        });
+        return command.editReply({
+            embeds: [
+                {
+                    color: Colors.Green,
+                    title: "✅ Success",
+                    description: `Channel ${channel.toString()} is now ignored`,
+                },
+            ],
+        });
+    }
+
+    private async listChannels(command: ChatInputCommandInteraction) {
+        const ignored = await this.client.db.settings.findUnique({
+            where: {
+                name: "activity_ignored"
+            }
+        });
+        if (!ignored) {
+            return command.editReply({
+                embeds: [
+                    {
+                        color: Colors.Green,
+                        title: "✅ Success",
+                        description: "No channels are ignored",
+                    },
+                ],
+            });
+        }
+        const channelIds = JSON.parse(ignored.value) as string[];
+        const channels = (await Promise.all(channelIds.map(async (channelId) => {
+            const channel = await command.guild.channels.fetch(channelId);
+            if (!channel) {
+                return;
+            }
+            return channel.toString();
+        }))).filter((channel) => !!channel)
+
+        if (channels.length != channelIds.length) {
+            await this.client.db.settings.update({
+                where: {
+                    name: "activity_ignored"
+                },
+                data: {
+                    value: JSON.stringify(channelIds)
+                }
+            });
+        }
+
+        return command.editReply({
+            embeds: [
+                {
+                    color: Colors.Green,
+                    title: "✅ Success",
+                    description: channels.length > 0 ? channels.join(", ") : "No channels are ignored",
+                },
+            ],
+        });
+    }
+
     async run(command: ChatInputCommandInteraction) {
         const subcommand = command.options.getSubcommand();
+        const group = command.options.getSubcommandGroup();
         switch (subcommand) {
             case "threshold":
                 if (command.options.getNumber("number")) {
@@ -182,6 +380,27 @@ export default class ActivityCommand extends Command {
                     await this.getRole(command);
                 }
                 break;
+            case "timeout":
+                if (command.options.getNumber("number")) {
+                    await this.setTimeout(command);
+                }
+                else {
+                    await this.getTimeout(command);
+                }
+                break;
+            default:
+                console.log("Unknown subcommand", subcommand);
+        }
+        switch (group) {
+            case "channels":
+                switch (subcommand) {
+                    case "ignore":
+                        await this.ignoreChannel(command);
+                        break;
+                    case "list":
+                        await this.listChannels(command);
+                        break;
+                }
         }
     }
 }
