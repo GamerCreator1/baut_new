@@ -106,9 +106,15 @@ export default class MessageEvent extends Event {
         })
 
         if (!user) {
-            await this.client.db.member.create({
-                data: {
+            await this.client.db.member.upsert({
+                where: {
+                    userId: message.author.id
+                },
+                create: {
                     userId: message.author.id,
+                    messages: [new Date(message.createdTimestamp).toISOString()],
+                },
+                update: {
                     messages: [new Date(message.createdTimestamp).toISOString()]
                 }
             })
