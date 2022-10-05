@@ -89,7 +89,7 @@ export default class ReactionRolesEmbed extends Embed {
                     const added = options.filter(option => !user.roles.cache.has(option) && roleObjRoles.includes(option));
                     added.forEach(async role => await user.roles.add(role));
 
-                    await select.editReply(`:heavy_minus_sign: ${removed.map(r => r.toString()).join(", ")}\n:heavy_plus_sign: <@&${added.map(r => r.toString()).join(">, <@&")}>`);
+                    await select.editReply(`:heavy_minus_sign: ${removed.size > 0 ? removed.map(r => r.toString()).join(", ") : "None"}\n:heavy_plus_sign: ${added.length > 0 ? `<@&${added.map(r => r.toString()).join(">, <@&")}>` : "None"}`);
                 } else {
                     let removed;
                     roleObj.options.forEach(async option => {
