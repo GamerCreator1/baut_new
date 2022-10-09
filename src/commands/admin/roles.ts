@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, PermissionsBitField, SelectMenuBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ColorResolvable, EmbedBuilder, PermissionsBitField, SelectMenuBuilder } from "discord.js";
 
 import { SlashCommandBuilder } from "@discordjs/builders";
 import Command from "@structures/Command";
@@ -33,14 +33,19 @@ export default class SayCommand extends Command {
                     )
                     .setMaxValues(role.max)
                     .setMinValues(role.min ?? 0)
-                    .setCustomId("roles/option/" + role.customId));
+                    .setCustomId("roles/option/" + role.customId)
+            );
+            const embed = new EmbedBuilder()
+                .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
+                .setTitle(`${role.emoji}  ${role.embed.title}`)
+                .setDescription(role.embed.description);
             command.channel.send({
-                content: role.embed.description,
+                embeds: [embed],
                 options: {
                     username: command.user.username,
                 },
                 components: [selectMenu],
             });
-        })
+        });
     }
 }
