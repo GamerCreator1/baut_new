@@ -171,13 +171,19 @@ export default class MessageEvent extends Event {
             /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
         const urlFilter = new RegExp(expression);
         const url = urlFilter.exec(message.content);
-        const link = url && url.length > 0 && url[0].length >= 4 ? new URL(url[0]) : null;
-        if (message.channel.type == ChannelType.GuildText && message.guild.id == this.client.config.guildId) {
-            await this.handleGuildMessage(message, link, urlFilter)
-            await this.handleActivity(message)
-        }
-        if (link) {
-            await this.handleLinks(message, link, urlFilter)
+        try {
+            const link = url && url.length > 0 && url[0].length >= 4 ? new URL(url[0]) : null;
+            if (message.channel.type == ChannelType.GuildText && message.guild.id == this.client.config.guildId) {
+                await this.handleGuildMessage(message, link, urlFilter)
+                await this.handleActivity(message)
+            }
+            if (link) {
+                await this.handleLinks(message, link, urlFilter)
+            }
+        } catch (e) {
+            if (message.channel.type == ChannelType.GuildText && message.guild.id == this.client.config.guildId) {
+                await this.handleActivity(message)
+            }
         }
 
     }
