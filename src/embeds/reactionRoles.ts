@@ -2,15 +2,10 @@ import {
     CacheType,
     GuildMember,
     Interaction,
-    Message,
     ActionRowBuilder,
     ButtonBuilder,
-    SelectMenuBuilder,
-    SelectMenuInteraction,
-    Colors,
     EmbedBuilder,
     ButtonStyle,
-    ComponentType,
 } from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
@@ -44,76 +39,42 @@ export default class ReactionRolesEmbed extends Embed {
     }
 
     async onInteraction(interaction: Interaction<CacheType>, client: DiscordClient): Promise<void> {
-        if (interaction.isButton()) {
-            await interaction.deferReply({ ephemeral: true });
+        if (interaction.isSelectMenu()) {
+            await interaction.deferReply({ephemeral: true });
+            const user = interaction.member as GuildMember;
+            let roleUpdateLog = [],
+                addRole = await interaction.values;
             const roleObj = ReactionRoles.find(role => "roles/option/" + role.customId === interaction.customId);
             const roleObjRoles = roleObj.options.map(r => r.role);
-            const user = interaction.member as GuildMember;
-            if (!roleObj) return;
-            const embed = {
-                title: roleObj.embed.title,
-                description: roleObj.embed.description,
-                footer: {
-                    text: roleObj.type,
-                },
-            };
-            const selectMenu = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-                new SelectMenuBuilder()
-                    .addOptions(
-                        ...roleObj.options.map(option => ({
-                            label: option.name,
-                            emoji: option.emoji,
-                            value: option.role,
-                            default: user.roles.cache.has(option.role),
-                        }))
-                    )
-                    .setMaxValues(roleObj.max)
-                    .setMinValues(roleObj.min ?? 0)
-                    .setCustomId("roles/selection/" + roleObj.customId)
-            );
-            const message = (await interaction.editReply({
-                embeds: [embed],
-                components: [selectMenu],
-            })) as Message;
-
-            const roleSelectorFilter = (i: SelectMenuInteraction) => {
-                return i.user.id == user.id && i.customId.startsWith("roles/selection/");
-            };
-            const collector = message.createMessageComponentCollector({ componentType: ComponentType.SelectMenu, time: 60000, filter: roleSelectorFilter });
-            collector.on("collect", async (select: SelectMenuInteraction) => {
-                await select.deferReply({ ephemeral: true });
-                if (roleObj.type == "Multi Select") {
-                    const options = select.values;
-                    const removed = user.roles.cache.filter(role => !options.includes(role.id) && roleObjRoles.includes(role.id));
-                    removed.forEach(async role => await user.roles.remove(role));
-                    const added = options.filter(option => !user.roles.cache.has(option) && roleObjRoles.includes(option));
-                    added.forEach(async role => await user.roles.add(role));
-
-                    await select.editReply(`:heavy_minus_sign: ${removed.size > 0 ? removed.map(r => r.toString()).join(", ") : "None"}\n:heavy_plus_sign: ${added.length > 0 ? `<@&${added.map(r => r.toString()).join(">, <@&")}>` : "None"}`);
-                } else {
-                    let removed;
-                    roleObj.options.forEach(async option => {
-                        if (option.role == select.values[0]) {
-                            await user.roles.add(option.role);
-                        } else if (user.roles.cache.has(option.role)) {
-                            removed = option.role;
-                            await user.roles.remove(option.role);
-                        }
-                    });
-                    if (removed) {
-                        await select.editReply(`:heavy_minus_sign: ${removed}\n:heavy_plus_sign: ${select.values[0]}`);
-                    } else {
-                        await select.editReply(`:heavy_plus_sign: ${select.values[0]}`);
-                    }
-                }
-            });
-            collector.on("end", (collected: SelectMenuInteraction[], reason: string) => {
-                selectMenu.components[0].setDisabled(true);
-                interaction.editReply({
-                    content: "Session ended.",
-                    components: [selectMenu],
+            let removeAndFetch = () => {
+                /* Remove all roles from users that match the role type */
+                roleObjRoles.map(async (e) => {
+                    let role = await interaction.guild.roles.fetch(e);
+                    if (user.roles.cache.has(role?.id)) user.roles.remove(role.id).catch(e => console.log("Error removing role: " + e));
                 });
+                /* Get all role that user picks and exist in the server */
+                addRole.map(async (a) => {
+                    let role = await interaction.guild.roles.fetch(a);
+                    roleUpdateLog.push(role);
+                });
+            };
+            let giveRole = async () => {
+                /* Give all the role the user requested */
+                for (let i = 0; i < addRole.length; i++) {
+                    let role = await interaction.guild.roles.fetch(addRole[i]);
+                    if (!user.roles.cache.has(role?.id)) user.roles.add(role?.id).catch(e => console.log("Error adding role: " + e));
+                }
+            };
+            await removeAndFetch();
+            await giveRole();
+            interaction.editReply({
+                content: `You selected for this type \`${interaction.message.content
+                    }\`\n${roleUpdateLog.length > 0
+                        ? roleUpdateLog.join(", ")
+                        : "No Roles Selected"
+                    }`,
             });
+
         }
     }
 }

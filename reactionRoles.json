@@ -126,7 +126,7 @@
         "emoji": "💁‍♂️",
         "embed": {
             "title": "What pronouns do you use?",
-            "description": "Select your pronouns (Skip if you'd rather not disclose)."
+            "description": "Select your pronouns."
         },
         "type": "Multi Select",
         "options": [
