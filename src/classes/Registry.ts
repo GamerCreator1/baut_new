@@ -1,5 +1,5 @@
 import { Routes } from "discord-api-types/v9";
-import { Collection, Colors, PermissionsBitField, SlashCommandBuilder } from "discord.js";
+import { Collection, PermissionsBitField, SlashCommandBuilder } from "discord.js";
 import path from "path";
 import requireAll from "require-all";
 
@@ -7,10 +7,10 @@ import Logger from "@classes/Logger";
 import { REST } from "@discordjs/rest";
 import RegistryError from "@errors/RegistryError";
 import Command from "@structures/Command";
+import ContextMenu from "@structures/ContextMenu";
 import DiscordClient from "@structures/DiscordClient";
 import Embed from "@structures/Embed";
 import Event from "@structures/Event";
-import ContextMenu from "@structures/ContextMenu";
 import { isConstructor } from "@utils/functions";
 
 export default class Registry {
@@ -173,7 +173,7 @@ export default class Registry {
             const valid =
                 isConstructor(contextMenu, ContextMenu) ||
                 isConstructor(contextMenu.default, ContextMenu) ||
-                event instanceof ContextMenu ||
+                contextMenu instanceof ContextMenu ||
                 contextMenu.default instanceof ContextMenu;
             if (!valid) continue;
 
