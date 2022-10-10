@@ -40,7 +40,7 @@ export default class ReactionRolesEmbed extends Embed {
 
     async onInteraction(interaction: Interaction<CacheType>, client: DiscordClient): Promise<void> {
         if (interaction.isSelectMenu()) {
-            await interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ephemeral: true });
             const user = interaction.member as GuildMember;
             let roleUpdateLog = [],
                 addRole = await interaction.values;
@@ -50,7 +50,7 @@ export default class ReactionRolesEmbed extends Embed {
                 /* Remove all roles from users that match the role type */
                 roleObjRoles.map(async (e) => {
                     let role = await interaction.guild.roles.fetch(e);
-                    if (user.roles.cache.has(role?.id)) user.roles.remove(role.id);
+                    if (user.roles.cache.has(role?.id)) user.roles.remove(role.id).catch(e => console.log("Error removing role: " + e));
                 });
                 /* Get all role that user picks and exist in the server */
                 addRole.map(async (a) => {
@@ -62,8 +62,7 @@ export default class ReactionRolesEmbed extends Embed {
                 /* Give all the role the user requested */
                 for (let i = 0; i < addRole.length; i++) {
                     let role = await interaction.guild.roles.fetch(addRole[i]);
-                    console.log(role);
-                    if (!user.roles.cache.has(role?.id)) user.roles.add(role?.id);
+                    if (!user.roles.cache.has(role?.id)) user.roles.add(role?.id).catch(e => console.log("Error adding role: " + e));
                 }
             };
             await removeAndFetch();

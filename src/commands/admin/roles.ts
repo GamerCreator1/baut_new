@@ -21,6 +21,7 @@ export default class SayCommand extends Command {
     }
 
     async run(command: ChatInputCommandInteraction) {
+        await command.reply({ content: "Message sent!", ephemeral: true });
         ReactionRoles.map(role => {
             const selectMenu = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
                 new SelectMenuBuilder()
