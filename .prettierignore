@@ -1,2 +1,11 @@
 dist
-tsconfig.json
+node_modules
+.env
+yarn-error.log
+.env.dev
+package-lock.json
+.vscode
+.vscode/settings.json
+.vscode/extensions.json
+**/.DS_store
+.DS_store

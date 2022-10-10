@@ -13,11 +13,10 @@ export default class InteractionEvent extends Event {
         if (interaction.isContextMenuCommand()) {
             const command = this.client.registry.findContextMenu(interaction.commandName);
             if (!command) return;
-            await interaction.deferReply({ ephemeral: true })
+            await interaction.deferReply({ ephemeral: true });
             await command.onInteraction(interaction as ContextMenuCommandInteraction, this.client);
             return;
-        }
-        else if (interaction.isChatInputCommand()) return await CommandHandler.handleCommand(this.client, interaction as ChatInputCommandInteraction);
+        } else if (interaction.isChatInputCommand()) return await CommandHandler.handleCommand(this.client, interaction as ChatInputCommandInteraction);
         else if (interaction.type == InteractionType.ApplicationCommandAutocomplete) return CommandHandler.handleAutocomplete(this.client, interaction);
         else if (interaction.type == InteractionType.MessageComponent) {
             const id = interaction.customId;
@@ -30,14 +29,14 @@ export default class InteractionEvent extends Event {
                     }
                 }
             });
-        }
-        else {
+        } else {
             await interaction.reply({
                 embeds: [
                     {
                         color: Colors.Red,
                         title: "🚨 Unknown Interaction",
-                        description: "I'll be honest...I have no clue what you just tried to do. Might be because I don't support that interaction yet, or my bot developer, Neesh, screwed up.",
+                        description:
+                            "I'll be honest...I have no clue what you just tried to do. Might be because I don't support that interaction yet, or my bot developer, Neesh, screwed up.",
                     },
                 ],
                 ephemeral: true,

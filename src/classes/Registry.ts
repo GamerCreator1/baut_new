@@ -170,7 +170,11 @@ export default class Registry {
         });
 
         for (let contextMenu of contextMenus) {
-            const valid = isConstructor(contextMenu, ContextMenu) || isConstructor(contextMenu.default, ContextMenu) || event instanceof ContextMenu || contextMenu.default instanceof ContextMenu;
+            const valid =
+                isConstructor(contextMenu, ContextMenu) ||
+                isConstructor(contextMenu.default, ContextMenu) ||
+                event instanceof ContextMenu ||
+                contextMenu.default instanceof ContextMenu;
             if (!valid) continue;
 
             if (isConstructor(contextMenu, ContextMenu)) contextMenu = new contextMenu(this.client);

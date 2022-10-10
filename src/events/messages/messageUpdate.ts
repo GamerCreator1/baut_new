@@ -36,12 +36,13 @@ export default class MessageUpdateEvent extends Event {
         if (oldMessage.attachments.size !== newMessage.attachments.size) {
             embed.fields.push({
                 name: "Old Attachments",
-                value: oldMessage.attachments.size > 0
-                    ? oldMessage.attachments
-                        .mapValues(value => value.url)
-                        .toJSON()
-                        .join("\n")
-                    : "None",
+                value:
+                    oldMessage.attachments.size > 0
+                        ? oldMessage.attachments
+                              .mapValues(value => value.url)
+                              .toJSON()
+                              .join("\n")
+                        : "None",
                 inline: true,
             });
             embed.fields.push({
@@ -49,9 +50,9 @@ export default class MessageUpdateEvent extends Event {
                 value:
                     newMessage.attachments.size > 0
                         ? newMessage.attachments
-                            .mapValues(value => value.url)
-                            .toJSON()
-                            .join("\n")
+                              .mapValues(value => value.url)
+                              .toJSON()
+                              .join("\n")
                         : "None",
                 inline: true,
             });

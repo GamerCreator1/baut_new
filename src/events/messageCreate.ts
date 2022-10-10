@@ -53,23 +53,23 @@ export default class MessageEvent extends Event {
             const channel = await message.guild.channels.fetch(channelId);
             if (channel) {
                 const linkedMsg = await (channel as TextChannel | DMChannel | ThreadChannel).messages.fetch(messageId);
-                const validMessageTypes = [MessageType.Default, MessageType.Reply, MessageType.ThreadStarterMessage]
-                console.log(linkedMsg.type)
+                const validMessageTypes = [MessageType.Default, MessageType.Reply, MessageType.ThreadStarterMessage];
+                console.log(linkedMsg.type);
                 if (linkedMsg && validMessageTypes.includes(linkedMsg.type)) {
                     const embed = new EmbedBuilder()
                         .setTitle("Message Link")
                         .setURL(linkedMsg.url)
                         .setAuthor({
                             name: linkedMsg.author.tag,
-                            iconURL: linkedMsg.author.displayAvatarURL()
+                            iconURL: linkedMsg.author.displayAvatarURL(),
                         })
                         .setColor(process.env.BUILDERGROOP_COLOR as ColorResolvable)
                         .setDescription(linkedMsg.content)
                         .setTimestamp(linkedMsg.createdAt)
                         .setFooter({
-                            text: `#${(channel as TextChannel).name}`
+                            text: `#${(channel as TextChannel).name}`,
                         })
-                        .setImage(linkedMsg.attachments.first()?.url)
+                        .setImage(linkedMsg.attachments.first()?.url);
                     await message.channel.send({ embeds: [embed], reply: { messageReference: message.id } });
                 }
             }
@@ -97,68 +97,66 @@ export default class MessageEvent extends Event {
     }
 
     async handleActivity(message: Message) {
-        const ignoredChannels = await this.client.db.settings.findUnique({ where: { name: "activity_ignored" } })
+        const ignoredChannels = await this.client.db.settings.findUnique({ where: { name: "activity_ignored" } });
         if (ignoredChannels && ignoredChannels.value.includes(message.channel.id)) return;
         const user = await this.client.db.member.findFirst({
             where: {
                 userId: message.author.id,
-            }
-        })
+            },
+        });
 
         if (!user) {
             await this.client.db.member.upsert({
                 where: {
-                    userId: message.author.id
+                    userId: message.author.id,
                 },
                 create: {
                     userId: message.author.id,
                     messages: [new Date(message.createdTimestamp).toISOString()],
                 },
                 update: {
-                    messages: [new Date(message.createdTimestamp).toISOString()]
-                }
-            })
-        }
-        else {
-            const timeout = await this.client.db.settings.findUnique({ where: { name: "activity_timeout" } }) // in minutes
-            const lastMessage = new Date(user.messages[user.messages.length - 1])
-            const now = new Date()
-            if (now.getTime() - lastMessage.getTime() < (parseInt(timeout?.value) * 60000)) {
+                    messages: [new Date(message.createdTimestamp).toISOString()],
+                },
+            });
+        } else {
+            const timeout = await this.client.db.settings.findUnique({ where: { name: "activity_timeout" } }); // in minutes
+            const lastMessage = new Date(user.messages[user.messages.length - 1]);
+            const now = new Date();
+            if (now.getTime() - lastMessage.getTime() < parseInt(timeout?.value) * 60000) {
                 return;
             }
 
-            user.messages.filter(msg => new Date(msg).getTime() > new Date().getTime() - 48 * 60 * 60 * 60 * 1000)
-            user.messages.push(new Date(message.createdTimestamp).toISOString())
+            user.messages.filter(msg => new Date(msg).getTime() > new Date().getTime() - 48 * 60 * 60 * 60 * 1000);
+            user.messages.push(new Date(message.createdTimestamp).toISOString());
             await this.client.db.member.update({
                 where: {
-                    userId: message.author.id
+                    userId: message.author.id,
                 },
                 data: {
-                    messages: user.messages
-                }
-            })
+                    messages: user.messages,
+                },
+            });
             const { value } = await this.client.db.settings.findUnique({
                 where: {
-                    name: "activity_threshold"
-                }
-            })
+                    name: "activity_threshold",
+                },
+            });
             if (value && user.messages.length >= parseInt(value)) {
                 const activityRole = await this.client.db.settings.findUnique({
                     where: {
-                        name: "activity_role"
-                    }
-                })
+                        name: "activity_role",
+                    },
+                });
                 if (activityRole) {
                     const role = await message.guild.roles.fetch(activityRole.value);
                     if (role) {
                         await message.member.roles.add(role);
-                    }
-                    else {
+                    } else {
                         await this.client.db.settings.delete({
                             where: {
-                                name: "activity_role"
-                            }
-                        })
+                                name: "activity_role",
+                            },
+                        });
                     }
                 }
             }
@@ -173,12 +171,11 @@ export default class MessageEvent extends Event {
         const url = urlFilter.exec(message.content);
         const link = url && url.length > 0 && url[0].length >= 4 ? new URL(url[0]) : null;
         if (message.channel.type == ChannelType.GuildText && message.guild.id == this.client.config.guildId) {
-            await this.handleGuildMessage(message, link, urlFilter)
-            await this.handleActivity(message)
+            await this.handleGuildMessage(message, link, urlFilter);
+            await this.handleActivity(message);
         }
         if (link) {
-            await this.handleLinks(message, link, urlFilter)
+            await this.handleLinks(message, link, urlFilter);
         }
-
     }
 }

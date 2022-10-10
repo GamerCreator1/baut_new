@@ -1,12 +1,4 @@
-import {
-    CacheType,
-    GuildMember,
-    Interaction,
-    ActionRowBuilder,
-    ButtonBuilder,
-    EmbedBuilder,
-    ButtonStyle,
-} from "discord.js";
+import { CacheType, GuildMember, Interaction, ActionRowBuilder, ButtonBuilder, EmbedBuilder, ButtonStyle } from "discord.js";
 
 import DiscordClient from "@structures/DiscordClient";
 import Embed from "@structures/Embed";
@@ -40,7 +32,7 @@ export default class ReactionRolesEmbed extends Embed {
 
     async onInteraction(interaction: Interaction<CacheType>, client: DiscordClient): Promise<void> {
         if (interaction.isSelectMenu()) {
-            await interaction.deferReply({ephemeral: true });
+            await interaction.deferReply({ ephemeral: true });
             const user = interaction.member as GuildMember;
             let roleUpdateLog = [],
                 addRole = await interaction.values;
@@ -48,12 +40,12 @@ export default class ReactionRolesEmbed extends Embed {
             const roleObjRoles = roleObj.options.map(r => r.role);
             let removeAndFetch = () => {
                 /* Remove all roles from users that match the role type */
-                roleObjRoles.map(async (e) => {
+                roleObjRoles.map(async e => {
                     let role = await interaction.guild.roles.fetch(e);
                     if (user.roles.cache.has(role?.id)) user.roles.remove(role.id).catch(e => console.log("Error removing role: " + e));
                 });
                 /* Get all role that user picks and exist in the server */
-                addRole.map(async (a) => {
+                addRole.map(async a => {
                     let role = await interaction.guild.roles.fetch(a);
                     roleUpdateLog.push(role);
                 });
@@ -68,13 +60,8 @@ export default class ReactionRolesEmbed extends Embed {
             await removeAndFetch();
             await giveRole();
             interaction.editReply({
-                content: `You selected for this type \`${interaction.message.content
-                    }\`\n${roleUpdateLog.length > 0
-                        ? roleUpdateLog.join(", ")
-                        : "No Roles Selected"
-                    }`,
+                content: `You selected for this type \`${interaction.message.content}\`\n${roleUpdateLog.length > 0 ? roleUpdateLog.join(", ") : "No Roles Selected"}`,
             });
-
         }
     }
 }

@@ -7,4 +7,5 @@ package-lock.json
 .vscode
 .vscode/settings.json
 .vscode/extensions.json
-yarn.lock
+**/.DS_store
+.DS_store
